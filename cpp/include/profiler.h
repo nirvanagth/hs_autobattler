@@ -8,7 +8,9 @@
 // В конце прогона вызови g_profiler.dump() / получи через pybind get_profile_data().
 
 #include <cstdint>
+#if defined(__x86_64__) || defined(_M_X64)
 #include <x86intrin.h>
+#endif
 
 enum class ProfSection : int {
     RESOLVE_COMBAT = 0,

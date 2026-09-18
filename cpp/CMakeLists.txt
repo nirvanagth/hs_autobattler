@@ -37,9 +37,11 @@ if(HS_PROFILE_COMBAT)
     target_compile_definitions(hs_engine_cpp PRIVATE PROFILE_COMBAT)
 endif()
 
-# Compiler flags
+# Compiler flags (-mbmi2/-mpopcnt are x86-only; ARM64 has popcount in the base ISA)
 if(MSVC)
     target_compile_options(hs_engine_cpp PRIVATE /O2 /W4)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64|ARM64|AARCH64")
+    target_compile_options(hs_engine_cpp PRIVATE -O2 -g -Wall -Wextra)
 else()
     target_compile_options(hs_engine_cpp PRIVATE -O2 -g -Wall -Wextra -mbmi2 -mpopcnt)
 endif()

@@ -15,7 +15,8 @@ import sys
 import pytest
 
 sys.path.insert(0, "cpp/build")
-os.add_dll_directory(r"C:\msys64\mingw64\bin")
+if hasattr(os, "add_dll_directory"):  # Windows only; no-op on macOS/Linux
+    os.add_dll_directory(r"C:\msys64\mingw64\bin")
 import hs_engine_cpp as cpp_engine
 
 cpp_engine.register_all_effects()

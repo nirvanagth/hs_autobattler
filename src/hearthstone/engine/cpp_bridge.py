@@ -32,18 +32,16 @@ TAG_TO_BIT: dict[Tags, int] = {
 
 # =============================================================
 # CardIDs (Python str) → C++ int16_t
-# Rules (mirror cpp/include/types.h CardID namespace):
+# Rules (mirror card_id_to_cpp_int in scripts/generate_cpp_effects.py):
 #   - Numeric IDs ("101", "207") → int(value)
-#   - Token IDs ("102t", "103t")  → 900 + sequential index
+#   - Token IDs ("t001", "t002") → 900 + int(id[1:])
 # Unknown / unmatchable → excluded (will map to 0 at lookup).
 # =============================================================
-_next_token_id = 901
 CARD_ID_MAP: dict[str, int] = {}
 for _card in CardIDs:
     _val: str = _card.value
-    if _val.endswith("t"):
-        CARD_ID_MAP[_card] = _next_token_id
-        _next_token_id += 1
+    if _val.startswith("t"):
+        CARD_ID_MAP[_card] = 900 + int(_val[1:])
     else:
         try:
             CARD_ID_MAP[_card] = int(_val)

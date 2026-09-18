@@ -17,7 +17,25 @@
 #include "event_system.h"
 #include "generated_card_db.h"
 #include "profiler.h"
+
+#if defined(__x86_64__) || defined(_M_X64)
 #include <immintrin.h>
+#else
+// Portable fallback for the x86-only BMI2 _pdep_u32 intrinsic.
+// Deposits bits from src into the set-bit positions of mask.
+static inline uint32_t portable_pdep_u32(uint32_t src, uint32_t mask) {
+    uint32_t result = 0;
+    uint32_t src_bit = 1;
+    while (mask) {
+        uint32_t lsb = mask & (uint32_t)(-(int32_t)mask);
+        if (src & src_bit) result |= lsb;
+        mask ^= lsb;
+        src_bit <<= 1;
+    }
+    return result;
+}
+#define _pdep_u32 portable_pdep_u32
+#endif
 
 // ============================================================
 // Event-emit helpers.

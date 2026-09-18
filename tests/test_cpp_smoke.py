@@ -6,7 +6,8 @@ Tests basic combat scenarios to verify correctness.
 import sys, os
 
 sys.path.insert(0, "cpp/build")
-os.add_dll_directory(r"C:\msys64\mingw64\bin")
+if hasattr(os, "add_dll_directory"):  # Windows only; no-op on macOS/Linux
+    os.add_dll_directory(r"C:\msys64\mingw64\bin")
 
 import hs_engine_cpp as engine
 

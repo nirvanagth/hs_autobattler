@@ -81,24 +81,25 @@ class TestMappings:
 class TestUnitConversion:
     def test_basic_unit(self):
         """Convert a simple unit to C++ tuple."""
-        u = Unit.create_from_db(CardIDs.SCALLYWAG, uid=1, owner_id=0)
+        # NOTE: SCALLYWAG was removed from the card DB; MINTED_CORSAIR is the tier-1 pirate now.
+        u = Unit.create_from_db(CardIDs.MINTED_CORSAIR, uid=1, owner_id=0)
         t = CombatManager._unit_to_cpp(u)
         card_id, atk, hp, types, tags, tier, golden = t
-        assert card_id == 103  # Scallywag
-        assert atk == 3
-        assert hp == 1
+        assert card_id == 109  # Minted Corsair
+        assert atk == 1
+        assert hp == 3
         assert types == TYPE_TO_BIT[UnitType.PIRATE]
         assert tier == 1
         assert golden is False
 
     def test_golden_unit(self):
         """Golden unit should have doubled stats and golden=True."""
-        u = Unit.create_from_db(CardIDs.SCALLYWAG, uid=1, owner_id=0, is_golden=True)
+        u = Unit.create_from_db(CardIDs.MINTED_CORSAIR, uid=1, owner_id=0, is_golden=True)
         t = CombatManager._unit_to_cpp(u)
         card_id, atk, hp, types, tags, tier, golden = t
-        assert card_id == 103
-        assert atk == 6  # doubled
-        assert hp == 2   # doubled
+        assert card_id == 109
+        assert atk == 2  # doubled
+        assert hp == 6   # doubled
         assert golden is True
 
     def test_unit_with_tags(self):
@@ -122,8 +123,8 @@ class TestFastCombat:
 
     def test_basic_1v1(self):
         """1v1 combat should produce WIN, LOSE, or DRAW."""
-        u0 = Unit.create_from_db(CardIDs.SCALLYWAG, uid=1, owner_id=0)
-        u1 = Unit.create_from_db(CardIDs.ALLEYCAT, uid=2, owner_id=1)
+        u0 = Unit.create_from_db(CardIDs.MINTED_CORSAIR, uid=1, owner_id=0)
+        u1 = Unit.create_from_db(CardIDs.SURF_N_SURF, uid=2, owner_id=1)  # was ALLEYCAT, removed from DB
         p0 = self._make_player([u0], uid=0)
         p1 = self._make_player([u1], uid=1)
         cm = CombatManager()
@@ -148,7 +149,8 @@ class TestFastCombat:
 
         for seed in range(N):
             random.seed(seed)
-            u0 = Unit.create_from_db(CardIDs.IMPRISONER, uid=100, owner_id=0)
+            # NOTE: IMPRISONER was removed from the card DB; RISEN_RIDER is a vanilla taunt now.
+            u0 = Unit.create_from_db(CardIDs.RISEN_RIDER, uid=100, owner_id=0)
             u1 = Unit.create_from_db(CardIDs.ANNOY_O_TRON, uid=200, owner_id=1)
             p0_cpp = self._make_player([u0], uid=0, tavern_tier=2)
             p1_cpp = self._make_player([u1], uid=1, tavern_tier=2)
@@ -160,7 +162,7 @@ class TestFastCombat:
 
         for seed in range(N):
             random.seed(seed)
-            u0 = Unit.create_from_db(CardIDs.IMPRISONER, uid=100, owner_id=0)
+            u0 = Unit.create_from_db(CardIDs.RISEN_RIDER, uid=100, owner_id=0)
             u1 = Unit.create_from_db(CardIDs.ANNOY_O_TRON, uid=200, owner_id=1)
             p0_py = self._make_player([u0], uid=0, tavern_tier=2)
             p1_py = self._make_player([u1], uid=1, tavern_tier=2)
