@@ -162,15 +162,21 @@ class DecomposedEncoder(nn.Module):
     _CARD_ID_IDX = 2
     _CONTINUOUS_IDX = [3, 4, 6, 7]           # cost, tier, ATK, HP
     _BINARY_IDX = [0, 1, 5] + list(range(8, 26))
-    _TYPE_IDX = list(range(26, 37))
 
-    def __init__(self, d_model: int, max_teams: int = 5, num_card_ids: int = 300):
+    def __init__(
+        self,
+        d_model: int,
+        max_teams: int = 5,
+        num_card_ids: int = 300,
+        n_type_features: int = 11,
+    ):
         super().__init__()
+        self.type_idx = list(range(26, 26 + n_type_features))
         d_card = d_model // 2
         self.emb_card = nn.Embedding(num_card_ids, d_card, padding_idx=0)
         self.proj_continuous = nn.Linear(len(self._CONTINUOUS_IDX), d_model)
         self.proj_binary = nn.Linear(len(self._BINARY_IDX), d_model)
-        self.proj_types = nn.Linear(len(self._TYPE_IDX), d_model)
+        self.proj_types = nn.Linear(len(self.type_idx), d_model)
         self.proj_card = nn.Linear(d_card, d_model)
         self.emb_team = nn.Embedding(max_teams, d_model)
 
@@ -180,7 +186,7 @@ class DecomposedEncoder(nn.Module):
             self.proj_card(self.emb_card(card_ids))
             + self.proj_continuous(val[..., self._CONTINUOUS_IDX])
             + self.proj_binary(val[..., self._BINARY_IDX])
-            + self.proj_types(val[..., self._TYPE_IDX])
+            + self.proj_types(val[..., self.type_idx])
             + self.emb_team(team_id)
         )
         return x
@@ -211,6 +217,106 @@ class FiLM(nn.Module):
         return x * (gamma.unsqueeze(1) + 1.0) + beta.unsqueeze(1)
 
 
+class EntityPointerHead(nn.Module):
+    """Score each entity token conditioned on the pooled game state.
+
+    The same scorer is applied to every slot, so permuting Tavern or hand
+    entities permutes the corresponding logits instead of destroying the
+    entity-to-action association during pooling.
+    """
+
+    def __init__(self, d_model: int):
+        super().__init__()
+        self.token_proj = nn.Linear(d_model, d_model, bias=False)
+        self.context_proj = nn.Linear(d_model, d_model, bias=False)
+        self.out = nn.Linear(d_model, 1)
+        nn.init.zeros_(self.out.weight)
+        nn.init.zeros_(self.out.bias)
+
+    def forward(self, tokens: torch.Tensor, context: torch.Tensor) -> torch.Tensor:
+        hidden = torch.tanh(
+            self.token_proj(tokens) + self.context_proj(context).unsqueeze(1)
+        )
+        return self.out(hidden).squeeze(-1)
+
+
+class AdjacentPairPointerHead(nn.Module):
+    """Score adjacent board pairs for the six SWAP actions."""
+
+    def __init__(self, d_model: int):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(3 * d_model, d_model),
+            nn.ReLU(),
+            nn.Linear(d_model, 1),
+        )
+        nn.init.zeros_(self.mlp[-1].weight)
+        nn.init.zeros_(self.mlp[-1].bias)
+
+    def forward(self, board: torch.Tensor, context: torch.Tensor) -> torch.Tensor:
+        left = board[:, :-1]
+        right = board[:, 1:]
+        global_context = context.unsqueeze(1).expand(-1, left.shape[1], -1)
+        return self.mlp(torch.cat([left, right, global_context], dim=-1)).squeeze(-1)
+
+
+class PointerActor(nn.Module):
+    """Factorized actor matching entity slots to their discrete actions."""
+
+    def __init__(self, d_model: int):
+        super().__init__()
+        self.global_head = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.ReLU(),
+            nn.Linear(d_model, 4),  # END, ROLL, UPGRADE, FREEZE
+        )
+        self.select_store = EntityPointerHead(d_model)
+        self.select_board = EntityPointerHead(d_model)
+        self.select_discover = EntityPointerHead(d_model)
+        self.sell_board = EntityPointerHead(d_model)
+        self.play_hand = EntityPointerHead(d_model)
+        self.swap_board = AdjacentPairPointerHead(d_model)
+        nn.init.zeros_(self.global_head[-1].weight)
+        nn.init.zeros_(self.global_head[-1].bias)
+
+    def forward(
+        self,
+        pooled: torch.Tensor,
+        entity_tokens: torch.Tensor,
+        is_discovering: torch.Tensor,
+        is_targeting: torch.Tensor,
+    ) -> torch.Tensor:
+        board = entity_tokens[:, 0:7]
+        hand = entity_tokens[:, 7:17]
+        store = entity_tokens[:, 17:24]
+        discover = entity_tokens[:, 24:27]
+
+        global_logits = self.global_head(pooled)
+        store_logits = self.select_store(store, pooled)
+        board_target_logits = self.select_board(board, pooled)
+        discover_logits = self.select_discover(discover, pooled)
+        discover_logits = F.pad(discover_logits, (0, 4), value=-1e8)
+
+        select_logits = torch.where(
+            is_targeting.unsqueeze(1), board_target_logits, store_logits
+        )
+        select_logits = torch.where(
+            is_discovering.unsqueeze(1), discover_logits, select_logits
+        )
+
+        return torch.cat(
+            [
+                global_logits[:, 0:2],
+                select_logits,
+                self.sell_board(board, pooled),
+                self.play_hand(hand, pooled),
+                self.swap_board(board, pooled),
+                global_logits[:, 2:4],
+            ],
+            dim=-1,
+        )
+
+
 # ============================================================
 # Full Agent
 # ============================================================
@@ -239,12 +345,20 @@ class HSTransformerAgent(nn.Module):
         pma_seeds: int = 4,
         actor_hidden: int = 128,
         critic_hidden: int = 128,
+        actor_type: str = "flat",
     ):
         super().__init__()
+        if actor_type not in {"flat", "pointer"}:
+            raise ValueError(f"unsupported actor_type: {actor_type}")
         self.d_model = d_model
+        self.actor_type = actor_type
 
         # Encoder
-        self.encoder = DecomposedEncoder(d_model, num_card_ids=num_card_ids)
+        self.encoder = DecomposedEncoder(
+            d_model,
+            num_card_ids=num_card_ids,
+            n_type_features=12 if actor_type == "pointer" else 11,
+        )
         self.film = FiLM(d_context, d_model)
         self.global_ctx_proj = nn.Sequential(
             nn.Linear(d_context, d_model), nn.SiLU(), nn.Linear(d_model, d_model),
@@ -255,19 +369,30 @@ class HSTransformerAgent(nn.Module):
         self.ln_f = RMSNorm(d_model)
         self.pma = PMA(d_model, n_heads, k_seeds=pma_seeds)
 
-        # Actor head
-        self.actor = nn.Sequential(
-            nn.Linear(d_model, actor_hidden), nn.ReLU(),
-            nn.Linear(actor_hidden, n_actions),
-        )
+        # Actor head. ``flat`` remains available for loading historical
+        # checkpoints; new training should use the entity-aligned pointer head.
+        if actor_type == "flat":
+            self.actor = nn.Sequential(
+                nn.Linear(d_model, actor_hidden), nn.ReLU(),
+                nn.Linear(actor_hidden, n_actions),
+            )
+            self.pointer_actor = None
+            self.board_position = None
+        else:
+            if n_actions != 34:
+                raise ValueError("pointer actor currently requires the 34-action schema")
+            self.actor = None
+            self.pointer_actor = PointerActor(d_model)
+            self.board_position = nn.Embedding(7, d_model)
         # Critic head (categorical two-hot, 255 bins)
         self.critic = nn.Sequential(
             nn.Linear(d_model, critic_hidden), nn.ReLU(),
             nn.Linear(critic_hidden, NUM_BINS),
         )
         # Zero-init output layers (DreamerV3 trick)
-        nn.init.zeros_(self.actor[-1].weight)
-        nn.init.zeros_(self.actor[-1].bias)
+        if self.actor is not None:
+            nn.init.zeros_(self.actor[-1].weight)
+            nn.init.zeros_(self.actor[-1].bias)
         nn.init.zeros_(self.critic[-1].weight)
         nn.init.zeros_(self.critic[-1].bias)
 
@@ -294,8 +419,10 @@ class HSTransformerAgent(nn.Module):
         context = torch.cat([global_vec, enemy_vec], dim=-1)
         return val, team_id, context
 
-    def _encode(self, flat: torch.Tensor) -> torch.Tensor:
-        """Flat obs → pooled features [B, d_model]."""
+    def _encode_with_tokens(
+        self, flat: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Flat obs → (pooled features, contextual entity tokens)."""
         val, team_id, context = self._parse_obs(flat)
 
         # Symlog continuous features, preserve card_id
@@ -304,6 +431,9 @@ class HSTransformerAgent(nn.Module):
         val[..., 2] = card_ids
 
         x = self.encoder(val, team_id)
+        if self.board_position is not None:
+            board_positions = torch.arange(7, device=x.device)
+            x[:, :7] = x[:, :7] + self.board_position(board_positions).unsqueeze(0)
         x = self.film(x, context)
 
         # Prepend [GLOBAL_CTX] token
@@ -319,7 +449,13 @@ class HSTransformerAgent(nn.Module):
             x = block(x, mask=pad_mask)
         x = self.ln_f(x)
 
-        return self.pma(x, mask=pad_mask)
+        pooled = self.pma(x, mask=pad_mask)
+        return pooled, x[:, 1:]
+
+    def _encode(self, flat: torch.Tensor) -> torch.Tensor:
+        """Flat obs → pooled features [B, d_model]."""
+        pooled, _ = self._encode_with_tokens(flat)
+        return pooled
 
     def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Returns (action_logits [B, 34], value_logits [B, 255]).
@@ -328,8 +464,18 @@ class HSTransformerAgent(nn.Module):
         critic head only, not shared representations. Prevents value-target
         noise from corrupting the actor's view of the board.
         """
-        features = self._encode(obs)
-        return self.actor(features), self.critic(features.detach())
+        features, entity_tokens = self._encode_with_tokens(obs)
+        if self.pointer_actor is None:
+            assert self.actor is not None
+            action_logits = self.actor(features)
+        else:
+            action_logits = self.pointer_actor(
+                features,
+                entity_tokens,
+                is_discovering=obs[:, 5] > 0.5,
+                is_targeting=obs[:, 6] > 0.5,
+            )
+        return action_logits, self.critic(features.detach())
 
     def get_action_and_value(
         self,

@@ -17,6 +17,7 @@ from hearthstone.engine.enums import UnitType
 from hearthstone.engine.event_system import EventType
 from hearthstone.engine.game import Game
 from hearthstone.engine.spells import SPELLS_REQUIRE_TARGET
+from hearthstone.env.card_vocab import LEGACY_SORTED, build_card_vocabulary
 from hearthstone.env.es_bot import es_bot_turn
 from hearthstone.env.ghost_pool import BoardSnapshot, GhostPool
 from hearthstone.env.smart_bot import smart_bot_turn
@@ -49,15 +50,19 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
     26: 0<->1, 27: 1<->2 ... 31: 5<->6
     """
 
-    def __init__(self, max_tier: int = 6) -> None:
+    def __init__(self, max_tier: int = 6, card_vocab_scheme: str = LEGACY_SORTED) -> None:
         super(HearthstoneEnv, self).__init__()
 
         self._max_tier = max_tier
 
-        all_ids = sorted(list(CARD_DB.keys()) + list(SPELL_DB.keys()))
-
-        self.static_id_map = {cid: i + 1 for i, cid in enumerate(all_ids)}
-        self.num_card_ids = len(all_ids) + 1  # +1 for padding id 0
+        all_ids = list(CARD_DB.keys()) + list(SPELL_DB.keys())
+        self.card_vocab_scheme = card_vocab_scheme
+        (
+            self.static_id_map,
+            self.num_card_ids,
+            self.card_id_vocabulary,
+            self.card_vocab_hash,
+        ) = build_card_vocabulary(all_ids, card_vocab_scheme)
 
         self.game = Game(max_tier=max_tier)
         self.my_player_id = 0

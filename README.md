@@ -20,7 +20,7 @@ HSTransformerAgent (scripts/model.py)
   - FiLM global context modulation
   - GTrXL gated residual blocks
   - PMA multi-seed aggregation
-  - actor logits + symlog two-hot categorical critic
+  - entity-aligned pointer actor + symlog two-hot categorical critic
     |
 CleanRL-style PPO (scripts/train_ppo.py)
   - AsyncVectorEnv
@@ -37,10 +37,11 @@ longer the primary training route.
 
 * **200+ cards** through the declarative `CardDef` system and generated C++ effects.
 * **Rewritten C++ combat engine** with pybind11 bindings and a batched numpy path. Current benchmarks are ~90-95k combats/sec on complex cases and 270k+ combats/sec on simple cases, about **800x faster than the pure Python combat baseline**; Python combat remains the fallback.
-* **Standalone transformer agent** in `scripts/model.py`, with no SB3 dependency.
+* **Standalone transformer agent** in `scripts/model.py`, with an entity-aligned
+  pointer actor for buy/sell/play/target actions and a legacy flat actor loader.
 * **Categorical critic** using DreamerV3-style symlog two-hot targets over 255 bins.
 * **Critic-detached encoder path** so value loss updates the critic head without corrupting actor representations.
-* **ES Bot v2** in `src/hearthstone/env/es_bot.py`: 23 evolved weights, Hall of Fame support in `scripts/evolve_bot.py`, and saved weights expected at `artifacts/es_kaggle/artifacts/best.npz`.
+* **ES Bot v2** in `src/hearthstone/env/es_bot.py`: 23 evolved weights, Hall of Fame support in `scripts/evolve_bot.py`, and saved weights expected at `artifacts/es_bot/best.npz`.
 * **Behavior cloning infrastructure** via `scripts/bc_collect.py` and `scripts/bc_train.py`.
 * **Kaggle PPO submission flow** in `scripts/kaggle_submit_ppo.py`, with optional BC collection/train before PPO.
 * **Ghost pool and MC Oracle infrastructure** in the environment. MC Oracle code is present, but the current CleanRL reward path is still round outcome + terminal reward; dense oracle reward is tracked as follow-up work in theory docs.
@@ -110,16 +111,17 @@ cmake --build cpp/build
 
 ```bash
 # Evolve ES bot weights
-python scripts/evolve_bot.py --generations 500 --out-dir artifacts/es_kaggle/artifacts
+python scripts/evolve_bot.py --generations 500 --out-dir artifacts/es_bot
 
 # Collect behavior-cloning data from ES bot
-python scripts/bc_collect.py --episodes 5000 --weights artifacts/es_kaggle/artifacts/best.npz
+python scripts/bc_collect.py --episodes 5000 --weights artifacts/es_bot/best.npz
 
 # Train BC actor checkpoint
-python scripts/bc_train.py --epochs 15 --batch-size 512
+python scripts/bc_train.py --epochs 15 --batch-size 512 --actor-type pointer
 
 # Fine-tune with PPO from BC checkpoint
-python scripts/train_ppo.py --resume artifacts/bc/bc_pretrain.pt --total-timesteps 5000000
+python scripts/train_ppo.py --resume artifacts/bc/bc_pretrain.pt \
+  --actor-type pointer --total-timesteps 5000000
 
 # Submit BC + PPO pipeline to Kaggle
 python scripts/kaggle_submit_ppo.py
@@ -153,7 +155,7 @@ legacy SB3 path.
 
 **Next:**
 
-- [ ] Run BC pretrain on the current ES weights and compare PPO from BC vs PPO from scratch.
+- [ ] Recollect episode-aware BC data and compare pointer PPO from BC vs scratch.
 - [ ] Wire ghost pool curriculum into the current CleanRL PPO path.
 - [ ] Decide whether MC Oracle dense reward should be enabled in the current reward function.
 - [ ] Revisit Battle Predictor only if C++ MC Oracle becomes the bottleneck or COMBAT_CTX is needed.

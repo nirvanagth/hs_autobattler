@@ -11,6 +11,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import random
 import sys
@@ -35,6 +36,15 @@ from model import (
     decode_value,
 )
 from hearthstone.env.hs_env import HearthstoneEnv
+from hearthstone.env.card_vocab import CARD_VOCAB_SCHEMES, STABLE_V1
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 # ============================================================
@@ -45,7 +55,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     # Training
     p.add_argument("--total-timesteps", type=int, default=5_000_000)
-    p.add_argument("--lr", type=float, default=3e-4)
+    p.add_argument("--lr", type=float, default=1e-4)
     p.add_argument("--gamma", type=float, default=0.999)
     p.add_argument("--gae-lambda", type=float, default=0.95)
     p.add_argument("--clip-coef", type=float, default=0.2)
@@ -58,14 +68,23 @@ def parse_args() -> argparse.Namespace:
     # Rollout
     p.add_argument("--n-envs", type=int, default=8)
     p.add_argument("--n-steps", type=int, default=2048)
-    p.add_argument("--n-minibatches", type=int, default=4)
+    p.add_argument("--n-minibatches", type=int, default=16)
     p.add_argument("--update-epochs", type=int, default=4)
     # Model
     p.add_argument("--d-model", type=int, default=128)
     p.add_argument("--n-heads", type=int, default=4)
     p.add_argument("--n-layers", type=int, default=4)
+    p.add_argument("--actor-type", choices=("flat", "pointer"), default="pointer")
     # Env
     p.add_argument("--max-tier", type=int, default=6)
+    p.add_argument(
+        "--card-vocab-scheme", choices=CARD_VOCAB_SCHEMES, default=STABLE_V1
+    )
+    p.add_argument(
+        "--opponent-mode", choices=("smart", "es", "mixed"), default="mixed"
+    )
+    p.add_argument("--es-weights", default="artifacts/es_bot/best.npz")
+    p.add_argument("--es-ratio", type=float, default=0.5)
     p.add_argument("--seed", type=int, default=42)
     # Logging
     p.add_argument("--wandb", action="store_true")
@@ -87,9 +106,17 @@ def parse_args() -> argparse.Namespace:
 # Environment
 # ============================================================
 
-def make_env(rank: int, seed: int, max_tier: int):
+def make_env(
+    rank: int,
+    seed: int,
+    max_tier: int,
+    card_vocab_scheme: str,
+    es_weights: np.ndarray | None = None,
+):
     def thunk():
-        env = HearthstoneEnv(max_tier=max_tier)
+        env = HearthstoneEnv(max_tier=max_tier, card_vocab_scheme=card_vocab_scheme)
+        if es_weights is not None:
+            env.set_es_bot(es_weights)
         env.reset(seed=seed + rank)
         return env
 
@@ -116,7 +143,7 @@ def get_board_powers(envs) -> list[float]:
 def compute_gae(
         rewards: torch.Tensor,  # [T, N]
         values: torch.Tensor,  # [T, N]
-        dones: torch.Tensor,  # [T, N]
+        dones: torch.Tensor,  # [T, N], terminal flag for this transition
         next_value: torch.Tensor,  # [N]
         gamma: float,
         gae_lambda: float,
@@ -184,14 +211,45 @@ def main():
         )
 
     # Envs (Async = env.step parallelized with model inference, +50-100% FPS)
+    if not 0.0 <= args.es_ratio <= 1.0:
+        raise ValueError("--es-ratio must be in [0, 1]")
+    es_weights = None
+    es_weights_sha256 = None
+    if args.opponent_mode != "smart":
+        es_path = Path(args.es_weights)
+        if not es_path.exists():
+            raise FileNotFoundError(f"ES opponent weights not found: {es_path}")
+        es_weights = np.load(es_path)["weights"].astype(np.float32)
+        es_weights_sha256 = file_sha256(es_path)
+    n_es_envs = (
+        args.n_envs if args.opponent_mode == "es"
+        else round(args.n_envs * args.es_ratio) if args.opponent_mode == "mixed"
+        else 0
+    )
     envs = gymnasium.vector.AsyncVectorEnv(
-        [make_env(i, args.seed, args.max_tier) for i in range(args.n_envs)]
+        [
+            make_env(
+                i,
+                args.seed,
+                args.max_tier,
+                args.card_vocab_scheme,
+                es_weights if i < n_es_envs else None,
+            )
+            for i in range(args.n_envs)
+        ]
     )
     n_actions = 34
     obs_dim = envs.single_observation_space.shape[0]
 
     num_card_ids = envs.get_attr("num_card_ids")[0]
+    card_vocab_hash = envs.get_attr("card_vocab_hash")[0]
     print(f"[env] obs_dim={obs_dim} n_actions={n_actions} card_ids={num_card_ids}")
+    print(f"[opponents] mode={args.opponent_mode} es_envs={n_es_envs}/{args.n_envs}")
+    opponent_contract = {
+        "mode": args.opponent_mode,
+        "es_ratio": args.es_ratio,
+        "es_weights_sha256": es_weights_sha256,
+    }
 
     # Model
     agent = HSTransformerAgent(
@@ -200,6 +258,7 @@ def main():
         n_heads=args.n_heads,
         n_layers=args.n_layers,
         num_card_ids=num_card_ids,
+        actor_type=args.actor_type,
     ).to(device)
 
     n_params = sum(p.numel() for p in agent.parameters())
@@ -211,6 +270,24 @@ def main():
     global_step = 0
     if args.resume:
         ckpt = torch.load(args.resume, map_location=device)
+        checkpoint_actor_type = str(ckpt.get("args", {}).get("actor_type", "flat"))
+        if checkpoint_actor_type != args.actor_type:
+            raise ValueError(
+                f"checkpoint actor_type={checkpoint_actor_type!r} does not match "
+                f"--actor-type={args.actor_type!r}; retrain BC or select the matching actor"
+            )
+        checkpoint_vocab_hash = ckpt.get("card_vocab_hash")
+        if checkpoint_vocab_hash is not None and checkpoint_vocab_hash != card_vocab_hash:
+            raise ValueError(
+                "checkpoint card vocabulary does not match the current environment: "
+                f"checkpoint={checkpoint_vocab_hash}, current={card_vocab_hash}"
+            )
+        checkpoint_opponents = ckpt.get("opponent_contract")
+        if "optimizer" in ckpt and checkpoint_opponents not in (None, opponent_contract):
+            raise ValueError(
+                "cannot resume an optimizer with a different opponent curriculum: "
+                f"checkpoint={checkpoint_opponents}, current={opponent_contract}"
+            )
         agent.load_state_dict(ckpt["model"])
         if "optimizer" in ckpt:
             try:
@@ -240,7 +317,6 @@ def main():
     # Init envs
     next_obs_np, _ = envs.reset(seed=args.seed)
     next_obs = torch.tensor(next_obs_np, dtype=torch.float32, device=device)
-    next_done = torch.zeros(args.n_envs, device=device)
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -259,7 +335,6 @@ def main():
             global_step += args.n_envs
 
             obs_buf[step] = next_obs
-            done_buf[step] = next_done
             action_mask = get_action_masks(envs).to(device)
             mask_buf[step] = action_mask
 
@@ -277,8 +352,10 @@ def main():
             )
             done_np = np.logical_or(terminated, truncated)
             rew_buf[step] = torch.tensor(reward_np, dtype=torch.float32, device=device)
+            # Store the terminal flag produced by this transition. Storing the
+            # previous transition's flag leaks GAE across autoreset episodes.
+            done_buf[step] = torch.tensor(done_np, dtype=torch.float32, device=device)
             next_obs = torch.tensor(next_obs_np, dtype=torch.float32, device=device)
-            next_done = torch.tensor(done_np, dtype=torch.float32, device=device)
 
         # --- GAE ---
         with torch.no_grad():
@@ -302,6 +379,7 @@ def main():
         pg_losses = []
         vf_losses = []
         ent_losses = []
+        kl_early_stop = False
 
         for epoch in range(args.update_epochs):
             np.random.shuffle(b_inds)
@@ -322,6 +400,9 @@ def main():
                     clipfracs.append(
                         ((ratio - 1.0).abs() > args.clip_coef).float().mean().item()
                     )
+                if args.target_kl is not None and approx_kl > 1.5 * args.target_kl:
+                    kl_early_stop = True
+                    break
 
                 # Normalize advantages
                 mb_adv = b_advantages[mb]
@@ -350,8 +431,7 @@ def main():
                 vf_losses.append(vf_loss.item())
                 ent_losses.append(ent_loss.item())
 
-            # KL early stopping
-            if args.target_kl is not None and approx_kl > 1.5 * args.target_kl:
+            if kl_early_stop:
                 break
 
         # --- Logging ---
@@ -402,6 +482,8 @@ def main():
                 "optimizer": optimizer.state_dict(),
                 "global_step": global_step,
                 "args": vars(args),
+                "card_vocab_hash": card_vocab_hash,
+                "opponent_contract": opponent_contract,
             }, ckpt_path)
             print(f"  [save] {ckpt_path}")
 
@@ -412,6 +494,8 @@ def main():
         "optimizer": optimizer.state_dict(),
         "global_step": global_step,
         "args": vars(args),
+        "card_vocab_hash": card_vocab_hash,
+        "opponent_contract": opponent_contract,
     }, final_path)
     print(f"[done] {global_step:,} steps, saved to {final_path}")
 

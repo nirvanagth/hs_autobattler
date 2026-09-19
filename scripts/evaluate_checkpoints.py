@@ -2,7 +2,7 @@
 """Evaluate trained checkpoints against fixed opponents.
 
 Runs each checkpoint greedily (masked argmax) against four opponents:
-  es     - parametric ES bot (artifacts/es_kaggle/artifacts/best.npz)
+  es     - parametric ES bot (artifacts/es_bot/best.npz)
   smart  - score-based SmartBot (the env default opponent)
   bc     - BC-pretrained transformer, also greedy
   random - random-action bot (random buys / plays / discovery picks)
@@ -20,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import sys
@@ -36,6 +37,7 @@ import torch
 
 from model import HSTransformerAgent
 from hearthstone.env.hs_env import HearthstoneEnv
+from hearthstone.env.card_vocab import LEGACY_SORTED
 import hearthstone.env.hs_env as hs_env_module
 
 MATCHUPS = ("es", "smart", "bc", "random")
@@ -86,6 +88,14 @@ def infer_num_card_ids(state_dict, default: int = DEFAULT_CARD_IDS) -> int:
     return default
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def load_agent(path: Path, device: torch.device):
     """Load a checkpoint (PPO or BC pretrain) into an eval-mode agent."""
     ckpt = torch.load(path, map_location=device)
@@ -94,13 +104,24 @@ def load_agent(path: Path, device: torch.device):
     d_model = int(saved_args.get("d_model", 128))
     n_heads = int(saved_args.get("n_heads", 4))
     n_layers = int(saved_args.get("n_layers", 4))
+    actor_type = str(saved_args.get("actor_type", "flat"))
+    card_vocab_scheme = str(saved_args.get("card_vocab_scheme", LEGACY_SORTED))
     num_card_ids = infer_num_card_ids(sd)
+    probe_env = HearthstoneEnv(card_vocab_scheme=card_vocab_scheme)
+    current_vocab_hash = probe_env.card_vocab_hash
+    checkpoint_vocab_hash = ckpt.get("card_vocab_hash")
+    if checkpoint_vocab_hash is not None and checkpoint_vocab_hash != current_vocab_hash:
+        raise ValueError(
+            "checkpoint card vocabulary does not match the evaluation environment: "
+            f"checkpoint={checkpoint_vocab_hash}, current={current_vocab_hash}"
+        )
     agent = HSTransformerAgent(
         n_actions=34,
         d_model=d_model,
         n_heads=n_heads,
         n_layers=n_layers,
         num_card_ids=num_card_ids,
+        actor_type=actor_type,
     ).to(device)
     agent.load_state_dict(sd)
     agent.eval()
@@ -109,7 +130,11 @@ def load_agent(path: Path, device: torch.device):
         "n_heads": n_heads,
         "n_layers": n_layers,
         "num_card_ids": num_card_ids,
+        "actor_type": actor_type,
+        "card_vocab_scheme": card_vocab_scheme,
         "global_step": ckpt.get("global_step"),
+        "card_vocab_hash": checkpoint_vocab_hash,
+        "checkpoint_sha256": file_sha256(path),
     }
     return agent, meta
 
@@ -228,19 +253,32 @@ def play_episode(env: HearthstoneEnv, agent, device: torch.device,
 
 
 def run_matchup(env_factory, agent, device: torch.device, games: int,
-                seed: int, label: str) -> dict:
+                seed: int, label: str, both_seats: bool = True) -> dict:
+    if both_seats and games % 2:
+        raise ValueError("paired-seat evaluation requires an even number of games")
     wins = losses = draws = 0
     hp_diffs, board_powers, max_tiers, turns = [], [], [], []
+    seat_results = {
+        "0": {"games": 0, "wins": 0, "losses": 0, "draws": 0},
+        "1": {"games": 0, "wins": 0, "losses": 0, "draws": 0},
+    }
     t0 = time.time()
     progress_every = max(1, games // 10)
     for i in range(games):
-        ep = play_episode(env_factory(), agent, device, seed + i)
+        seat = i % 2 if both_seats else 0
+        episode_seed = seed + (i // 2 if both_seats else i)
+        ep = play_episode(env_factory(seat), agent, device, episode_seed)
+        seat_stats = seat_results[str(seat)]
+        seat_stats["games"] += 1
         if ep["outcome"] == "win":
             wins += 1
+            seat_stats["wins"] += 1
         elif ep["outcome"] == "loss":
             losses += 1
+            seat_stats["losses"] += 1
         else:
             draws += 1
+            seat_stats["draws"] += 1
         hp_diffs.append(ep["hp_diff"])
         board_powers.append(ep["board_power"])
         max_tiers.append(ep["max_tier"])
@@ -261,6 +299,8 @@ def run_matchup(env_factory, agent, device: torch.device, games: int,
         "avg_board_power": round(float(np.mean(board_powers)), 2),
         "avg_max_tier": round(float(np.mean(max_tiers)), 2),
         "avg_turns": round(float(np.mean(turns)), 2),
+        "both_seats": both_seats,
+        "seat_results": seat_results,
     }
 
 
@@ -302,6 +342,8 @@ def print_final_table(results: dict) -> None:
     print("EVALUATION SUMMARY")
     print("=" * 80)
     for ckpt_name, per_matchup in results.items():
+        if ckpt_name.startswith("__"):
+            continue
         print(f"\n## {ckpt_name}")
         print(f"{'matchup':<10} {'games':>6} {'W':>4} {'L':>4} {'D':>4} "
               f"{'win%':>7} {'hp_diff':>8} {'board':>7} {'tier':>5} {'turns':>6}")
@@ -328,7 +370,7 @@ def parse_args() -> argparse.Namespace:
         "artifacts/ppo/ckpt_3276800.pt",
         "artifacts/ppo/ckpt_1638400.pt",
     ], help="checkpoint .pt files to evaluate; missing files are skipped")
-    p.add_argument("--es-weights", default="artifacts/es_kaggle/artifacts/best.npz",
+    p.add_argument("--es-weights", default="artifacts/es_bot/best.npz",
                    help="ES bot weights .npz file")
     p.add_argument("--bc-checkpoint", default="artifacts/bc/bc_pretrain.pt",
                    help="BC checkpoint .pt used as the 'bc' opponent")
@@ -345,6 +387,10 @@ def parse_args() -> argparse.Namespace:
                    help="subset of matchups to run (default: all)")
     p.add_argument("--seed", type=int, default=42,
                    help="base seed; game i uses seed+i")
+    p.add_argument(
+        "--single-seat", action="store_true",
+        help="evaluate only as player 0 instead of paired player-0/player-1 games",
+    )
     p.add_argument("--out", default="artifacts/eval/results.json",
                    help="JSON results file, written incrementally")
     p.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto",
@@ -408,21 +454,42 @@ def main() -> None:
 
     out_path = resolve(args.out)
     results = load_results(out_path)
+    results["__evaluation__"] = {
+        "seed": args.seed,
+        "games_per_matchup": games_per_matchup,
+        "both_seats": not args.single_seat,
+        "es_weights": (
+            {"path": str(resolve(args.es_weights)), "sha256": file_sha256(resolve(args.es_weights))}
+            if es_weights is not None else None
+        ),
+    }
 
-    def make_factory(matchup):
+    def make_factory(matchup, card_vocab_scheme):
+        def set_seat(env, seat):
+            env.my_player_id = seat
+            env.enemy_id = 1 - seat
+            return env
+
         if matchup == "es":
-            def factory():
-                env = HearthstoneEnv(max_tier=6)
+            def factory(seat):
+                env = HearthstoneEnv(
+                    max_tier=6, card_vocab_scheme=card_vocab_scheme
+                )
                 env.set_es_bot(es_weights)
-                return env
+                return set_seat(env, seat)
         elif matchup == "bc":
-            def factory():
-                env = HearthstoneEnv(max_tier=6)
+            def factory(seat):
+                env = HearthstoneEnv(
+                    max_tier=6, card_vocab_scheme=card_vocab_scheme
+                )
                 env.set_opponent(BCAdapter(bc_agent, device))
-                return env
+                return set_seat(env, seat)
         else:
-            def factory():
-                return HearthstoneEnv(max_tier=6)
+            def factory(seat):
+                env = HearthstoneEnv(
+                    max_tier=6, card_vocab_scheme=card_vocab_scheme
+                )
+                return set_seat(env, seat)
         return factory
 
     try:
@@ -435,17 +502,31 @@ def main() -> None:
                   f"card_ids={meta['num_card_ids']} "
                   f"global_step={meta['global_step']}")
             results.setdefault(ckpt_name, {})
+            results[ckpt_name]["__checkpoint__"] = meta
 
             for matchup in matchups:
+                if (
+                    matchup == "bc"
+                    and bc_meta["card_vocab_scheme"] != meta["card_vocab_scheme"]
+                ):
+                    raise ValueError(
+                        "agent and BC opponent use different card vocabularies: "
+                        f"agent={meta['card_vocab_scheme']}, "
+                        f"bc={bc_meta['card_vocab_scheme']}"
+                    )
                 games = games_per_matchup[matchup]
                 existing = results[ckpt_name].get(matchup)
-                if existing and existing.get("games") == games:
+                if (
+                    existing
+                    and existing.get("games") == games
+                    and existing.get("both_seats") == (not args.single_seat)
+                ):
                     print(f"[eval] {ckpt_name} vs {MATCHUP_LABELS[matchup]}: "
                           f"already done ({games} games), skipping")
                     continue
                 print(f"[eval] {ckpt_name} vs {MATCHUP_LABELS[matchup]} "
                       f"({games} games, seed={args.seed})")
-                factory = make_factory(matchup)
+                factory = make_factory(matchup, meta["card_vocab_scheme"])
                 if matchup == "random":
                     # _play_enemy_turn falls back to the module-global
                     # smart_bot_turn; swap it for the random bot here.
@@ -453,12 +534,14 @@ def main() -> None:
                     hs_env_module.smart_bot_turn = random_bot_turn
                     try:
                         stats = run_matchup(factory, agent, device, games,
-                                            args.seed, MATCHUP_LABELS[matchup])
+                                            args.seed, MATCHUP_LABELS[matchup],
+                                            both_seats=not args.single_seat)
                     finally:
                         hs_env_module.smart_bot_turn = orig
                 else:
                     stats = run_matchup(factory, agent, device, games,
-                                        args.seed, MATCHUP_LABELS[matchup])
+                                        args.seed, MATCHUP_LABELS[matchup],
+                                        both_seats=not args.single_seat)
                 results[ckpt_name][matchup] = stats
                 save_results(out_path, results)
                 print_matchup_summary(ckpt_name, matchup, stats)

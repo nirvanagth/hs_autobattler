@@ -44,7 +44,7 @@ _load_env(root_dir / ".env")
 KAGGLE_USERNAME = "tmitmi1999"
 KERNEL_SLUG = "hs-autobattler-cleanrl-ppo"
 
-ES_WEIGHTS_PATH = root_dir / "artifacts" / "es_kaggle" / "artifacts" / "best.npz"
+ES_WEIGHTS_PATH = root_dir / "artifacts" / "es_bot" / "best.npz"
 
 
 def _pack_project_b64() -> str:
@@ -73,7 +73,7 @@ def _pack_project_b64() -> str:
                 zf.write(fp, f"scripts/{fname}")
         # ES weights (best.npz, ~92 bytes payload but in zip wrapper)
         if ES_WEIGHTS_PATH.exists():
-            zf.write(ES_WEIGHTS_PATH, "artifacts/es_kaggle/artifacts/best.npz")
+            zf.write(ES_WEIGHTS_PATH, "artifacts/es_bot/best.npz")
         # pyproject.toml
         pt = root_dir / "pyproject.toml"
         if pt.exists():
@@ -169,7 +169,7 @@ OUTPUT_DIR = "/kaggle/working/artifacts/ppo"
 BC_DIR = "/kaggle/working/artifacts/bc"
 DATASET_PATH = os.path.join(BC_DIR, "bc_dataset.npz")
 BC_CKPT = os.path.join(BC_DIR, "bc_pretrain.pt")
-ES_WEIGHTS = os.path.join(PROJECT_DIR, "artifacts", "es_kaggle", "artifacts", "best.npz")
+ES_WEIGHTS = os.path.join(PROJECT_DIR, "artifacts", "es_bot", "best.npz")
 RUN_TAG = int(time.time())
 
 # === Extract ===

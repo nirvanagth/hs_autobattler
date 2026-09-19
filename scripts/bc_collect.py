@@ -5,20 +5,23 @@ bot what its first game.step() call would be on the current state, convert that
 to a 0..33 action int (the env's action space), and step the env with it.
 
 The env handles the rest (target prompts, end-of-turn enemy play, rewards). We
-record (obs, action_mask, action_int) at every step.
+record decisions, episode ids, and discounted environment returns at every step.
 
 Output: artifacts/bc_dataset.npz with arrays:
     obs:    [N, obs_dim] float32
     masks:  [N, 34]      bool
     actions:[N]          int64
+    returns:[N]          float32
+    episode_ids:[N]      int32
 
 Usage:
-    python scripts/bc_collect.py --episodes 1000 --weights artifacts/es_kaggle/artifacts/best.npz
+    python scripts/bc_collect.py --episodes 1000 --weights artifacts/es_bot/best.npz
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 import time
 from pathlib import Path
@@ -34,6 +37,7 @@ from hearthstone.env.es_bot import (
     score_unit_es,
 )
 from hearthstone.env.hs_env import HearthstoneEnv
+from hearthstone.env.card_vocab import CARD_VOCAB_SCHEMES, STABLE_V1
 
 
 # ============================================================
@@ -144,10 +148,28 @@ def es_pick_action(env: HearthstoneEnv, weights: np.ndarray) -> int:
 # Episode collection
 # ============================================================
 
-def collect_episode(env: HearthstoneEnv, weights: np.ndarray, seed: int):
-    """Run one episode end-to-end. Returns (obs_list, mask_list, action_list, board_power)."""
+def discounted_returns(rewards: list[float], gamma: float) -> list[np.float32]:
+    """Compute Monte-Carlo returns aligned with recorded decisions."""
+    result = [np.float32(0.0)] * len(rewards)
+    running = 0.0
+    for i in reversed(range(len(rewards))):
+        running = float(rewards[i]) + gamma * running
+        result[i] = np.float32(running)
+    return result
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def collect_episode(env: HearthstoneEnv, weights: np.ndarray, seed: int, gamma: float):
+    """Run one episode and return decisions, rewards, returns, and board power."""
     obs, _ = env.reset(seed=seed)
-    obs_buf, mask_buf, act_buf = [], [], []
+    obs_buf, mask_buf, act_buf, reward_buf = [], [], [], []
     done = False
     truncated = False
     while not (done or truncated):
@@ -158,34 +180,56 @@ def collect_episode(env: HearthstoneEnv, weights: np.ndarray, seed: int):
         mask_buf.append(mask.astype(np.bool_, copy=True))
         act_buf.append(np.int64(action))
 
-        obs, _, done, truncated, _ = env.step(action)
+        obs, reward, done, truncated, _ = env.step(action)
+        reward_buf.append(np.float32(reward))
 
-    return obs_buf, mask_buf, act_buf, env.get_board_power()
+    return (
+        obs_buf,
+        mask_buf,
+        act_buf,
+        reward_buf,
+        discounted_returns(reward_buf, gamma),
+        env.get_board_power(),
+    )
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--weights", default="artifacts/es_kaggle/artifacts/best.npz")
+    p.add_argument("--weights", default="artifacts/es_bot/best.npz")
     p.add_argument("--episodes", type=int, default=1000)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--max-tier", type=int, default=6)
+    p.add_argument(
+        "--card-vocab-scheme", choices=CARD_VOCAB_SCHEMES, default=STABLE_V1
+    )
+    p.add_argument("--gamma", type=float, default=0.999)
     p.add_argument("--out", default="artifacts/bc_dataset.npz")
     p.add_argument("--log-every", type=int, default=50)
     args = p.parse_args()
 
-    weights = np.load(args.weights)["weights"].astype(np.float32)
+    weights_path = Path(args.weights)
+    weights = np.load(weights_path)["weights"].astype(np.float32)
+    teacher_sha256 = file_sha256(weights_path)
     print(f"[weights] shape={weights.shape} from {args.weights}")
 
-    env = HearthstoneEnv(max_tier=args.max_tier)
+    env = HearthstoneEnv(
+        max_tier=args.max_tier, card_vocab_scheme=args.card_vocab_scheme
+    )
 
-    all_obs, all_masks, all_acts, all_bp = [], [], [], []
+    all_obs, all_masks, all_acts = [], [], []
+    all_rewards, all_returns, all_episode_ids, all_bp = [], [], [], []
     t0 = time.time()
     for ep in range(args.episodes):
         seed = args.seed + ep
-        obs_buf, mask_buf, act_buf, bp = collect_episode(env, weights, seed)
+        obs_buf, mask_buf, act_buf, rewards, returns, bp = collect_episode(
+            env, weights, seed, args.gamma
+        )
         all_obs.extend(obs_buf)
         all_masks.extend(mask_buf)
         all_acts.extend(act_buf)
+        all_rewards.extend(rewards)
+        all_returns.extend(returns)
+        all_episode_ids.extend([ep] * len(act_buf))
         all_bp.append(bp)
         if (ep + 1) % args.log_every == 0:
             elapsed = time.time() - t0
@@ -198,6 +242,9 @@ def main():
     obs_arr = np.stack(all_obs).astype(np.float32)
     mask_arr = np.stack(all_masks).astype(np.bool_)
     act_arr = np.array(all_acts, dtype=np.int64)
+    reward_arr = np.array(all_rewards, dtype=np.float32)
+    return_arr = np.array(all_returns, dtype=np.float32)
+    episode_id_arr = np.array(all_episode_ids, dtype=np.int32)
     bp_arr = np.array(all_bp, dtype=np.float32)
 
     out_path = Path(args.out)
@@ -207,7 +254,15 @@ def main():
         obs=obs_arr,
         masks=mask_arr,
         actions=act_arr,
+        rewards=reward_arr,
+        returns=return_arr,
+        episode_ids=episode_id_arr,
         board_powers=bp_arr,
+        gamma=np.float32(args.gamma),
+        card_vocab_hash=np.array(env.card_vocab_hash),
+        card_vocab_scheme=np.array(env.card_vocab_scheme),
+        card_vocabulary=np.asarray(env.card_id_vocabulary),
+        teacher_weights_sha256=np.array(teacher_sha256),
     )
 
     print(f"[done] {len(act_arr):,} steps from {args.episodes} episodes")
