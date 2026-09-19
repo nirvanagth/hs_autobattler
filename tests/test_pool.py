@@ -6,7 +6,7 @@ discovery (unique, exact tier, predicate), token exclusion, spell pool.
 
 from __future__ import annotations
 
-from hearthstone.engine.configs import CARD_DB, SPELL_DB, TIER_COPIES
+from hearthstone.engine.configs import CARD_DB, ROTATED_OUT, SPELL_DB, TIER_COPIES
 from hearthstone.engine.enums import CardIDs, UnitType
 from hearthstone.engine.pool import CardPool, SpellPool
 
@@ -21,7 +21,7 @@ class TestCardPoolInit:
     def test_pool_has_all_tiers(self) -> None:
         pool = CardPool()
         for tier in TIER_COPIES:
-            if tier <= 6:  # default max_tier=6
+            if tier <= pool.max_tier:  # default max_tier=7 (tier 7 pooled for triple discovery)
                 assert tier in pool.tiers
 
     def test_pool_excludes_tokens(self) -> None:
@@ -39,6 +39,10 @@ class TestCardPoolInit:
             tier = data["tier"]
             if tier > pool.max_tier:
                 continue
+            if card_id in ROTATED_OUT:
+                # Rotated-out cards stay defined but are never dealt into the pool.
+                assert pool.tiers[tier].count(card_id) == 0, f"{card_id} should be excluded"
+                continue
             expected = TIER_COPIES[tier]
             actual = pool.tiers[tier].count(card_id)
             assert actual == expected, f"{card_id}: {actual} copies, expected {expected}"
@@ -48,6 +52,7 @@ class TestCardPoolInit:
         non_tokens = [
             cid for cid, d in CARD_DB.items()
             if not d.get("is_token", False) and d["tier"] <= pool.max_tier
+            and cid not in ROTATED_OUT
         ]
         expected_total = sum(TIER_COPIES[CARD_DB[cid]["tier"]] for cid in non_tokens)
         actual_total = sum(len(t) for t in pool.tiers.values())
@@ -169,6 +174,14 @@ class TestCardPoolDiscovery:
         drawn = pool.draw_discovery_cards(3, tier=1, exact_tier=False)
         total_after = sum(len(t) for t in pool.tiers.values())
         assert total_after == total_before - len(drawn)
+
+    def test_discovery_can_offer_tier_7(self) -> None:
+        """Triple rewards at tavern 6 discover tier 7 (mirrors live BG)."""
+        pool = CardPool()
+        drawn = pool.draw_discovery_cards(3, tier=7, exact_tier=True)
+        assert len(drawn) == 3
+        for card_id in drawn:
+            assert CARD_DB[card_id]["tier"] == 7
 
     def test_discovery_empty_pool_returns_empty(self) -> None:
         """If no cards match, return empty list."""

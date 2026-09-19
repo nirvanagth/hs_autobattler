@@ -138,11 +138,11 @@ class TestTripletRewardTier:
         ]
         assert len(reward_spells) >= 1
 
-        # Reward tier = min(6, tavern_tier + 1) = min(6, 5) = 5
+        # Reward tier = min(7, tavern_tier + 1) = min(7, 5) = 5
         recorded_tier = reward_spells[0].spell.params.get("tier")
         assert recorded_tier == 5
 
-    def test_reward_tier_capped_at_6(
+    def test_reward_tier_capped_at_7(
         self,
         empty_game: "Game",
         player: Player,
@@ -163,8 +163,8 @@ class TestTripletRewardTier:
             hc for hc in player.hand if hc.spell and hc.spell.card_id == SpellIDs.TRIPLET_REWARD
         ]
         assert len(reward_spells) >= 1
-        # min(6, 6+1) = 6
-        assert reward_spells[0].spell.params.get("tier") == 6
+        # min(7, 6+1) = 7 — mirrors live BG where triples at tavern 6 discover tier 7
+        assert reward_spells[0].spell.params.get("tier") == 7
 
 
 # ===================================================================

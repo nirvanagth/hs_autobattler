@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Any, Callable, Dict, List, Optional
 
-from .configs import CARD_DB, SPELL_DB, TIER_COPIES
+from .configs import CARD_DB, ROTATED_OUT, SPELL_DB, TIER_COPIES
 
 """
 WE ASSUME THAT CARDS IN POOL ARE INFINITE, SO POOL CAN'T HAVE LESS CARDS THAN WE ASK
@@ -12,7 +12,10 @@ USUALLY IT'S BECAUSE WE HAVE A LOT OF CARDS AND COPIES OF THEM
 
 
 class CardPool:
-    def __init__(self, max_tier: int = 6) -> None:
+    # Pool always includes tier 7: those minions are never sold in shops
+    # (tavern caps at 6) but ARE discoverable from triple rewards,
+    # mirroring live Battlegrounds.
+    def __init__(self, max_tier: int = 7) -> None:
         # Структура: {1: ['101', '101'...], 2: ['201', ...]}
         self.max_tier = max_tier
         self.tiers: Dict[int, List[str]] = {}
@@ -26,6 +29,8 @@ class CardPool:
 
         for card_id, data in CARD_DB.items():
             if data.get("is_token", False):
+                continue
+            if card_id in ROTATED_OUT:
                 continue
 
             tier = data["tier"]

@@ -29,6 +29,9 @@ namespace CardID {
     constexpr int16_t TUSKED_CAMPER                  = 119;
     constexpr int16_t TWILIGHT_HATCHLING             = 120;
     constexpr int16_t WRATH_WEAVER                   = 121;
+    constexpr int16_t MOLTEN_ROCK                    = 122;
+    constexpr int16_t FLEEING_FUGITIVE               = 123;
+    constexpr int16_t MINI_MYRMIDON                  = 124;
 
     // --- Tier 2 ---
     constexpr int16_t FREEDEALING_GAMBLER            = 201;
@@ -55,6 +58,11 @@ namespace CardID {
     constexpr int16_t SOUL_REWINDER                  = 222;
     constexpr int16_t SURFING_SYLVAR                 = 223;
     constexpr int16_t PATIENT_SCOUT                  = 224;
+    constexpr int16_t ANCESTRAL_AUTOMATON            = 225;
+    constexpr int16_t METALLIC_HUNTER                = 226;
+    constexpr int16_t THOUSANDTH_PAPER_DRAKE         = 227;
+    constexpr int16_t LAVA_LURKER                    = 228;
+    constexpr int16_t THAUMATURGIST                  = 229;
 
     // --- Tier 3 ---
     constexpr int16_t BIRD_BUDDY                     = 301;
@@ -94,6 +102,15 @@ namespace CardID {
     constexpr int16_t WAVELING                       = 335;
     constexpr int16_t WHEELED_CREWMATE               = 336;
     constexpr int16_t WILDFIRE_ELEMENTAL             = 337;
+    constexpr int16_t BREAKOUT_MASTERMIND            = 338;
+    constexpr int16_t DUSTBONE_DEVASTATOR            = 339;
+    constexpr int16_t MAMA_MRRGLTON                  = 340;
+    constexpr int16_t METEORITE_CRASHER              = 341;
+    constexpr int16_t PAPA_MRRGLTON                  = 342;
+    constexpr int16_t PRIVATE_INVESTIGATOR           = 343;
+    constexpr int16_t SAND_SWIRLER                   = 344;
+    constexpr int16_t DEEP_SEA_ANGLER                = 345;
+    constexpr int16_t WAVERIDER                      = 346;
 
     // --- Tier 4 ---
     constexpr int16_t ACCORD_O_TRON                  = 401;
@@ -135,6 +152,17 @@ namespace CardID {
     constexpr int16_t FLAMING_ENFORCER               = 437;
     constexpr int16_t ICHORON_THE_PROTECTOR          = 438;
     constexpr int16_t PERSISTENT_POET                = 439;
+    constexpr int16_t AUTO_ASSEMBLER                 = 440;
+    constexpr int16_t CAPTAIN_COOKIE                 = 441;
+    constexpr int16_t CLUNKER_JUNKER                 = 442;
+    constexpr int16_t DEEPWATER_CHIEFTAIN            = 443;
+    constexpr int16_t GLOWING_CINDER                 = 444;
+    constexpr int16_t MOTLEY_PHALANX                 = 445;
+    constexpr int16_t ABYSSAL_BRUISER                = 446;
+    constexpr int16_t CAGEY_CONJURER                 = 447;
+    constexpr int16_t RIMESCALE_PRIESTESS            = 448;
+    constexpr int16_t SEAFLOOR_RECRUITER             = 449;
+    constexpr int16_t ZESTY_SHAKER                   = 450;
 
     // --- Tier 5 ---
     constexpr int16_t BRANN_BRONZEBEARD              = 501;
@@ -163,6 +191,17 @@ namespace CardID {
     constexpr int16_t TWILIGHT_BROODMOTHER           = 524;
     constexpr int16_t COSTUME_ENTHUSIAST             = 525;
     constexpr int16_t ELITE_NAVIGATOR                = 526;
+    constexpr int16_t COUSIN_ERRGL                   = 527;
+    constexpr int16_t DANCING_BARNSTORMER            = 528;
+    constexpr int16_t DUAL_WIELD_CORSAIR             = 529;
+    constexpr int16_t KANGORS_APPRENTICE             = 530;
+    constexpr int16_t SCRAP_SCRAPER                  = 531;
+    constexpr int16_t VIGILANT_BRISTLEMANE           = 532;
+    constexpr int16_t VOID_PUP_TRAINER               = 533;
+    constexpr int16_t DARKCREST_STRATEGIST           = 534;
+    constexpr int16_t GLOWSCALE                      = 535;
+    constexpr int16_t SHOWY_CYCLIST                  = 536;
+    constexpr int16_t TRANQUIL_MEDITATIVE            = 537;
 
     // --- Tier 6 ---
     constexpr int16_t GOLDRINN_THE_GREAT_WOLF        = 601;
@@ -185,8 +224,14 @@ namespace CardID {
     constexpr int16_t NIGHTMARE_PAR_TEA_GUEST        = 618;
     constexpr int16_t SUNDERED_MATRIARCH             = 619;
     constexpr int16_t PRIMITIVE_PAINTER              = 620;
+    constexpr int16_t MOAT_CUSTODIAN                 = 621;
+    constexpr int16_t UNLEASHED_MANA_SURGE           = 622;
+    constexpr int16_t WARPWING                       = 623;
+    constexpr int16_t GROUNDBREAKER                  = 624;
+    constexpr int16_t TORRENTIAL_RUINER              = 625;
 
     // --- Tier 7 ---
+    constexpr int16_t SEA_WITCH_ZARJIRA              = 709;
     constexpr int16_t CAPTAIN_SANDERS                = 701;
     constexpr int16_t HIGHKEEPER_RA                  = 702;
     constexpr int16_t THE_LAST_ONE_STANDING          = 703;

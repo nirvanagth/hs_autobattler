@@ -76,6 +76,7 @@ class Event:
     value: Optional[int] = None
     meta: Optional[int] = None
     snapshot: Optional[MinionSnapshot] = None
+    spell_id: Optional[str] = None
 
 
 ConditionFn = Callable[["EffectContext", Event, int], bool]
@@ -608,8 +609,10 @@ def _apply_elemental_buff(ctx: EffectContext, event: Event, _trigger_uid: int) -
         return
     from .enums import MechanicType
     buff_atk, buff_hp = player.mechanics.get_stat(MechanicType.ELEMENTAL_BUFF)
-    if (buff_atk > 0 or buff_hp > 0) and event.source:
-        ctx.buff_perm(event.source, buff_atk, buff_hp)
+    bonus_atk, bonus_hp = player.mechanics.get_stat(MechanicType.ELEMENTAL_BUFF_BONUS)
+    total_atk, total_hp = buff_atk + bonus_atk, buff_hp + bonus_hp
+    if (total_atk > 0 or total_hp > 0) and event.source:
+        ctx.buff_perm(event.source, total_atk, total_hp)
 
 
 SYSTEM_TRIGGER_REGISTRY = {

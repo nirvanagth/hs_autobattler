@@ -415,6 +415,10 @@ class CombatManager:
             for victim_unit, victim_pos, victim_ref in targets_list:
                 if not victim_unit.is_alive:
                     continue
+                if victim_unit.has_immune:
+                    # Immune (e.g. Warpwing while attacking): takes no damage,
+                    # pops no divine shield, emits no damage events.
+                    continue
                 hp_before = victim_unit.cur_hp
                 if victim_unit.has_divine_shield:
                     victim_unit.tags.discard(Tags.DIVINE_SHIELD)
@@ -604,6 +608,15 @@ class CombatManager:
                         snapshot=death_snapshot,
                     )
                     extra_triggers = self._collect_death_triggers(unit)
+                    dead_owner = combat_players.get(unit.owner_id)
+                    if dead_owner is not None:
+                        dead_owner.combat_death_log.append(
+                            {
+                                "card_id": unit.card_id,
+                                "types": list(unit.types),
+                                "is_golden": unit.is_golden,
+                            }
+                        )
 
                     board.pop(i)
                     recalculate_board_auras(board)

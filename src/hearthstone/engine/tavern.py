@@ -49,6 +49,7 @@ class TavernManager:
         max_gold = min(10, 3 + turn_number - 1)
         player.gold = max_gold + player.gold_next_turn
         player.gold_next_turn = 0
+        player.turn_number = turn_number
 
         if player.up_cost > 0 and turn_number != 1:
             player.up_cost -= 1
@@ -82,6 +83,7 @@ class TavernManager:
             if player.gold < COST_REROLL:
                 return False, "Not enough gold"
             player.gold -= COST_REROLL
+            player.mechanics.increment_scaling("gold_spent", COST_REROLL)
 
         all_unit_ids = [item.unit.card_id for item in player.store if item.unit]
         self.pool.return_cards(all_unit_ids)
@@ -136,6 +138,16 @@ class TavernManager:
     # Spellcraft card_id -> spell_id mapping
     SPELLCRAFT_MAP = {
         CardIDs.SURF_N_SURF: SpellIDs.SURF_SPELLCRAFT,
+        # --- B2 expansion spellcrafts (2026-09) ---
+        CardIDs.MINI_MYRMIDON: SpellIDs.MINI_MYRMIDON_SPELLCRAFT,
+        CardIDs.THAUMATURGIST: SpellIDs.THAUMATURGIST_SPELLCRAFT,
+        CardIDs.DEEP_SEA_ANGLER: SpellIDs.DEEP_SEA_ANGLER_SPELLCRAFT,
+        CardIDs.WAVERIDER: SpellIDs.WAVERIDER_SPELLCRAFT,
+        CardIDs.RIMESCALE_PRIESTESS: SpellIDs.RIMESCALE_PRIESTESS_SPELLCRAFT,
+        CardIDs.DARKCREST_STRATEGIST: SpellIDs.DARKCREST_STRATEGIST_SPELLCRAFT,
+        CardIDs.GLOWSCALE: SpellIDs.GLOWSCALE_SPELLCRAFT,
+        CardIDs.TRANQUIL_MEDITATIVE: SpellIDs.TRANQUIL_MEDITATIVE_SPELLCRAFT,
+        CardIDs.SEA_WITCH_ZARJIRA: SpellIDs.SEA_WITCH_SPELLCRAFT,
     }
 
     def _generate_spellcrafts(self, player: Player) -> None:
@@ -160,6 +172,7 @@ class TavernManager:
             return False, "Not enough gold"
 
         player.gold -= cost
+        player.mechanics.increment_scaling("gold_spent", cost)
 
         player.tavern_tier += 1
 
@@ -195,6 +208,7 @@ class TavernManager:
                 return False, "Not enough gold"
             player.store.pop(store_index)
             player.gold -= COST_BUY
+            player.mechanics.increment_scaling("gold_spent", COST_BUY)
             hand_card = HandCard(uid=unit_ref.uid, unit=unit_ref)
             player.hand.append(hand_card)
             self._check_triplet(player, unit_ref.card_id)
@@ -207,6 +221,7 @@ class TavernManager:
                 return False, "Not enough gold"
             player.store.pop(store_index)
             player.gold -= cost
+            player.mechanics.increment_scaling("gold_spent", cost)
             player.spell_discount = 0
             hand_card = HandCard(uid=self.get_next_uid(), spell=spell_ref)
             player.hand.append(hand_card)
@@ -310,11 +325,14 @@ class TavernManager:
 
         player.board.insert(insert_index, unit)
         recalculate_board_auras(player.board)
+        if unit.card_id in (CardIDs.MAMA_MRRGLTON, CardIDs.PAPA_MRRGLTON):
+            # Mama/Papa Mrrglton self-scaling (Mama Mrrglton / Papa Mrrglton).
+            player.mechanics.increment_scaling("mrrglton_played", 1)
         if unit.is_golden:
             if len(player.hand) < 10:
                 reward_spell = Spell.create_from_db(SpellIDs.TRIPLET_REWARD)
 
-                reward_tier = min(6, player.tavern_tier + 1)
+                reward_tier = min(7, player.tavern_tier + 1)
 
                 reward_spell.params["tier"] = reward_tier
 
@@ -514,8 +532,12 @@ class TavernManager:
             source=None,
             target=target_ref,
             source_pos=source_pos,
+            spell_id=spell.card_id,
         )
         players_by_uid: Dict[int, Player] = {player.uid: player}
+        # Count the cast once here (before triggers run) so scaling effects
+        # like Thaumaturgist see the updated value and never double-count.
+        player.mechanics.increment_scaling("spells_cast", 1)
         self.event_manager.process_event(
             event,
             players_by_uid,

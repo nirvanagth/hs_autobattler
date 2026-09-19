@@ -48,12 +48,16 @@ inline constexpr TagBitset base_tags(int16_t card_id) {
         case 433: return Tags::TAUNT;
         case 438: return Tags::DIVINE_SHIELD;
         case 439: return Tags::DIVINE_SHIELD;
+        case 440: return Tags::MAGNETIC;
+        case 445: return Tags::TAUNT;
+        case 446: return Tags::DIVINE_SHIELD;
         case 504: return Tags::TAUNT;
         case 511: return Tags::TAUNT;
         case 513: return Tags::VENOMOUS;
         case 516: return Tags::TAUNT;
         case 518: return Tags::TAUNT | Tags::REBORN;
         case 525: return Tags::DIVINE_SHIELD;
+        case 535: return Tags::TAUNT;
         case 616: return Tags::DIVINE_SHIELD | Tags::WINDFURY;
         case 903: return Tags::TAUNT;
         case 906: return Tags::TAUNT;

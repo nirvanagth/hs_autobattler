@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from .configs import CARD_DB, MECHANIC_DEFAULTS, SPELL_DB
 from .enums import CardIDs, MechanicType, SpellIDs, Tags, UnitType
@@ -42,6 +42,10 @@ class Unit:
 
     absorbed_pool_copies: Dict[str, int] = field(default_factory=dict)
 
+    # Per-turn one-shot flags for shop-phase triggers (e.g. first Spellcraft
+    # played this turn). Cleared by reset_turn_layer().
+    turn_flags: Set[str] = field(default_factory=set)
+
     @property
     def has_taunt(self) -> bool:
         return Tags.TAUNT in self.tags
@@ -81,6 +85,10 @@ class Unit:
     @property
     def has_magnetic(self) -> bool:
         return Tags.MAGNETIC in self.tags
+
+    @property
+    def has_immune(self) -> bool:
+        return Tags.IMMUNE in self.tags
 
     def _merge_counter_dict(self, dst: Dict[str, int], src: Dict[str, int]) -> None:
         for k, v in src.items():
@@ -170,6 +178,7 @@ class Unit:
             attached_turn=dict(self.attached_turn),
             attached_combat=dict(),
             absorbed_pool_copies=dict(self.absorbed_pool_copies),
+            turn_flags=set(),
             combat_hp_add=0,
             combat_atk_add=0,
             aura_hp_add=0,
@@ -184,6 +193,7 @@ class Unit:
         self.turn_hp_add = 0
         self.turn_atk_add = 0
         self.attached_turn = dict()
+        self.turn_flags = set()
         self.recalc_stats()
 
     def reset_combat_layer(self) -> None:
@@ -367,6 +377,8 @@ class Player:
     pending_discovery_request: Optional[DiscoveryRequest] = None
     free_refreshes: int = 0
     lost_last_combat: bool = False
+    turn_number: int = 0
+    combat_death_log: List[Dict[str, Any]] = field(default_factory=list)
 
     def combat_copy(self) -> Player:
         return Player(

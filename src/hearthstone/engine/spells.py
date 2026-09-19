@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Set
 
 from .enums import EffectIDs, MechanicType, SpellIDs, Tags
-from .event_system import EffectContext, EntityRef, Event, EventType, TriggerDef
+from .event_system import EffectContext, EntityRef, Event, EventType, TriggerDef, Zone
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +110,10 @@ def _make_buff_minion_handler(spell_id: str):
             atk, hp = player.mechanics.get_stat(MechanicType.BLOOD_GEM)
             ctx.buff_perm(ref, atk, hp)
         else:
-            ctx.buff_perm(ref, fixed_atk, fixed_hp)
+            if not event.source_pos:
+                return
+            b_atk, b_hp = _tavern_spell_power_bonus(ctx, event.source_pos.side)
+            ctx.buff_perm(ref, fixed_atk + b_atk, fixed_hp + b_hp)
             if extra_tags:
                 unit = ctx.resolve_unit(ref)
                 if unit:
@@ -132,8 +135,9 @@ def _make_buff_board_handler(spell_id: str):
         if not event.source_pos:
             return
         side = event.source_pos.side
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, side)
         for _, unit in ctx.iter_board_units(side):
-            ctx.buff_perm(EntityRef(unit.uid), atk, hp)
+            ctx.buff_perm(EntityRef(unit.uid), atk + b_atk, hp + b_hp)
             if extra_tags:
                 unit.tags |= extra_tags
                 unit.recalc_stats()
@@ -155,10 +159,11 @@ def _make_buff_board_type_handler(spell_id: str):
         if not event.source_pos:
             return
         side = event.source_pos.side
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, side)
         for _, unit in ctx.iter_board_units(side):
             if type_filter is not None and type_filter not in unit.types:
                 continue
-            ctx.buff_perm(EntityRef(unit.uid), atk, hp)
+            ctx.buff_perm(EntityRef(unit.uid), atk + b_atk, hp + b_hp)
             if extra_tags:
                 unit.tags |= extra_tags
                 unit.recalc_stats()
@@ -262,8 +267,9 @@ def _make_buff_tavern_handler(spell_id: str):
         if not event.source_pos:
             return
         side = event.source_pos.side
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, side)
         for _, unit in ctx.iter_store_units(side):
-            ctx.buff_perm(EntityRef(unit.uid), atk, hp)
+            ctx.buff_perm(EntityRef(unit.uid), atk + b_atk, hp + b_hp)
             if extra_tags:
                 unit.tags |= extra_tags
                 unit.recalc_stats()
@@ -291,6 +297,320 @@ def _make_attach_crab_dr_handler(spell_id: str):
     return _make_attach_effect_handler(spell_id)
 
 
+def _tavern_spell_power_bonus(ctx: EffectContext, side: int) -> tuple:
+    """(atk, hp) bonus from TAVERN_SPELL_POWER for ordinary buff spells.
+
+    Blood Gem is explicitly excluded (handled in its own branch).
+    """
+    player = ctx.players_by_uid.get(side)
+    if not player:
+        return (0, 0)
+    return player.mechanics.get_stat(MechanicType.TAVERN_SPELL_POWER)
+
+
+# ---------------------------------------------------------------------------
+# B2 expansion factories (2026-09).
+# ---------------------------------------------------------------------------
+
+def _make_buff_minion_turn_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_TURN — turn-scoped buff on targeted board unit."""
+    from .configs import SPELL_DB
+    params = SPELL_DB[spell_id].get("params", {})
+    atk: int = params.get("atk", 0)
+    hp: int = params.get("hp", 0)
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, event.source_pos.side)
+        ctx.buff_turn(EntityRef(event.target.uid), atk + b_atk, hp + b_hp)
+
+    return _handler
+
+
+def _make_buff_minion_turn_scaling_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_TURN_SCALING — turn buff scaling with a counter.
+
+    total = base + (scaling_value // per_n) * step.
+    """
+    from .configs import SPELL_DB
+    params = SPELL_DB[spell_id].get("params", {})
+    base_atk: int = params.get("base_atk", 0)
+    base_hp: int = params.get("base_hp", 0)
+    scaling_key: str = params.get("scaling_key", "")
+    per_n: int = params.get("per_n", 1) or 1
+    step_atk: int = params.get("step_atk", 0)
+    step_hp: int = params.get("step_hp", 0)
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        side = event.source_pos.side
+        player = ctx.players_by_uid.get(side)
+        steps = 0
+        if player and scaling_key:
+            steps = player.mechanics.get_scaling(scaling_key) // per_n
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, side)
+        ctx.buff_turn(
+            EntityRef(event.target.uid),
+            base_atk + steps * step_atk + b_atk,
+            base_hp + steps * step_hp + b_hp,
+        )
+
+    return _handler
+
+
+def _make_buff_minion_turn_tags_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_TURN_TAGS — turn buff plus keywords."""
+    from .configs import SPELL_DB
+    params = SPELL_DB[spell_id].get("params", {})
+    atk: int = params.get("atk", 0)
+    hp: int = params.get("hp", 0)
+    extra_tags: set = params.get("tags", set())
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        ref = EntityRef(event.target.uid)
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, event.source_pos.side)
+        ctx.buff_turn(ref, atk + b_atk, hp + b_hp)
+        if extra_tags:
+            unit = ctx.resolve_unit(ref)
+            if unit:
+                unit.tags |= extra_tags
+                unit.recalc_stats()
+
+    return _handler
+
+
+def _make_buff_minion_cond_tags_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_COND_TAGS — buff always; keywords only if
+    the target has cond_type."""
+    from .configs import SPELL_DB
+    from .enums import UnitType
+    params = SPELL_DB[spell_id].get("params", {})
+    atk: int = params.get("atk", 0)
+    hp: int = params.get("hp", 0)
+    cond_type: UnitType = params.get("cond_type")
+    extra_tags: set = params.get("tags", set())
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        ref = EntityRef(event.target.uid)
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, event.source_pos.side)
+        ctx.buff_perm(ref, atk + b_atk, hp + b_hp)
+        if extra_tags and cond_type is not None:
+            unit = ctx.resolve_unit(ref)
+            if unit and cond_type in unit.types:
+                unit.tags |= extra_tags
+                unit.recalc_stats()
+
+    return _handler
+
+
+def _make_buff_minion_tags_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_TAGS — grant keywords to targeted board unit."""
+    from .configs import SPELL_DB
+    params = SPELL_DB[spell_id].get("params", {})
+    extra_tags: set = params.get("tags", set())
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not extra_tags:
+            return
+        unit = ctx.resolve_unit(EntityRef(event.target.uid))
+        if unit:
+            unit.tags |= extra_tags
+            unit.recalc_stats()
+
+    return _handler
+
+
+_STAT_SPELL_EFFECTS = frozenset({
+    "BUFF_MINION",
+    "BUFF_BOARD",
+    "BUFF_TAVERN",
+    "BUFF_BOARD_TYPE",
+    "BUFF_ALL_FRIENDLY",
+    "BUFF_ALL_BY_TYPE",
+})
+
+
+def _make_get_random_stat_spell_handler(spell_id: str):
+    """Spell effect: GET_RANDOM_STAT_SPELL — add a random stat-buff tavern
+    spell to hand (excludes temporary spellcrafts)."""
+    import random
+    from .configs import SPELL_DB
+
+    candidates = [
+        sid for sid, data in SPELL_DB.items()
+        if data.get("effect") in _STAT_SPELL_EFFECTS
+        and not data.get("is_temporary", False)
+    ]
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.source_pos or not candidates:
+            return
+        chosen = random.choice(candidates)
+        ctx.add_spell_to_hand(event.source_pos.side, chosen)
+
+    return _handler
+
+
+def _make_get_random_unit_tier_by_turn_handler(spell_id: str):
+    """Spell effect: GET_RANDOM_UNIT_TIER_BY_TURN — get a random unit of
+    unit_type with tier = min(turn_number, max_tier)."""
+    from .configs import SPELL_DB
+    from .entities import HandCard, Unit
+    from .enums import UnitType
+    params = SPELL_DB[spell_id].get("params", {})
+    unit_type: UnitType = params.get("unit_type")
+    base_tier: int = params.get("base_tier", 1)
+    per_turn: int = params.get("per_turn", 1)
+    max_tier: int = params.get("max_tier", 6)
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.source_pos:
+            return
+        side = event.source_pos.side
+        player = ctx.players_by_uid.get(side)
+        if not player or not ctx.card_pool:
+            return
+        turn = max(1, getattr(player, "turn_number", 1))
+        tier = max(base_tier, min(base_tier + (turn - 1) * per_turn, max_tier))
+
+        def _pred(d) -> bool:
+            return unit_type is not None and unit_type in d.get("type", [])
+
+        drawn = ctx.card_pool.draw_discovery_cards(
+            1, tier, exact_tier=True, predicate=_pred
+        )
+        if not drawn:
+            return
+        if len(player.hand) >= 10:
+            ctx.card_pool.return_cards(drawn)
+            return
+        uid = ctx._uid_provider()
+        unit = Unit.create_from_db(drawn[0], uid, side)
+        player.hand.append(HandCard(uid=uid, unit=unit))
+
+    return _handler
+
+
+def _make_copy_random_other_tavern_minion_handler(spell_id: str):
+    """Spell effect: COPY_RANDOM_OTHER_TAVERN_MINION — add a copy of a random
+    shop minion to hand."""
+    import random
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.source_pos:
+            return
+        side = event.source_pos.side
+        store_units = [u for _, u in ctx.iter_store_units(side)]
+        if not store_units:
+            return
+        chosen = random.choice(store_units)
+        ctx.add_unit_to_hand(side, chosen.card_id)
+
+    return _handler
+
+
+def _make_tavern_spell_bonus_global_handler(spell_id: str):
+    """Spell effect: TAVERN_SPELL_BONUS_GLOBAL — increase TAVERN_SPELL_POWER."""
+    from .configs import SPELL_DB
+    params = SPELL_DB[spell_id].get("params", {})
+    atk: int = params.get("atk", 0)
+    hp: int = params.get("hp", 0)
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.source_pos:
+            return
+        player = ctx.players_by_uid.get(event.source_pos.side)
+        if not player:
+            return
+        player.mechanics.modify_stat(MechanicType.TAVERN_SPELL_POWER, atk, hp)
+
+    return _handler
+
+
+def _make_buff_minion_and_board_type_handler(spell_id: str):
+    """Spell effect: BUFF_MINION_AND_BOARD_TYPE — buff the target, then all
+    other friendly board minions of unit_type."""
+    from .configs import SPELL_DB
+    from .enums import UnitType
+    params = SPELL_DB[spell_id].get("params", {})
+    atk: int = params.get("atk", 0)
+    hp: int = params.get("hp", 0)
+    unit_type: UnitType = params.get("unit_type")
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        side = event.source_pos.side
+        b_atk, b_hp = _tavern_spell_power_bonus(ctx, side)
+        total_atk, total_hp = atk + b_atk, hp + b_hp
+        target_uid = event.target.uid
+        ctx.buff_perm(EntityRef(target_uid), total_atk, total_hp)
+        if unit_type is None:
+            return
+        for _, unit in ctx.iter_board_units(side):
+            if unit.uid == target_uid:
+                continue
+            if unit_type in unit.types:
+                ctx.buff_perm(EntityRef(unit.uid), total_atk, total_hp)
+
+    return _handler
+
+
+def _make_transform_to_random_same_type_handler(spell_id: str):
+    """Spell effect: TRANSFORM_TO_RANDOM_SAME_TYPE — replace the target with
+    a random same-tier minion sharing one of its types. Buffs are not kept."""
+    from .auras import recalculate_board_auras
+    from .entities import Unit
+
+    def _handler(ctx: EffectContext, event: Event, trigger_uid: int) -> None:
+        if not event.target or not event.source_pos:
+            return
+        side = event.source_pos.side
+        player = ctx.players_by_uid.get(side)
+        if not player or not ctx.card_pool:
+            return
+        pos = ctx.resolve_pos(event.target)
+        if not pos or pos.zone != Zone.BOARD:
+            return
+        slot = pos.slot
+        if slot < 0 or slot >= len(player.board):
+            return
+        old_unit = player.board[slot]
+        if old_unit.uid != event.target.uid:
+            return
+        types = list(old_unit.types)
+        tier = old_unit.tier
+        was_golden = old_unit.is_golden
+
+        def _pred(d) -> bool:
+            if int(d.get("tier", 0)) != tier:
+                return False
+            dtypes = d.get("type", [])
+            return any(t in dtypes for t in types)
+
+        drawn = ctx.card_pool.draw_discovery_cards(
+            1, tier, exact_tier=True, predicate=_pred
+        )
+        if not drawn:
+            return
+        player.board.pop(slot)
+        ctx.card_pool.return_cards([old_unit.card_id])
+        new_unit = Unit.create_from_db(
+            drawn[0], ctx._uid_provider(), side, was_golden
+        )
+        player.board.insert(slot, new_unit)
+        ctx._reindex_side(side)
+        recalculate_board_auras(player.board)
+
+    return _handler
+
+
 # ---------------------------------------------------------------------------
 # Effect code -> factory mapping
 # ---------------------------------------------------------------------------
@@ -310,6 +630,18 @@ EFFECT_FACTORIES = {
     "ATTACH_CRAB_DR": _make_attach_crab_dr_handler,
     "BUFF_ALL_FRIENDLY": _make_buff_board_handler,       # alias: buff all board
     "BUFF_ALL_BY_TYPE": _make_buff_board_type_handler,   # alias: buff board by type
+    # --- B2 expansion effect codes (2026-09) ---
+    "BUFF_MINION_TURN": _make_buff_minion_turn_handler,
+    "BUFF_MINION_TURN_SCALING": _make_buff_minion_turn_scaling_handler,
+    "BUFF_MINION_TURN_TAGS": _make_buff_minion_turn_tags_handler,
+    "BUFF_MINION_COND_TAGS": _make_buff_minion_cond_tags_handler,
+    "BUFF_MINION_TAGS": _make_buff_minion_tags_handler,
+    "GET_RANDOM_STAT_SPELL": _make_get_random_stat_spell_handler,
+    "GET_RANDOM_UNIT_TIER_BY_TURN": _make_get_random_unit_tier_by_turn_handler,
+    "COPY_RANDOM_OTHER_TAVERN_MINION": _make_copy_random_other_tavern_minion_handler,
+    "TAVERN_SPELL_BONUS_GLOBAL": _make_tavern_spell_bonus_global_handler,
+    "BUFF_MINION_AND_BOARD_TYPE": _make_buff_minion_and_board_type_handler,
+    "TRANSFORM_TO_RANDOM_SAME_TYPE": _make_transform_to_random_same_type_handler,
 }
 
 #: Effect codes whose spells require a board target.
@@ -317,6 +649,14 @@ _TARGET_REQUIRED_EFFECTS: Set[str] = {
     "BUFF_MINION",
     "ATTACH_EFFECT",
     "ATTACH_CRAB_DR",
+    # --- B2 ---
+    "TRANSFORM_TO_RANDOM_SAME_TYPE",
+    "BUFF_MINION_AND_BOARD_TYPE",
+    "BUFF_MINION_TURN",
+    "BUFF_MINION_TURN_SCALING",
+    "BUFF_MINION_TURN_TAGS",
+    "BUFF_MINION_COND_TAGS",
+    "BUFF_MINION_TAGS",
 }
 
 
