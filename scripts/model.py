@@ -490,10 +490,7 @@ class HSTransformerAgent(nn.Module):
             action_mask: [B, 34] bool mask (True = legal)
             action: [B] actions to evaluate (None = sample new)
         """
-        action_logits, value_logits = self.forward(obs)
-
-        # Mask illegal actions
-        action_logits = action_logits.masked_fill(~action_mask, -1e8)
+        action_logits, value_logits = self.get_masked_logits(obs, action_mask)
         dist = Categorical(logits=action_logits)
 
         if action is None:
@@ -502,6 +499,16 @@ class HSTransformerAgent(nn.Module):
         value = decode_value(value_logits, self.bins)
 
         return action, dist.log_prob(action), dist.entropy(), value, value_logits
+
+    def get_masked_logits(
+        self,
+        obs: torch.Tensor,
+        action_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Return legal-action logits and categorical value logits."""
+        action_logits, value_logits = self.forward(obs)
+        action_logits = action_logits.masked_fill(~action_mask, -1e8)
+        return action_logits, value_logits
 
     def get_value(self, obs: torch.Tensor) -> torch.Tensor:
         """Returns scalar value [B] for GAE bootstrap."""

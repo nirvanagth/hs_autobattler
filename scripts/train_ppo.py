@@ -11,6 +11,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import os
 import random
@@ -24,6 +25,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.distributions import Categorical
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
@@ -65,6 +67,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--vf-coef", type=float, default=0.5)
     p.add_argument("--max-grad-norm", type=float, default=0.5)
     p.add_argument("--target-kl", type=float, default=0.03)
+    p.add_argument(
+        "--bc-kl-coef", type=float, default=0.1,
+        help="KL regularization toward a model-only BC initialization",
+    )
+    p.add_argument("--bc-kl-decay-frac", type=float, default=0.75)
     # Rollout
     p.add_argument("--n-envs", type=int, default=8)
     p.add_argument("--n-steps", type=int, default=2048)
@@ -272,6 +279,7 @@ def main():
 
     # Resume (works with both PPO checkpoints and BC pretrain checkpoints)
     global_step = 0
+    teacher_agent = None
     if args.resume:
         ckpt = torch.load(args.resume, map_location=device)
         checkpoint_actor_type = str(ckpt.get("args", {}).get("actor_type", "flat"))
@@ -293,6 +301,11 @@ def main():
                 f"checkpoint={checkpoint_opponents}, current={opponent_contract}"
             )
         agent.load_state_dict(ckpt["model"])
+        if "optimizer" not in ckpt and args.bc_kl_coef > 0:
+            teacher_agent = copy.deepcopy(agent).eval()
+            for parameter in teacher_agent.parameters():
+                parameter.requires_grad_(False)
+            print(f"[resume] BC teacher KL enabled (coef={args.bc_kl_coef})")
         if "optimizer" in ckpt:
             try:
                 optimizer.load_state_dict(ckpt["optimizer"])
@@ -383,7 +396,12 @@ def main():
         pg_losses = []
         vf_losses = []
         ent_losses = []
+        bc_kl_losses = []
         kl_early_stop = False
+        bc_kl_coef = args.bc_kl_coef * max(
+            0.0,
+            1.0 - update / max(1, int(n_updates * args.bc_kl_decay_frac)),
+        )
 
         for epoch in range(args.update_epochs):
             np.random.shuffle(b_inds)
@@ -391,9 +409,12 @@ def main():
                 end = start + minibatch_size
                 mb = b_inds[start:end]
 
-                _, newlogprob, entropy, newvalue, new_vlogits = agent.get_action_and_value(
-                    b_obs[mb], b_masks[mb], b_actions[mb]
+                new_action_logits, new_vlogits = agent.get_masked_logits(
+                    b_obs[mb], b_masks[mb]
                 )
+                new_dist = Categorical(logits=new_action_logits)
+                newlogprob = new_dist.log_prob(b_actions[mb])
+                entropy = new_dist.entropy()
 
                 logratio = newlogprob - b_logprobs[mb]
                 ratio = logratio.exp()
@@ -423,8 +444,25 @@ def main():
                 vf_loss = -(target_twohot * F.log_softmax(new_vlogits, -1)).sum(-1).mean()
 
                 ent_loss = entropy.mean()
-                # TODO: fix this fucking loss
-                loss = pg_loss + args.vf_coef * vf_loss - ent_coef * ent_loss
+                if teacher_agent is not None and bc_kl_coef > 0:
+                    with torch.no_grad():
+                        teacher_logits, _ = teacher_agent.get_masked_logits(
+                            b_obs[mb], b_masks[mb]
+                        )
+                        teacher_probs = F.softmax(teacher_logits, dim=-1)
+                    bc_kl_loss = F.kl_div(
+                        F.log_softmax(new_action_logits, dim=-1),
+                        teacher_probs,
+                        reduction="batchmean",
+                    )
+                else:
+                    bc_kl_loss = torch.zeros((), device=device)
+                loss = (
+                    pg_loss
+                    + args.vf_coef * vf_loss
+                    - ent_coef * ent_loss
+                    + bc_kl_coef * bc_kl_loss
+                )
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -434,6 +472,7 @@ def main():
                 pg_losses.append(pg_loss.item())
                 vf_losses.append(vf_loss.item())
                 ent_losses.append(ent_loss.item())
+                bc_kl_losses.append(bc_kl_loss.item())
 
             if kl_early_stop:
                 break
@@ -449,6 +488,7 @@ def main():
                 f"step={global_step:,} fps={fps:.0f} "
                 f"pg={np.mean(pg_losses):.4f} vf={np.mean(vf_losses):.4f} "
                 f"ent={np.mean(ent_losses):.4f} ent_coef={ent_coef:.4f} "
+                f"bc_kl={np.mean(bc_kl_losses):.4f} bc_kl_coef={bc_kl_coef:.4f} "
                 f"kl={approx_kl:.4f} clip={np.mean(clipfracs):.3f} "
                 f"avg_r={avg_reward:.3f}"
             )
@@ -460,9 +500,11 @@ def main():
                     "losses/policy": np.mean(pg_losses),
                     "losses/value": np.mean(vf_losses),
                     "losses/entropy": np.mean(ent_losses),
+                    "losses/bc_kl": np.mean(bc_kl_losses),
                     "losses/approx_kl": approx_kl,
                     "losses/clipfrac": np.mean(clipfracs),
                     "config/ent_coef": ent_coef,
+                    "config/bc_kl_coef": bc_kl_coef,
                     "config/lr": optimizer.param_groups[0]["lr"],
                 }, step=global_step)
 
