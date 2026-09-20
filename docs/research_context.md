@@ -114,16 +114,26 @@ recovery mechanism as a positive claim.
 
 Roadmap item: **R2 Matched representation and learning ablations**.
 
+R2-A is complete. Three-seed matched results:
+
+- Flat: 83.03 ± 0.49% action accuracy, 14.33 ± 3.01% vs ES,
+  48.83 ± 4.48% vs SmartBot.
+- Pointer: 99.13 ± 0.08% action accuracy, 55.17 ± 2.75% vs ES,
+  86.33 ± 2.02% vs SmartBot.
+
+See `docs/r2_representation_ablation.md`. Pointer is now mandatory for future
+mainline experiments.
+
 Immediate implementation target:
 
 ```text
 scripts/run_matched_ablation.py
 ```
 
-It must:
+Next extension/execution target:
 
-- define immutable experiment manifests for flat BC, pointer BC, DAgger weight
-  ablations, sparse PPO, KL-PPO, and oracle PPO;
+- run the R2-B DAgger disagreement-weight variants (1x, 5x, 10x) from the same
+  parent Pointer BC checkpoint and aggregated data;
 - keep data, seeds, model sizes, budgets, and evaluation suites matched;
 - run at least three training seeds before promoting a research claim;
 - record command lines, artifact hashes, status, and failure information;

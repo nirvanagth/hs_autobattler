@@ -73,6 +73,15 @@ Train at least three seeds with identical data and budgets:
 Gate: publish mean, standard deviation, paired confidence intervals, wall-clock
 cost, and parameter count. No conclusion may rely on a single training seed.
 
+Progress:
+
+- **R2-A representation — COMPLETE.** Three matched seeds showed Pointer versus
+  Flat gains of +16.1 action-accuracy points, +40.8 ES win-rate points, and
+  +37.5 SmartBot win-rate points. See `docs/r2_representation_ablation.md`.
+- **R2-B DAgger disagreement weights — NEXT.** Compare 1x, 5x, and 10x with
+  matched seeds and the same aggregated dataset.
+- R2-C PPO/reward variants — pending after R2-B.
+
 ### R3. Freeze the benchmark — PENDING
 
 - Assign an explicit environment behavior version and fixed card-pool snapshot.
