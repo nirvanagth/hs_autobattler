@@ -15,6 +15,9 @@ environment, not live eight-player Battlegrounds performance.
 | `artifacts/v2_prepatch/ppo_bc_1m/final.pt` | `b35af0073e0ca687d351ae3b264eb9c9b39148e6598f63ffb37897906163c4bb` |
 | `artifacts/v2_prepatch/ppo_oracle_1m/ckpt_327680.pt` | `b234ba91069efed9c54727cf46d563d3a044e1aed4580749d010e74763b2f6b5` |
 | `artifacts/v2_prepatch/ppo_oracle_1m/final.pt` | `ad5a0c61d41fa1b366378b89f1c6e68739e46ea146fe3b15a918f742a8841aab` |
+| `artifacts/v2_prepatch/dagger_round1.npz` | `e32dd99561b7fb7436bb42b2f56c228b5d72c5d4ee14bfa1c80fe3ffdf86cff6` |
+| `artifacts/v2_prepatch/bc_dagger_round1.npz` | `baa923563f9d1a480f805a0889476932aeddc857987ef43cfc7bce88a0f1212b` |
+| `artifacts/v2_prepatch/bc_dagger_round1.pt` | `a4c05fc416e4af9ead9837950c3e365a11d05c50764ffe07fee2cd35e4b5fb6c` |
 | `artifacts/es_bot/best.npz` | `0b18c9a10e2da4fc2cc04104003ae8d75e5c0bfdb68449acc169c559db8ed7c1` |
 
 Artifacts are intentionally gitignored. The tracked JSON evaluation reports
@@ -99,14 +102,47 @@ against SmartBot, which is not statistically significant. Longer oracle
 training again drifts below BC. Deterministic potential shaping is therefore a
 safe credit signal at this scale, but not yet a demonstrated policy improvement.
 
+## DAgger round 1
+
+Commit `45f1ba5` added learner-state collection, RNG-neutral ES queries,
+episode-safe aggregation, checkpoint fine-tuning, and 5x loss weight for
+learner/expert disagreements.
+
+- Learner: the best pointer BC checkpoint.
+- 2,000 learner-controlled episodes (`beta=0`).
+- Mixed opponents: 50% new ES and 50% SmartBot.
+- 297,593 learner-visited states; 1.4% learner/expert disagreement.
+- Aggregated dataset: 914,721 rows, 30.0% DAgger.
+- Five fine-tuning epochs at `lr=1e-4`.
+- Held-out accuracy: 99.3% overall, 99.4% base, 99.2% DAgger.
+
+Paired-seat evaluation:
+
+| Candidate | Opponent | Games | W-L-D | Win rate | HP diff |
+|---|---:|---:|---:|---:|---:|
+| DAgger R1 | New ES | 200 | 116-81-3 | **58.0%** | +4.6 |
+| DAgger R1 | SmartBot | 200 | 175-25-0 | **87.5%** | +22.5 |
+
+Compared with pointer BC, DAgger is -1 point against ES (not significant at
+this sample size) and +4 points against SmartBot. This supports the intended
+benefit: recovery on learner-induced states improved without a large loss on
+the expert distribution.
+
+The collector exposed an environment deadlock: once the per-turn action cap
+was reached, END incorrectly masked out mandatory Discover choices, while
+`step()` rejected END during discovery. This produced 741 repeated invalid
+labels across a few truncated episodes. Training dropped those rows, and commit
+`3070d0b` moved the action-cap rule behind Discover/targeting masks.
+
 ## Decision
 
-1. Keep `bc_pretrain.pt` as the current best pre-patch policy.
+1. Keep `bc_pretrain.pt` as the strongest ES-facing policy and
+   `bc_dagger_round1.pt` as the strongest mixed-opponent policy.
 2. Do not extend the present PPO run to 5M steps.
 3. Keep deterministic oracle shaping available, but do not promote it as an
    improvement based on this run. The next credit-assignment experiment should
-   use an auxiliary combat/value objective or DAgger-style on-policy expert
-   relabeling rather than simply extending PPO.
+   use an auxiliary combat/value objective or a second DAgger round collected
+   after the mandatory-choice fix rather than simply extending PPO.
 4. Preserve the BC-teacher KL path as a safety constraint.
 5. Re-audit the card pool after the 2026-09-22 patch before training a candidate
    intended to track the live game.
