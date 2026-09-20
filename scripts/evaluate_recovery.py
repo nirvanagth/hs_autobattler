@@ -244,7 +244,82 @@ def aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
             "score_delta_from_clean": mean_interval(deltas),
             "health_delta_from_clean": mean_interval(hp_deltas),
         }
-    return {"groups": result, "recovery": recovery}
+    candidate_order = list(dict.fromkeys(row["candidate"] for row in records))
+    comparisons: dict[str, Any] = {}
+    if len(candidate_order) >= 2:
+        reference = candidate_order[0]
+        row_map = {
+            (
+                row["candidate"],
+                row["target_turn"],
+                row["perturbation"],
+                row["seed"],
+            ): row
+            for row in records
+        }
+        target_turns = sorted({row["target_turn"] for row in records})
+        perturbations = sorted(
+            {row["perturbation"] for row in records if row["perturbation"] != "clean"}
+        )
+        seeds = sorted({row["seed"] for row in records})
+        for challenger in candidate_order[1:]:
+            for target_turn in target_turns:
+                for perturbation in perturbations:
+                    direct_score, recovery_score = [], []
+                    direct_hp, recovery_hp = [], []
+                    for seed in seeds:
+                        keys = {
+                            "reference_clean": (reference, target_turn, "clean", seed),
+                            "reference_error": (reference, target_turn, perturbation, seed),
+                            "challenger_clean": (challenger, target_turn, "clean", seed),
+                            "challenger_error": (challenger, target_turn, perturbation, seed),
+                        }
+                        if not all(key in row_map for key in keys.values()):
+                            continue
+                        rows = {name: row_map[key] for name, key in keys.items()}
+                        if not (
+                            rows["reference_error"]["perturbation_applied"]
+                            and rows["challenger_error"]["perturbation_applied"]
+                        ):
+                            continue
+                        direct_score.append(
+                            rows["challenger_error"]["score"]
+                            - rows["reference_error"]["score"]
+                        )
+                        direct_hp.append(
+                            rows["challenger_error"]["health_margin"]
+                            - rows["reference_error"]["health_margin"]
+                        )
+                        recovery_score.append(
+                            (
+                                rows["challenger_error"]["score"]
+                                - rows["challenger_clean"]["score"]
+                            )
+                            - (
+                                rows["reference_error"]["score"]
+                                - rows["reference_clean"]["score"]
+                            )
+                        )
+                        recovery_hp.append(
+                            (
+                                rows["challenger_error"]["health_margin"]
+                                - rows["challenger_clean"]["health_margin"]
+                            )
+                            - (
+                                rows["reference_error"]["health_margin"]
+                                - rows["reference_clean"]["health_margin"]
+                            )
+                        )
+                    key = (
+                        f"{challenger}_vs_{reference}|turn={target_turn}|{perturbation}"
+                    )
+                    comparisons[key] = {
+                        "perturbed_score_advantage": mean_interval(direct_score),
+                        "perturbed_health_advantage": mean_interval(direct_hp),
+                        "recovery_score_advantage": mean_interval(recovery_score),
+                        "recovery_health_advantage": mean_interval(recovery_hp),
+                    }
+    return {"groups": result, "recovery": recovery, "comparisons": comparisons}
 
 
 def parse_args() -> argparse.Namespace:

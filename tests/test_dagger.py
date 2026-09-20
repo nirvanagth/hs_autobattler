@@ -104,3 +104,37 @@ def test_recovery_aggregate_computes_paired_delta() -> None:
     delta = report["recovery"]["bc|turn=5|premature_end"]
     assert delta["score_delta_from_clean"]["mean"] == -1.0
     assert delta["health_delta_from_clean"]["mean"] == -15.0
+
+
+def test_recovery_aggregate_compares_candidate_recovery() -> None:
+    rows = []
+    for candidate, clean, perturbed in (("bc", 1.0, 0.0), ("dagger", 1.0, 0.5)):
+        rows.extend(
+            [
+                {
+                    "candidate": candidate,
+                    "perturbation": "clean",
+                    "target_turn": 5,
+                    "seed": 1,
+                    "perturbation_applied": True,
+                    "score": clean,
+                    "outcome": "win",
+                    "health_margin": 10,
+                },
+                {
+                    "candidate": candidate,
+                    "perturbation": "sell_strongest",
+                    "target_turn": 5,
+                    "seed": 1,
+                    "perturbation_applied": True,
+                    "score": perturbed,
+                    "outcome": "loss",
+                    "health_margin": 0 if candidate == "bc" else 5,
+                },
+            ]
+        )
+    comparison = aggregate(rows)["comparisons"][
+        "dagger_vs_bc|turn=5|sell_strongest"
+    ]
+    assert comparison["perturbed_score_advantage"]["mean"] == 0.5
+    assert comparison["recovery_score_advantage"]["mean"] == 0.5
