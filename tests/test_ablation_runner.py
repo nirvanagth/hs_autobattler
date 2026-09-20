@@ -14,10 +14,12 @@ def test_train_command_pins_variant_seed_and_budget(tmp_path: Path) -> None:
         epochs=3,
         batch_size=64,
         learning_rate=1e-4,
+        parent_checkpoint=tmp_path / "parent.pt",
     )
     assert command[command.index("--actor-type") + 1] == "flat"
     assert command[command.index("--seed") + 1] == "17"
     assert command[command.index("--epochs") + 1] == "3"
+    assert command[command.index("--resume") + 1] == str(tmp_path / "parent.pt")
 
 
 def test_eval_command_uses_fixed_seed_suite(tmp_path: Path) -> None:

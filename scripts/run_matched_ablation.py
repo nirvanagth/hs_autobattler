@@ -64,8 +64,9 @@ def build_train_command(
     epochs: int,
     batch_size: int,
     learning_rate: float,
+    parent_checkpoint: Path | None = None,
 ) -> list[str]:
-    return [
+    command = [
         sys.executable,
         str(ROOT / "scripts" / "bc_train.py"),
         "--dataset", str(dataset),
@@ -76,6 +77,9 @@ def build_train_command(
         "--batch-size", str(batch_size),
         "--lr", str(learning_rate),
     ]
+    if parent_checkpoint is not None:
+        command.extend(["--resume", str(parent_checkpoint)])
+    return command
 
 
 def build_eval_command(
@@ -106,6 +110,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--output-root", required=True)
     parser.add_argument("--es-weights", default="artifacts/es_bot/best.npz")
+    parser.add_argument(
+        "--parent-checkpoint",
+        default=None,
+        help="optional model-only checkpoint used to initialize every training run",
+    )
     parser.add_argument("--variants", nargs="+", choices=("flat", "pointer"),
                         default=["flat", "pointer"])
     parser.add_argument("--seeds", nargs="+", type=int, default=[17, 42, 73])
@@ -126,10 +135,15 @@ def main() -> None:
     dataset = Path(args.dataset).resolve()
     output_root = Path(args.output_root).resolve()
     es_weights = Path(args.es_weights).resolve()
+    parent_checkpoint = (
+        Path(args.parent_checkpoint).resolve() if args.parent_checkpoint else None
+    )
     if not dataset.is_file():
         raise FileNotFoundError(dataset)
     if not es_weights.is_file():
         raise FileNotFoundError(es_weights)
+    if parent_checkpoint is not None and not parent_checkpoint.is_file():
+        raise FileNotFoundError(parent_checkpoint)
     reuse = parse_reuse(args.reuse)
 
     config = {
@@ -139,6 +153,10 @@ def main() -> None:
         "dataset_sha256": file_sha256(dataset),
         "es_weights": str(es_weights),
         "es_weights_sha256": file_sha256(es_weights),
+        "parent_checkpoint": str(parent_checkpoint) if parent_checkpoint else None,
+        "parent_checkpoint_sha256": (
+            file_sha256(parent_checkpoint) if parent_checkpoint else None
+        ),
         "variants": args.variants,
         "seeds": args.seeds,
         "epochs": args.epochs,
@@ -186,6 +204,7 @@ def main() -> None:
                             epochs=args.epochs,
                             batch_size=args.batch_size,
                             learning_rate=args.lr,
+                            parent_checkpoint=parent_checkpoint,
                         ),
                         run_dir / "train.log",
                     )
