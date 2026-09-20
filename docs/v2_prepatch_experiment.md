@@ -134,6 +134,25 @@ was reached, END incorrectly masked out mandatory Discover choices, while
 labels across a few truncated episodes. Training dropped those rows, and commit
 `3070d0b` moved the action-cap rule behind Discover/targeting masks.
 
+### Controlled recovery follow-up
+
+`scripts/evaluate_recovery.py` replayed a deterministic ES prefix through turn
+5, injected one controlled error, and compared each perturbed result with the
+same policy's clean result on the same seed. SmartBot and ES were evaluated on
+100 paired seeds each.
+
+DAgger's largest positive trend was after selling the strongest minion:
+
+- SmartBot: +0.020 recovery score over BC, 95% CI [-0.008, +0.048], and
+  +1.06 recovery HP, CI [-0.15, +2.27].
+- ES: +0.015 recovery score, CI [-0.026, +0.056], and +0.93 recovery HP,
+  CI [-0.81, +2.67].
+
+Random non-expert and premature-end perturbations were also non-significant.
+The pre-registered recovery gate was not met. DAgger's +4 SmartBot win-rate
+result remains real on the measured seeds, but this experiment did not establish
+single-error recovery as its cause.
+
 ## Decision
 
 1. Keep `bc_pretrain.pt` as the strongest ES-facing policy and

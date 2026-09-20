@@ -11,8 +11,8 @@ the model, environment, reward, or training pipeline.
 - Actual checkout: `/Users/tianhaogu/Projects/hs_autobattler`
 - Branch/remote: `main` tracking `mine/main`
 - The Codex workspace path under `Documents/ChatGPT` is not this repository.
-- Current tracked head when this context was written: `cab769f` plus subsequent
-  roadmap/recovery work.
+- Current tracked head when this context was written: `921d2ae` plus subsequent
+  roadmap/R2 work.
 
 Common command prefix:
 
@@ -83,29 +83,54 @@ SHA-256: `0b18c9a10e2da4fc2cc04104003ae8d75e5c0bfdb68449acc169c559db8ed7c1`
 5. Fifty-game checkpoint selection is too noisy. Use at least 200 paired games
    for promotion.
 6. DAgger improved SmartBot robustness by four points while remaining roughly
-   flat against ES. The next question is whether this is recovery robustness.
+   flat against ES. A controlled recovery benchmark did not support error
+   recovery as the mechanism.
+
+## R1 recovery result
+
+Tracked implementation: `scripts/evaluate_recovery.py`  
+Smart raw report SHA-256:
+`320874403f13484106bfe6d911063f3b17157911355d607cae672565f1598706`  
+ES raw report SHA-256:
+`5c96c6bffd9b1367a1cd373027868006636da34796957dcce0eceb0b3aa3b10a`
+
+Design: deterministic ES prefix through the first normal decision on turn 5,
+then clean handoff or one injected random non-expert action, strongest-minion
+sale, or premature end. Pointer BC and DAgger R1 used the same 100 seeds.
+
+Key paired recovery advantages (DAgger minus BC):
+
+- Smart, sell strongest: +0.020 score, 95% CI [-0.008, +0.048];
+  +1.06 HP, CI [-0.15, +2.27].
+- Smart, premature end: -0.010 score, CI [-0.030, +0.010].
+- ES, sell strongest: +0.015 score, CI [-0.026, +0.056].
+- ES, premature end: +0.020 score, CI [-0.048, +0.088].
+
+All intervals crossed zero. R1 therefore did not establish that recovery from a
+single turn-5 mistake explains DAgger's SmartBot improvement. Do not present the
+recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **R1 Recovery benchmark**.
+Roadmap item: **R2 Matched representation and learning ablations**.
 
 Immediate implementation target:
 
 ```text
-scripts/evaluate_recovery.py
+scripts/run_matched_ablation.py
 ```
 
 It must:
 
-- replay a deterministic ES prefix to a target turn;
-- inject a controlled legal error without consuming environment RNG;
-- hand control to each candidate policy;
-- run clean and perturbed variants on the same seeds;
-- save raw episode results plus paired recovery deltas;
-- support both SmartBot and ES opponents;
-- compare `bc_pretrain.pt` and `bc_dagger_round1.pt`.
+- define immutable experiment manifests for flat BC, pointer BC, DAgger weight
+  ablations, sparse PPO, KL-PPO, and oracle PPO;
+- keep data, seeds, model sizes, budgets, and evaluation suites matched;
+- run at least three training seeds before promoting a research claim;
+- record command lines, artifact hashes, status, and failure information;
+- support local smoke presets before expensive production runs.
 
-Do not begin R2 until R1 results have been recorded and its gate evaluated.
+Do not begin the eight-player environment phase until R2 results have been
+recorded and the benchmark freeze task R3 is complete.
 
 ## Update protocol
 
@@ -116,4 +141,3 @@ After each task:
 3. Record commands, hashes, results, and negative findings.
 4. Update the status in `research_roadmap.md` and this file's current task.
 5. Commit and push to `mine/main`.
-

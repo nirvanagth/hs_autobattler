@@ -35,7 +35,7 @@ model or environment complexity is not added without a measurable reason.
 Gate result: Pointer BC reached 59.0% vs new ES and 83.5% vs SmartBot;
 DAgger R1 reached 58.0% vs ES and 87.5% vs SmartBot.
 
-### R1. Recovery benchmark — IN PROGRESS
+### R1. Recovery benchmark — COMPLETE (HYPOTHESIS NOT SUPPORTED)
 
 Research question: does DAgger improve recovery from learner-induced errors?
 
@@ -54,7 +54,12 @@ Gate:
 - DAgger must improve mean recovery score or reduce recovery degradation on
   holdout seeds without losing more than two win-rate points on clean play.
 
-### R2. Matched representation and learning ablations — PENDING
+Result: the tooling and paired raw-result benchmark were completed for turn-5
+errors against SmartBot and ES (100 seeds each). DAgger recovery advantages were
+small and every 95% interval crossed zero. The gate was not met, so the result
+was recorded as negative and the experiment was not expanded to 200 seeds.
+
+### R2. Matched representation and learning ablations — IN PROGRESS
 
 Train at least three seeds with identical data and budgets:
 
@@ -130,4 +135,3 @@ unit tests
   -> league promotion
   -> larger environment
 ```
-
