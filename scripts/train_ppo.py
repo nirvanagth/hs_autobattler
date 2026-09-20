@@ -39,6 +39,7 @@ from model import (
 )
 from hearthstone.env.hs_env import HearthstoneEnv
 from hearthstone.env.card_vocab import CARD_VOCAB_SCHEMES, STABLE_V1
+from hearthstone.engine.cpp_bridge import get_cpp_engine
 
 
 def file_sha256(path: Path) -> str:
@@ -92,6 +93,11 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--es-weights", default="artifacts/es_bot/best.npz")
     p.add_argument("--es-ratio", type=float, default=0.5)
+    p.add_argument(
+        "--reward-mode", choices=("sparse", "oracle_potential"), default="sparse"
+    )
+    p.add_argument("--oracle-n-combats", type=int, default=64)
+    p.add_argument("--oracle-scale", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=42)
     # Logging
     p.add_argument("--wandb", action="store_true")
@@ -119,9 +125,20 @@ def make_env(
     max_tier: int,
     card_vocab_scheme: str,
     es_weights: np.ndarray | None = None,
+    reward_mode: str = "sparse",
+    oracle_n_combats: int = 64,
+    oracle_scale: float = 1.0,
+    oracle_gamma: float = 0.999,
 ):
     def thunk():
-        env = HearthstoneEnv(max_tier=max_tier, card_vocab_scheme=card_vocab_scheme)
+        env = HearthstoneEnv(
+            max_tier=max_tier,
+            card_vocab_scheme=card_vocab_scheme,
+            reward_mode=reward_mode,
+            oracle_n_combats=oracle_n_combats,
+            oracle_scale=oracle_scale,
+            oracle_gamma=oracle_gamma,
+        )
         if es_weights is not None:
             env.set_es_bot(es_weights)
         env.reset(seed=seed + rank)
@@ -222,6 +239,8 @@ def main():
         )
 
     # Envs (Async = env.step parallelized with model inference, +50-100% FPS)
+    if args.reward_mode == "oracle_potential" and get_cpp_engine() is None:
+        raise RuntimeError("oracle_potential reward requires the C++ combat engine")
     if not 0.0 <= args.es_ratio <= 1.0:
         raise ValueError("--es-ratio must be in [0, 1]")
     es_weights = None
@@ -245,6 +264,10 @@ def main():
                 args.max_tier,
                 args.card_vocab_scheme,
                 es_weights if i < n_es_envs else None,
+                args.reward_mode,
+                args.oracle_n_combats,
+                args.oracle_scale,
+                args.gamma,
             )
             for i in range(args.n_envs)
         ]
@@ -256,10 +279,20 @@ def main():
     card_vocab_hash = envs.get_attr("card_vocab_hash")[0]
     print(f"[env] obs_dim={obs_dim} n_actions={n_actions} card_ids={num_card_ids}")
     print(f"[opponents] mode={args.opponent_mode} es_envs={n_es_envs}/{args.n_envs}")
+    print(
+        f"[reward] mode={args.reward_mode} oracle_n={args.oracle_n_combats} "
+        f"oracle_scale={args.oracle_scale}"
+    )
     opponent_contract = {
         "mode": args.opponent_mode,
         "es_ratio": args.es_ratio,
         "es_weights_sha256": es_weights_sha256,
+    }
+    reward_contract = {
+        "mode": args.reward_mode,
+        "oracle_n_combats": args.oracle_n_combats,
+        "oracle_scale": args.oracle_scale,
+        "gamma": args.gamma,
     }
 
     # Model
@@ -300,6 +333,12 @@ def main():
                 "cannot resume an optimizer with a different opponent curriculum: "
                 f"checkpoint={checkpoint_opponents}, current={opponent_contract}"
             )
+        checkpoint_reward = ckpt.get("reward_contract")
+        if "optimizer" in ckpt and checkpoint_reward not in (None, reward_contract):
+            raise ValueError(
+                "cannot resume an optimizer with a different reward contract: "
+                f"checkpoint={checkpoint_reward}, current={reward_contract}"
+            )
         agent.load_state_dict(ckpt["model"])
         if "optimizer" not in ckpt and args.bc_kl_coef > 0:
             teacher_agent = copy.deepcopy(agent).eval()
@@ -326,6 +365,7 @@ def main():
     act_buf = torch.zeros((args.n_steps, args.n_envs), dtype=torch.long, device=device)
     logp_buf = torch.zeros((args.n_steps, args.n_envs), device=device)
     rew_buf = torch.zeros((args.n_steps, args.n_envs), device=device)
+    oracle_rew_buf = torch.zeros((args.n_steps, args.n_envs), device=device)
     done_buf = torch.zeros((args.n_steps, args.n_envs), device=device)
     val_buf = torch.zeros((args.n_steps, args.n_envs), device=device)
     vlogit_buf = torch.zeros((args.n_steps, args.n_envs, 255), device=device)
@@ -369,6 +409,11 @@ def main():
             )
             done_np = np.logical_or(terminated, truncated)
             rew_buf[step] = torch.tensor(reward_np, dtype=torch.float32, device=device)
+            oracle_rew_buf[step].zero_()
+            if args.reward_mode == "oracle_potential" and "oracle_shaping" in infos:
+                oracle_rew_buf[step] = torch.tensor(
+                    infos["oracle_shaping"], dtype=torch.float32, device=device
+                )
             # Store the terminal flag produced by this transition. Storing the
             # previous transition's flag leaks GAE across autoreset episodes.
             done_buf[step] = torch.tensor(done_np, dtype=torch.float32, device=device)
@@ -482,6 +527,7 @@ def main():
             elapsed = time.time() - start_time
             fps = global_step / elapsed
             avg_reward = rew_buf.mean().item()
+            avg_oracle_reward = oracle_rew_buf.mean().item()
 
             print(
                 f"[update {update:4d}/{n_updates}] "
@@ -490,13 +536,14 @@ def main():
                 f"ent={np.mean(ent_losses):.4f} ent_coef={ent_coef:.4f} "
                 f"bc_kl={np.mean(bc_kl_losses):.4f} bc_kl_coef={bc_kl_coef:.4f} "
                 f"kl={approx_kl:.4f} clip={np.mean(clipfracs):.3f} "
-                f"avg_r={avg_reward:.3f}"
+                f"avg_r={avg_reward:.3f} oracle_r={avg_oracle_reward:.4f}"
             )
 
             if run is not None:
                 run.log({
                     "charts/fps": fps,
                     "charts/avg_reward": avg_reward,
+                    "charts/avg_oracle_reward": avg_oracle_reward,
                     "losses/policy": np.mean(pg_losses),
                     "losses/value": np.mean(vf_losses),
                     "losses/entropy": np.mean(ent_losses),
@@ -530,6 +577,7 @@ def main():
                 "args": vars(args),
                 "card_vocab_hash": card_vocab_hash,
                 "opponent_contract": opponent_contract,
+                "reward_contract": reward_contract,
             }, ckpt_path)
             print(f"  [save] {ckpt_path}")
 
@@ -542,6 +590,7 @@ def main():
         "args": vars(args),
         "card_vocab_hash": card_vocab_hash,
         "opponent_contract": opponent_contract,
+        "reward_contract": reward_contract,
     }, final_path)
     print(f"[done] {global_step:,} steps, saved to {final_path}")
 

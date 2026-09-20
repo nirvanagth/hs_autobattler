@@ -50,8 +50,23 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
     26: 0<->1, 27: 1<->2 ... 31: 5<->6
     """
 
-    def __init__(self, max_tier: int = 6, card_vocab_scheme: str = LEGACY_SORTED) -> None:
+    def __init__(
+        self,
+        max_tier: int = 6,
+        card_vocab_scheme: str = LEGACY_SORTED,
+        reward_mode: str = "sparse",
+        oracle_n_combats: int = 64,
+        oracle_scale: float = 1.0,
+        oracle_gamma: float = 0.999,
+    ) -> None:
         super(HearthstoneEnv, self).__init__()
+
+        if reward_mode not in {"sparse", "oracle_potential"}:
+            raise ValueError(f"unsupported reward_mode: {reward_mode}")
+        if oracle_n_combats <= 0:
+            raise ValueError("oracle_n_combats must be positive")
+        if oracle_scale < 0:
+            raise ValueError("oracle_scale must be non-negative")
 
         self._max_tier = max_tier
 
@@ -87,12 +102,18 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
         self._ghost_ratio: float = 0.8  # probability of using ghost vs bot
         self._env_id: int = id(self)  # unique per env instance
 
-        # MC Oracle: C++ engine as dense reward oracle
-        self._oracle_n_combats: int = 20
-        self._oracle_cached_wr: float = 0.5
-        self._oracle_seed: int = random.getrandbits(32)
+        # MC Oracle potential. A fixed opponent board and base seed are reused
+        # throughout a Tavern turn so adjacent states use common random numbers.
+        self.reward_mode = reward_mode
+        self._oracle_n_combats = oracle_n_combats
+        self._oracle_scale = oracle_scale
+        self._oracle_gamma = oracle_gamma
+        self._oracle_cached_wr: float = 0.0
+        self._oracle_rng = random.Random()
+        self._oracle_seed: int = self._oracle_rng.getrandbits(32)
         self._oracle_ghost_cpp: list | None = None  # cached C++ tuples for ghost board
         self._oracle_ghost_tier: int = 1
+        self._last_oracle_shaping: float = 0.0
 
         self.all_types = list(UnitType)
         self.num_types = len(self.all_types)  # 11
@@ -220,9 +241,16 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             self._ghost_trajectory = self.ghost_pool.sample_trajectory()
 
         # Reset MC Oracle state
-        self._oracle_cached_wr = 0.5
-        self._oracle_seed = random.getrandbits(32)
+        self._oracle_cached_wr = 0.0
+        oracle_episode_seed = (
+            int(seed) ^ 0xA5A5_5A5A
+            if seed is not None
+            else int(self.np_random.integers(0, 2**32, dtype=np.uint64))
+        )
+        self._oracle_rng.seed(oracle_episode_seed)
+        self._oracle_seed = self._oracle_rng.getrandbits(32)
         self._oracle_ghost_cpp = None
+        self._last_oracle_shaping = 0.0
 
         return self._get_obs(), {}
 
@@ -347,6 +375,7 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
 
         # === REWARD: Round Outcome + Action Penalty + Terminal ===
         reward: float = -0.005  # action penalty
+        oracle_shaping = 0.0
 
         if action_type == "END_TURN":
             reward = 0.0  # END_TURN itself is free
@@ -379,12 +408,35 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
                 else:
                     reward -= 100.0
 
-            # Prepare oracle for next turn (cache ghost board)
-            if not done:
-                self._oracle_prepare_ghost()
-                self._oracle_cached_wr = self._oracle_eval_winrate(player)
+            if self.reward_mode == "oracle_potential":
+                # The next state's potential uses the opponent board that is
+                # now observable after combat. Terminal states have Phi=0.
+                if not done:
+                    self._oracle_prepare_ghost()
+                    oracle_shaping = self._oracle_transition_reward(player)
+                else:
+                    oracle_shaping = self._oracle_transition_reward(player, terminal=True)
+        elif self.reward_mode == "oracle_potential":
+            oracle_shaping = self._oracle_transition_reward(player)
 
-        return self._get_obs(), reward, done, truncated, {}
+        reward += oracle_shaping
+        self._last_oracle_shaping = oracle_shaping
+
+        info: dict[str, object] = {}
+        if self.reward_mode == "oracle_potential":
+            info = {
+                "oracle_shaping": oracle_shaping,
+                "oracle_potential": self._oracle_cached_wr,
+            }
+
+        return self._get_obs(), reward, done, truncated, info
+
+    def get_oracle_potential(self) -> float:
+        """Return the most recently cached potential for diagnostics."""
+        return self._oracle_cached_wr
+
+    def get_last_oracle_shaping(self) -> float:
+        return self._last_oracle_shaping
 
     def _auto_position_board(self, player: Player) -> None:
         """
@@ -478,19 +530,24 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
         )
 
     def _oracle_prepare_ghost(self) -> None:
-        """Cache C++ tuples for the current ghost board (called once per turn)."""
+        """Freeze the opponent board and CRN seed for the next Tavern turn."""
         enemy = self.game.players[self.enemy_id]
+        self._oracle_seed = self._oracle_rng.getrandbits(32)
         if enemy.board:
             self._oracle_ghost_cpp = [self._unit_to_cpp(u) for u in enemy.board]
             self._oracle_ghost_tier = enemy.tavern_tier
         else:
             self._oracle_ghost_cpp = None
 
-    def _oracle_eval_winrate(self, player: Player) -> float:
-        """Run N combats via C++ engine, return winrate [0, 1]."""
+    def _oracle_eval_winrate(self, player: Player) -> float | None:
+        """Return deterministic expected match score for the cached context."""
         cpp = get_cpp_engine()
-        if cpp is None or not player.board or self._oracle_ghost_cpp is None:
-            return 0.5
+        if cpp is None:
+            return None
+        if self._oracle_ghost_cpp is None:
+            return 0.0
+        if not player.board:
+            return 0.0
 
         side0 = [self._unit_to_cpp(u) for u in player.board]
         results = cpp.fast_combat_batch(
@@ -499,17 +556,26 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             tavern_tier_0=player.tavern_tier,
             tavern_tier_1=self._oracle_ghost_tier,
         )
-        self._oracle_seed += self._oracle_n_combats
+        # WIN=2, DRAW=1. Draws receive half credit. The base seed deliberately
+        # does not advance: this is the common-random-number variance reduction.
+        score = sum(1.0 if outcome == 2 else 0.5 if outcome == 1 else 0.0
+                    for outcome, _ in results)
+        return score / len(results)
 
-        wins = sum(1 for outcome, _ in results if outcome == 2)  # 2 = WIN for side0
-        return wins / len(results)
+    def _oracle_transition_reward(self, player: Player, terminal: bool = False) -> float:
+        """Compute scale * (gamma * Phi(s') - Phi(s))."""
+        potential_after = 0.0 if terminal else self._oracle_eval_winrate(player)
+        if potential_after is None:
+            return 0.0
+        shaping = self._oracle_scale * (
+            self._oracle_gamma * potential_after - self._oracle_cached_wr
+        )
+        self._oracle_cached_wr = potential_after
+        return shaping
 
+    # Backwards-compatible name used by older tests and notebooks.
     def _oracle_reward(self, player: Player) -> float:
-        """Compute PBRS reward: delta winrate after action × scale."""
-        wr_after = self._oracle_eval_winrate(player)
-        delta = wr_after - self._oracle_cached_wr
-        self._oracle_cached_wr = wr_after
-        return delta * 10.0
+        return self._oracle_transition_reward(player)
 
     def _play_enemy_turn(self) -> None:
         p_idx = self.enemy_id

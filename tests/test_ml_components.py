@@ -4,6 +4,8 @@ import numpy as np
 import pytest
 import torch
 
+from hearthstone.engine.entities import Unit
+from hearthstone.engine.enums import CardIDs
 from hearthstone.env.hs_env import HearthstoneEnv
 
 
@@ -245,45 +247,77 @@ class TestMCOracle:
         return e
 
     def test_oracle_cached_winrate_initialized(self, env):
-        """Oracle cached winrate should start at 0.5."""
-        assert env._oracle_cached_wr == 0.5
+        """Unavailable initial opponent context has zero potential."""
+        assert env._oracle_cached_wr == 0.0
 
-    def test_oracle_seed_changes(self, env):
-        """Oracle seed should change after evaluation."""
+    def test_oracle_seed_is_reused_within_context(self, env):
+        """Common random numbers require a stable seed within one turn."""
         initial_seed = env._oracle_seed
         env._oracle_prepare_ghost()
+        context_seed = env._oracle_seed
         if env._oracle_ghost_cpp is not None:
             player = env.game.players[env.my_player_id]
             env._oracle_eval_winrate(player)
-            assert env._oracle_seed != initial_seed
+            env._oracle_eval_winrate(player)
+            assert env._oracle_seed == context_seed
+        assert isinstance(initial_seed, int)
+        assert isinstance(context_seed, int)
 
     def test_oracle_without_cpp_returns_half(self, env):
         """Without C++ engine, oracle should return 0.5 (no delta)."""
         from hearthstone.engine.cpp_bridge import get_cpp_engine
         cpp = get_cpp_engine()
         if cpp is None:
-            # No C++ available — oracle should be inert
+            # No C++ available — oracle should be explicitly unavailable.
             player = env.game.players[env.my_player_id]
             wr = env._oracle_eval_winrate(player)
-            assert wr == 0.5
+            assert wr is None
 
     def test_oracle_reward_is_delta_based(self, env):
-        """Oracle reward should be (wr_after - wr_before) * scale."""
+        """Oracle reward follows gamma * Phi(next) - Phi(current)."""
         env._oracle_cached_wr = 0.4
         # Mock: next eval returns 0.6
         original_eval = env._oracle_eval_winrate
         env._oracle_eval_winrate = lambda p: 0.6
         player = env.game.players[env.my_player_id]
         reward = env._oracle_reward(player)
-        assert reward == pytest.approx((0.6 - 0.4) * 10.0)
+        assert reward == pytest.approx(0.999 * 0.6 - 0.4)
         env._oracle_eval_winrate = original_eval
+
+    def test_oracle_reward_is_wired_into_successful_actions(self, monkeypatch):
+        env = HearthstoneEnv(reward_mode="oracle_potential")
+        env.reset(seed=42)
+        env._oracle_cached_wr = 0.4
+        monkeypatch.setattr(env, "_oracle_eval_winrate", lambda _player: 0.6)
+
+        _, reward, _, _, info = env.step(1)  # ROLL
+
+        expected_shaping = 0.999 * 0.6 - 0.4
+        assert reward == pytest.approx(-0.005 + expected_shaping)
+        assert info["oracle_shaping"] == pytest.approx(expected_shaping)
+        assert info["oracle_potential"] == pytest.approx(0.6)
+
+    def test_oracle_counts_draw_as_half(self, monkeypatch):
+        class FakeCpp:
+            @staticmethod
+            def fast_combat_batch(*_args, **_kwargs):
+                return [(2, 1), (1, 0), (3, -1), (2, 2)]
+
+        env = HearthstoneEnv(oracle_n_combats=4)
+        env.reset(seed=42)
+        player = env.game.players[env.my_player_id]
+        player.board.append(Unit.create_from_db(CardIDs.MICROBOT, 9999, player.uid))
+        env._oracle_ghost_cpp = [env._unit_to_cpp(player.board[0])]
+        monkeypatch.setattr("hearthstone.env.hs_env.get_cpp_engine", lambda: FakeCpp())
+
+        assert env._oracle_eval_winrate(player) == pytest.approx(0.625)
 
     def test_oracle_reset_on_new_episode(self, env):
         """Oracle state should reset on env.reset()."""
         env._oracle_cached_wr = 0.8
         env._oracle_seed = 999
         env.reset(seed=123)
-        assert env._oracle_cached_wr == 0.5
+        assert env._oracle_cached_wr == 0.0
         assert env._oracle_seed != 999
 
 
