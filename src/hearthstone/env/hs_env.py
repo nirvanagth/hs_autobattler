@@ -257,9 +257,11 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
     def set_opponent(self, model: MaskablePPO) -> None:
         self.opponent_model = model
 
-    def set_es_bot(self, weights: np.ndarray) -> None:
-        """Use a parametric ES bot as the enemy (priority below neural opponent)."""
-        self._es_bot_weights = weights.astype(np.float32)
+    def set_es_bot(self, weights: np.ndarray | None) -> None:
+        """Set or clear the parametric ES opponent."""
+        self._es_bot_weights = (
+            None if weights is None else weights.astype(np.float32)
+        )
 
     def get_board_power(self) -> float:
         """Returns current board power for the agent's player."""

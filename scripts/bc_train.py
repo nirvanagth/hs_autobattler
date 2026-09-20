@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 import time
 from pathlib import Path
@@ -38,6 +39,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--dataset", default="artifacts/bc_dataset.npz")
     p.add_argument("--out", default="artifacts/bc/bc_pretrain.pt")
+    p.add_argument("--resume", default=None, help="model checkpoint to fine-tune")
     # Train
     p.add_argument("--epochs", type=int, default=10)
     p.add_argument("--batch-size", type=int, default=256)
@@ -84,6 +86,14 @@ def main():
         if "episode_ids" in data else None
     )
     returns = torch.from_numpy(data["returns"]).float() if "returns" in data else None
+    source_is_dagger = (
+        torch.from_numpy(data["source_is_dagger"]).bool()
+        if "source_is_dagger" in data else torch.zeros(len(actions), dtype=torch.bool)
+    )
+    sample_weights = (
+        torch.from_numpy(data["sample_weights"]).float()
+        if "sample_weights" in data else torch.ones(len(actions), dtype=torch.float32)
+    )
     dataset_vocab_scheme = (
         str(data["card_vocab_scheme"].item())
         if "card_vocab_scheme" in data else None
@@ -117,6 +127,8 @@ def main():
             episode_ids = episode_ids[keep]
         if returns is not None:
             returns = returns[keep]
+        source_is_dagger = source_is_dagger[keep]
+        sample_weights = sample_weights[keep]
 
     # ---- Train/val split ----
     n = len(actions)
@@ -142,10 +154,14 @@ def main():
 
     value_targets = returns if returns is not None else torch.zeros(n)
     train_ds = TensorDataset(
-        obs[train_idx], masks[train_idx], actions[train_idx], value_targets[train_idx]
+        obs[train_idx], masks[train_idx], actions[train_idx], value_targets[train_idx],
+        source_is_dagger[train_idx],
+        sample_weights[train_idx],
     )
     val_ds = TensorDataset(
-        obs[val_idx], masks[val_idx], actions[val_idx], value_targets[val_idx]
+        obs[val_idx], masks[val_idx], actions[val_idx], value_targets[val_idx],
+        source_is_dagger[val_idx],
+        sample_weights[val_idx],
     )
     train_loader = DataLoader(
         train_ds, batch_size=args.batch_size, shuffle=True,
@@ -186,6 +202,26 @@ def main():
     n_params = sum(p.numel() for p in agent.parameters())
     print(f"[model] {n_params:,} params")
 
+    parent_checkpoint_sha256 = None
+    if args.resume:
+        resume_path = Path(args.resume)
+        checkpoint = torch.load(resume_path, map_location=device)
+        checkpoint_actor_type = str(checkpoint.get("args", {}).get("actor_type", "flat"))
+        if checkpoint_actor_type != args.actor_type:
+            raise ValueError(
+                f"checkpoint actor_type={checkpoint_actor_type!r} does not match "
+                f"--actor-type={args.actor_type!r}"
+            )
+        if checkpoint.get("card_vocab_hash") not in (None, card_vocab_hash):
+            raise ValueError("resume checkpoint card vocabulary does not match dataset")
+        agent.load_state_dict(checkpoint["model"])
+        digest = hashlib.sha256()
+        with resume_path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        parent_checkpoint_sha256 = digest.hexdigest()
+        print(f"[resume] initialized model from {resume_path}")
+
     optimizer = torch.optim.AdamW(
         agent.parameters(), lr=args.lr, weight_decay=args.weight_decay
     )
@@ -211,15 +247,26 @@ def main():
         agent.train()
         train_loss_sum = train_actor_loss_sum = train_value_loss_sum = 0.0
         train_correct, train_count = 0, 0
-        for batch_obs, batch_mask, batch_act, batch_return in train_loader:
+        for (
+            batch_obs,
+            batch_mask,
+            batch_act,
+            batch_return,
+            _batch_source,
+            batch_weight,
+        ) in train_loader:
             batch_obs = batch_obs.to(device, non_blocking=True)
             batch_mask = batch_mask.to(device, non_blocking=True)
             batch_act = batch_act.to(device, non_blocking=True)
             batch_return = batch_return.to(device, non_blocking=True)
+            batch_weight = batch_weight.to(device, non_blocking=True)
 
             action_logits, value_logits = agent(batch_obs)
             action_logits = action_logits.masked_fill(~batch_mask, -1e8)
-            actor_loss = F.cross_entropy(action_logits, batch_act)
+            actor_loss_per_row = F.cross_entropy(
+                action_logits, batch_act, reduction="none"
+            )
+            actor_loss = (actor_loss_per_row * batch_weight).sum() / batch_weight.sum()
             if returns is not None:
                 target_twohot = encode_twohot(batch_return, agent.bins)
                 value_loss = -(
@@ -249,8 +296,17 @@ def main():
         # ---- Val ----
         agent.eval()
         val_loss_sum, val_correct, val_count = 0.0, 0, 0
+        val_base_correct = val_base_count = 0
+        val_dagger_correct = val_dagger_count = 0
         with torch.no_grad():
-            for batch_obs, batch_mask, batch_act, _batch_return in val_loader:
+            for (
+                batch_obs,
+                batch_mask,
+                batch_act,
+                _batch_return,
+                batch_source,
+                _batch_weight,
+            ) in val_loader:
                 batch_obs = batch_obs.to(device, non_blocking=True)
                 batch_mask = batch_mask.to(device, non_blocking=True)
                 batch_act = batch_act.to(device, non_blocking=True)
@@ -258,11 +314,19 @@ def main():
                 action_logits = action_logits.masked_fill(~batch_mask, -1e8)
                 loss = F.cross_entropy(action_logits, batch_act)
                 val_loss_sum += loss.item() * batch_act.size(0)
-                val_correct += (action_logits.argmax(-1) == batch_act).sum().item()
+                correct = action_logits.argmax(-1) == batch_act
+                val_correct += correct.sum().item()
                 val_count += batch_act.size(0)
+                batch_source = batch_source.to(device, non_blocking=True)
+                val_dagger_correct += correct[batch_source].sum().item()
+                val_dagger_count += batch_source.sum().item()
+                val_base_correct += correct[~batch_source].sum().item()
+                val_base_count += (~batch_source).sum().item()
 
         val_loss = val_loss_sum / max(1, val_count)
         val_acc = val_correct / max(1, val_count)
+        val_base_acc = val_base_correct / max(1, val_base_count)
+        val_dagger_acc = val_dagger_correct / max(1, val_dagger_count)
         elapsed = time.time() - t0
 
         print(
@@ -270,6 +334,7 @@ def main():
             f"train_loss={train_loss:.4f} actor={train_actor_loss:.4f} "
             f"critic={train_value_loss:.4f} acc={train_acc:.3f}  "
             f"val_loss={val_loss:.4f} acc={val_acc:.3f}  "
+            f"base_acc={val_base_acc:.3f} dagger_acc={val_dagger_acc:.3f}  "
             f"({elapsed:.0f}s)"
         )
 
@@ -281,6 +346,8 @@ def main():
                 "bc/train_acc": train_acc,
                 "bc/val_loss": val_loss,
                 "bc/val_acc": val_acc,
+                "bc/val_base_acc": val_base_acc,
+                "bc/val_dagger_acc": val_dagger_acc,
                 "bc/epoch": epoch,
             }, step=global_step)
 
@@ -294,6 +361,9 @@ def main():
                 "val_acc": val_acc,
                 "card_vocab_hash": card_vocab_hash,
                 "teacher_weights_sha256": teacher_weights_sha256,
+                "parent_checkpoint_sha256": parent_checkpoint_sha256,
+                "val_base_acc": val_base_acc,
+                "val_dagger_acc": val_dagger_acc,
             }, out_path)
             print(f"  [save] {out_path} (val_acc={val_acc:.3f})")
 
