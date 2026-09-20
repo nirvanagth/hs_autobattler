@@ -897,11 +897,6 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
         masks = self._mask_buffer
         masks[:] = False
 
-        # ban stupid swaps
-        if self.actions_in_turn >= self.max_actions_in_turn:
-            masks[0] = True  # Only End Turn
-            return masks
-
         # === 1. DISCOVERY PHASE ===
         if player.is_discovering:
             num_options = len(player.discovery.options)
@@ -931,6 +926,13 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             return masks
 
         # === 3. DEFAULT PHASE ===
+
+        # Forced end-turn applies only after mandatory multi-step choices have
+        # resolved. Otherwise Discover/targeting can become an inescapable
+        # state where END is masked valid but rejected by step().
+        if self.actions_in_turn >= self.max_actions_in_turn:
+            masks[0] = True
+            return masks
 
         # [0] End Turn - always available
         masks[0] = True

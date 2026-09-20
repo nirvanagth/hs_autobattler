@@ -196,6 +196,18 @@ class TestActionMasks:
         assert masks[0]
         assert not any(masks[1:])
 
+    def test_discovery_overrides_action_budget(self, env: HearthstoneEnv) -> None:
+        """A mandatory Discover choice must remain legal at the action cap."""
+        env.reset(seed=42)
+        player = env.game.players[env.my_player_id]
+        env.game.tavern.start_discovery(player, source="Test", tier=1, count=3)
+        env.actions_in_turn = env.max_actions_in_turn
+
+        masks = env.action_masks()
+
+        assert not masks[0]
+        assert masks[2:2 + len(player.discovery.options)].all()
+
 
 # ===================================================================
 #  3. STEP CYCLE
