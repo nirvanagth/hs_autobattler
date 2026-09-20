@@ -9,6 +9,12 @@ import numpy as np
 from hearthstone.env.hs_env import HearthstoneEnv
 from scripts.dagger_aggregate import select_complete_episodes
 from scripts.dagger_collect import query_expert_preserving_rng
+from scripts.evaluate_recovery import (
+    aggregate,
+    choose_perturbation,
+    deterministic_rng,
+    random_nonexpert_action,
+)
 
 
 def test_expert_query_preserves_python_and_numpy_rng() -> None:
@@ -48,3 +54,53 @@ def test_dagger_sampling_is_deterministic() -> None:
     first = select_complete_episodes(episode_ids, target_rows=12, seed=99)
     second = select_complete_episodes(episode_ids, target_rows=12, seed=99)
     assert np.array_equal(first, second)
+
+
+def test_recovery_perturbation_is_legal_and_nonexpert() -> None:
+    rng = deterministic_rng(42, "random_nonexpert", 5)
+    action = random_nonexpert_action([0, 1, 2, 5], expert_action=2, rng=rng)
+    assert action in {1, 5}
+
+
+def test_premature_end_perturbation() -> None:
+    env = HearthstoneEnv()
+    env.reset(seed=42)
+    mask = env.action_masks().copy()
+    action, kind = choose_perturbation(
+        env,
+        mask,
+        expert_action=2,
+        perturbation="premature_end",
+        rng=deterministic_rng(42, "premature_end", 5),
+    )
+    assert action == 0
+    assert kind == "premature_end"
+
+
+def test_recovery_aggregate_computes_paired_delta() -> None:
+    rows = [
+        {
+            "candidate": "bc",
+            "perturbation": "clean",
+            "target_turn": 5,
+            "seed": 1,
+            "perturbation_applied": True,
+            "score": 1.0,
+            "outcome": "win",
+            "health_margin": 10,
+        },
+        {
+            "candidate": "bc",
+            "perturbation": "premature_end",
+            "target_turn": 5,
+            "seed": 1,
+            "perturbation_applied": True,
+            "score": 0.0,
+            "outcome": "loss",
+            "health_margin": -5,
+        },
+    ]
+    report = aggregate(rows)
+    delta = report["recovery"]["bc|turn=5|premature_end"]
+    assert delta["score_delta_from_clean"]["mean"] == -1.0
+    assert delta["health_delta_from_clean"]["mean"] == -15.0
