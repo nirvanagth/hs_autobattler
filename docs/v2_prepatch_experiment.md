@@ -13,6 +13,8 @@ environment, not live eight-player Battlegrounds performance.
 | `artifacts/v2_prepatch/bc_dataset.npz` | `4e730f9ef8bc8522864d3115a6523c1618ee9873f3391e931b0ea64b213bcb0b` |
 | `artifacts/v2_prepatch/bc_pretrain.pt` | `b6688851f324ffd64df08c1dc2591ef8602ecf3c6c9cb31a58bfc37b2d7c4877` |
 | `artifacts/v2_prepatch/ppo_bc_1m/final.pt` | `b35af0073e0ca687d351ae3b264eb9c9b39148e6598f63ffb37897906163c4bb` |
+| `artifacts/v2_prepatch/ppo_oracle_1m/ckpt_327680.pt` | `b234ba91069efed9c54727cf46d563d3a044e1aed4580749d010e74763b2f6b5` |
+| `artifacts/v2_prepatch/ppo_oracle_1m/final.pt` | `ad5a0c61d41fa1b366378b89f1c6e68739e46ea146fe3b15a918f742a8841aab` |
 | `artifacts/es_bot/best.npz` | `0b18c9a10e2da4fc2cc04104003ae8d75e5c0bfdb68449acc169c559db8ed7c1` |
 
 Artifacts are intentionally gitignored. The tracked JSON evaluation reports
@@ -66,13 +68,45 @@ The 50-game checkpoint sweep was too noisy: the final checkpoint initially
 scored 62% against ES, but the 200-game paired result was 49.5%. Promotion must
 therefore use at least 200 paired-seat games and confidence intervals.
 
+## Deterministic MC-oracle ablation
+
+Commit `f7a64f0` wired the C++ combat oracle into a potential-based reward:
+
+```text
+r_oracle = scale * (gamma * Phi(next_state) - Phi(current_state))
+Phi = expected combat score from 64 simulations
+```
+
+The opponent board and combat base seed are frozen within each Tavern turn, so
+adjacent board states use common random numbers. Oracle RNG is isolated from
+game RNG; sparse and oracle benchmarks produced identical action trajectories.
+Environment-only throughput fell from about 10.7k to 6.35k steps/s, while full
+PPO throughput fell from about 570 to 494 FPS. Mean shaping stayed near zero,
+with mean absolute per-action shaping about 0.055 at scale 1.0.
+
+The oracle run used the same 1M-step PPO settings and initialization as the
+sparse run. Paired-seat confirmation results:
+
+| Candidate | Opponent | Games | W-L-D | Win rate | HP diff |
+|---|---:|---:|---:|---:|---:|
+| Oracle PPO 328k | New ES | 200 | 118-82-0 | **59.0%** | +4.7 |
+| Oracle PPO 328k | SmartBot | 100 | 84-16-0 | **84.0%** | +22.0 |
+| Oracle PPO 819k | New ES | 200 | 113-86-1 | **56.5%** | +3.7 |
+| Oracle PPO 819k | SmartBot | 100 | 84-15-1 | **84.0%** | +21.6 |
+
+The early oracle checkpoint matches BC against ES and is nominally +0.5 points
+against SmartBot, which is not statistically significant. Longer oracle
+training again drifts below BC. Deterministic potential shaping is therefore a
+safe credit signal at this scale, but not yet a demonstrated policy improvement.
+
 ## Decision
 
 1. Keep `bc_pretrain.pt` as the current best pre-patch policy.
 2. Do not extend the present PPO run to 5M steps.
-3. Improve action-level credit assignment before the next PPO run. The next
-   experiment should wire a deterministic, common-random-number C++ combat
-   potential into the reward and ablate sparse reward versus potential shaping.
+3. Keep deterministic oracle shaping available, but do not promote it as an
+   improvement based on this run. The next credit-assignment experiment should
+   use an auxiliary combat/value objective or DAgger-style on-policy expert
+   relabeling rather than simply extending PPO.
 4. Preserve the BC-teacher KL path as a safety constraint.
 5. Re-audit the card pool after the 2026-09-22 patch before training a candidate
    intended to track the live game.
