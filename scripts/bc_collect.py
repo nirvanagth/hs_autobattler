@@ -116,8 +116,13 @@ def es_pick_action(env: HearthstoneEnv, weights: np.ndarray) -> int:
     real_step = game.step
 
     def _snoop(p, action_type, **kwargs):
-        captured.append((action_type, dict(kwargs)))
-        raise _ESActionSnoop()
+        candidate = _action_kwargs_to_int(action_type, kwargs)
+        if 0 <= candidate < len(mask) and mask[candidate]:
+            captured.append((action_type, dict(kwargs)))
+            raise _ESActionSnoop()
+        # Let the expert continue its decision loop after an attempted action
+        # that the Gym contract rejects (for example an upgrade at a tier cap).
+        return False, False, "Masked by environment"
 
     game.step = _snoop  # type: ignore[method-assign]
     try:

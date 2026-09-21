@@ -71,6 +71,9 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         self.game = LobbyGame(max_tier=max_tier, seed=seed)
         self.my_player_id = 0
         self.enemy_id = 1
+        # Match smart_bot_turn's authoritative per-turn budget. Target prompts
+        # consume separate Gym steps, so the wrapper must not be stricter.
+        self.max_actions_in_turn = 40
         self.max_steps_per_episode = 1000
         self.lobby_schema = LOBBY_OBSERVATION_SCHEMA
         self.observation_space = spaces.Box(
@@ -84,7 +87,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         )
         self.lobby_environment_contract = {
             "name": "hsbg_8p_tier3_research",
-            "behavior_version": 1,
+            "behavior_version": 4,
             "observation_schema_version": self.lobby_schema.version,
             "action_schema_version": 1,
             "observation_size": int(self.lobby_schema.total_size),
@@ -134,7 +137,6 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         if action_type == "END_TURN":
             reward = 0.0
             self.actions_in_turn = 0
-            self._auto_position_board(player)
             self._play_lobby_bots()
             result = next(
                 (
@@ -193,6 +195,12 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
                 self.is_targeting = False
                 return "PLAY", {"hand_index": hand_index, "target_index": action - 2}
             if action == 0:
+                if self.pending_target_kind == "MAGNETIZE":
+                    hand_index = self.pending_spell_hand_index or 0
+                    self.pending_spell_hand_index = None
+                    self.pending_target_kind = None
+                    self.is_targeting = False
+                    return "PLAY", {"hand_index": hand_index, "insert_index": -1}
                 self.pending_spell_hand_index = None
                 self.pending_target_kind = None
                 self.is_targeting = False
@@ -230,6 +238,12 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
                     self.is_targeting = True
                     return "WAIT_FOR_TARGET", {}
         return action_type, kwargs
+
+    def action_masks(self, player_idx: int | None = None) -> np.ndarray:
+        masks = super().action_masks(player_idx)
+        if self.is_targeting and self.pending_target_kind == "MAGNETIZE":
+            masks[0] = True  # play the Magnetic card as a standalone minion
+        return masks
 
     def _play_lobby_bots(self) -> None:
         for player_id in sorted(self.game.active_player_ids):

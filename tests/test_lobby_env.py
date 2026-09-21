@@ -9,6 +9,7 @@ from hearthstone.engine.entities import Unit
 from hearthstone.engine.enums import CardIDs
 from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
 from scripts.lobby_model import LobbyPointerAgent
+from scripts.lobby_bc_collect import smart_pick_action
 
 
 def test_lobby_observation_shape(lobby_env: BattlegroundsLobbyEnv) -> None:
@@ -125,3 +126,27 @@ def test_lobby_recurrent_sequence_matches_stepwise_execution(
             step_logits.append(logits)
     assert torch.allclose(sequence_logits, torch.stack(step_logits, dim=1), atol=1e-5)
     assert torch.allclose(sequence_hidden, hidden, atol=1e-5)
+
+
+def test_smart_action_query_skips_upgrade_blocked_by_lobby_cap(
+    lobby_env: BattlegroundsLobbyEnv,
+) -> None:
+    lobby_env.reset(seed=42)
+    player = lobby_env.game.players[0]
+    player.tavern_tier = 3
+    player.gold = 10
+    lobby_env.game.turn_count = 7
+    # A full-ish board makes SmartBot attempt its normal upgrade branch first.
+    player.board = [
+        Unit.create_from_db(
+            CardIDs.ANNOY_O_TRON,
+            lobby_env.game.tavern.get_next_uid(),
+            owner_id=0,
+        )
+        for _ in range(6)
+    ]
+
+    action = smart_pick_action(lobby_env)
+
+    assert action != 32
+    assert lobby_env.action_masks()[action]

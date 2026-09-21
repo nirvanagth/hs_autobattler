@@ -28,6 +28,8 @@ def smart_pick_action(env: BattlegroundsLobbyEnv) -> int:
     player = env.game.players[env.my_player_id]
     mask = env.action_masks().copy()
     if env.is_targeting:
+        if env.pending_target_kind == "MAGNETIZE":
+            return 0  # SmartBot's direct policy plays Magnetic cards as bodies.
         targets = np.flatnonzero(mask[2:9]) + 2
         if not len(targets):
             return 0
@@ -48,8 +50,11 @@ def smart_pick_action(env: BattlegroundsLobbyEnv) -> int:
     real_step = env.game.step
 
     def snoop(player_id, action_type, **kwargs):
-        captured.append((action_type, dict(kwargs)))
-        raise _SmartActionSnoop()
+        candidate = _action_kwargs_to_int(action_type, kwargs)
+        if 0 <= candidate < len(mask) and mask[candidate]:
+            captured.append((action_type, dict(kwargs)))
+            raise _SmartActionSnoop()
+        return False, False, "Masked by environment"
 
     python_state = random.getstate()
     numpy_state = np.random.get_state()
