@@ -124,6 +124,16 @@ R2-A is complete. Three-seed matched results:
 See `docs/r2_representation_ablation.md`. Pointer is now mandatory for future
 mainline experiments.
 
+R2-B is complete. Three-seed disagreement-weight results:
+
+- 0x: 55.17 ± 2.75% ES, 86.33 ± 2.02% SmartBot.
+- 1x: 57.67 ± 1.76% ES, 86.00 ± 0.50% SmartBot.
+- 5x: 60.67 ± 1.04% ES, 87.00 ± 0.87% SmartBot.
+- 10x: 58.83 ± 3.01% ES, 87.50 ± 1.00% SmartBot.
+
+Five-times disagreement weight is promoted as the balanced DAgger default.
+See `docs/r2_dagger_weight_ablation.md`.
+
 Immediate implementation target:
 
 ```text
@@ -132,8 +142,8 @@ scripts/run_matched_ablation.py
 
 Next extension/execution target:
 
-- run the R2-B DAgger disagreement-weight variants (1x, 5x, 10x) from the same
-  parent Pointer BC checkpoint and aggregated data;
+- run R2-C sparse PPO, KL-PPO, and KL-PPO+oracle with matched seeds, parent
+  checkpoints, rollout budgets, opponents, and holdout evaluation;
 - keep data, seeds, model sizes, budgets, and evaluation suites matched;
 - run at least three training seeds before promoting a research claim;
 - record command lines, artifact hashes, status, and failure information;

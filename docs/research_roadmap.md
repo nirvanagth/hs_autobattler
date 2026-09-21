@@ -78,9 +78,11 @@ Progress:
 - **R2-A representation — COMPLETE.** Three matched seeds showed Pointer versus
   Flat gains of +16.1 action-accuracy points, +40.8 ES win-rate points, and
   +37.5 SmartBot win-rate points. See `docs/r2_representation_ablation.md`.
-- **R2-B DAgger disagreement weights — NEXT.** Compare 1x, 5x, and 10x with
-  matched seeds and the same aggregated dataset.
-- R2-C PPO/reward variants — pending after R2-B.
+- **R2-B DAgger disagreement weights — COMPLETE.** Three matched seeds selected
+  5x as the balanced default: 60.67 ± 1.04% vs ES and 87.00 ± 0.87% vs
+  SmartBot. See `docs/r2_dagger_weight_ablation.md`.
+- **R2-C PPO/reward variants — NEXT.** Run sparse PPO, KL-PPO, and
+  KL-PPO+oracle from matched parent checkpoints and seeds.
 
 ### R3. Freeze the benchmark — PENDING
 
