@@ -58,8 +58,20 @@ class LobbyArena:
     needs in a population match.
     """
 
-    def __init__(self, *, max_tier: int = 3, seed: int = 0) -> None:
-        self.env = BattlegroundsLobbyEnv(max_tier=max_tier, seed=seed)
+    def __init__(
+        self,
+        *,
+        max_tier: int = 3,
+        seed: int = 0,
+        behavior_version: int = 5,
+        content_profile: dict[str, object] | None = None,
+    ) -> None:
+        self.env = BattlegroundsLobbyEnv(
+            max_tier=max_tier,
+            seed=seed,
+            behavior_version=behavior_version,
+            content_profile=content_profile,
+        )
         self.max_tier = max_tier
         self.seed = seed
         self.player_states: dict[int, PlayerActionState] = {}

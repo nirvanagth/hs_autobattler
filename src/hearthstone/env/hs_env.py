@@ -59,6 +59,7 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
         oracle_n_combats: int = 64,
         oracle_scale: float = 1.0,
         oracle_gamma: float = 0.999,
+        behavior_version: int = 5,
     ) -> None:
         super(HearthstoneEnv, self).__init__()
 
@@ -70,6 +71,7 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             raise ValueError("oracle_scale must be non-negative")
 
         self._max_tier = max_tier
+        self._behavior_version = behavior_version
 
         all_ids = list(CARD_DB.keys()) + list(SPELL_DB.keys())
         self.card_vocab_scheme = card_vocab_scheme
@@ -80,7 +82,7 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             self.card_vocab_hash,
         ) = build_card_vocabulary(all_ids, card_vocab_scheme)
 
-        self.game = Game(max_tier=max_tier)
+        self.game = Game(max_tier=max_tier, behavior_version=behavior_version)
         self.my_player_id = 0
         self.enemy_id = 1
         self.max_steps_per_episode = 500
@@ -179,6 +181,7 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             max_tier=self._max_tier,
             card_vocab_scheme=self.card_vocab_scheme,
             card_vocab_hash=self.card_vocab_hash,
+            behavior_version=behavior_version,
         ).metadata()
 
         # Pre-compute trigger info per card_id (avoids per-entity lookup)
@@ -233,7 +236,9 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
             self.ghost_pool.finish_game(self._env_id)
             self.ghost_pool.finish_game(self._env_id + 1_000_000)  # bot
 
-        self.game = Game(max_tier=self._max_tier)
+        self.game = Game(
+            max_tier=self._max_tier, behavior_version=self._behavior_version
+        )
 
         self.steps_taken = 0
         self.actions_in_turn = 0

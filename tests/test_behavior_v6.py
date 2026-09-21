@@ -4,9 +4,10 @@ import json
 from pathlib import Path
 
 from hearthstone.engine.entities import HandCard, Unit
-from hearthstone.engine.enums import CardIDs
+from hearthstone.engine.enums import CardIDs, SpellIDs
 from hearthstone.engine.game import Game
 from hearthstone.engine.lobby import LobbyGame
+from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -82,3 +83,57 @@ def test_v6_lobby_profile_excludes_unverified_content() -> None:
         for spell_id in tier
     } <= allowed_spells
     assert "335" not in allowed_cards  # Waveling remains partial.
+
+
+def test_v6_lobby_environment_contract_hashes_content_profile() -> None:
+    profile = json.loads(
+        (ROOT / "benchmarks/hsbg_content_profile_v6_tier3.json").read_text()
+    )
+    first = BattlegroundsLobbyEnv(
+        max_tier=3,
+        behavior_version=6,
+        content_profile=profile,
+    )
+    second = BattlegroundsLobbyEnv(
+        max_tier=3,
+        behavior_version=6,
+        content_profile=profile,
+    )
+    assert first.lobby_environment_contract["behavior_version"] == 6
+    assert first.lobby_environment_contract == second.lobby_environment_contract
+    assert len(first.lobby_environment_contract["content_profile_sha256"]) == 64
+
+
+def test_v6_fulltier_profile_supports_tier7_triple_discovery() -> None:
+    profile = json.loads(
+        (ROOT / "benchmarks/hsbg_content_profile_v6_fulltier.json").read_text()
+    )
+    game = Game(
+        max_tier=6,
+        behavior_version=6,
+        content_profile=profile,
+    )
+    player = game.players[0]
+    player.tavern_tier = 6
+    golden = Unit.create_from_db(
+        CardIDs.AUREATE_LAUREATE,
+        game.tavern.get_next_uid(),
+        player.uid,
+        is_golden=True,
+        pool_copies=3,
+    )
+    player.hand = [HandCard(uid=golden.uid, unit=golden)]
+    assert game.step(0, "PLAY", hand_index=0)[0]
+    reward_index = next(
+        index
+        for index, card in enumerate(player.hand)
+        if card.spell and card.spell.card_id == SpellIDs.TRIPLET_REWARD
+    )
+    assert game.step(0, "PLAY", hand_index=reward_index)[0]
+    allowed_tier7 = set(profile["next_tier_discovery_card_ids"])
+    assert len(player.discovery.options) == 3
+    assert {
+        str(getattr(option.unit.card_id, "value", option.unit.card_id))
+        for option in player.discovery.options
+        if option.unit
+    } <= allowed_tier7

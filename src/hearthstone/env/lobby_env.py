@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import random
 from dataclasses import dataclass
 
@@ -65,10 +66,27 @@ PLACEMENT_REWARDS = {1: 1.0, 2: 0.6, 3: 0.3, 4: 0.1, 5: -0.1, 6: -0.3, 7: -0.6, 
 class BattlegroundsLobbyEnv(HearthstoneEnv):
     """Player 0 versus seven SmartBots in a shared-pool LobbyGame."""
 
-    def __init__(self, *, max_tier: int = 3, seed: int = 0) -> None:
-        super().__init__(max_tier=max_tier, card_vocab_scheme=STABLE_V1)
+    def __init__(
+        self,
+        *,
+        max_tier: int = 3,
+        seed: int = 0,
+        behavior_version: int = 5,
+        content_profile: dict[str, object] | None = None,
+    ) -> None:
+        super().__init__(
+            max_tier=max_tier,
+            card_vocab_scheme=STABLE_V1,
+            behavior_version=behavior_version,
+        )
         self._lobby_seed = seed
-        self.game = LobbyGame(max_tier=max_tier, seed=seed)
+        self._content_profile = content_profile
+        self.game = LobbyGame(
+            max_tier=max_tier,
+            seed=seed,
+            behavior_version=behavior_version,
+            content_profile=content_profile,
+        )
         self.my_player_id = 0
         self.enemy_id = 1
         # Match smart_bot_turn's authoritative per-turn budget. Target prompts
@@ -87,7 +105,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         )
         self.lobby_environment_contract = {
             "name": "hsbg_8p_tier3_research",
-            "behavior_version": 5,
+            "behavior_version": behavior_version,
             "observation_schema_version": self.lobby_schema.version,
             "action_schema_version": 1,
             "observation_size": int(self.lobby_schema.total_size),
@@ -96,6 +114,13 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
             "max_tier": int(max_tier),
             "base_engine_contract": self.environment_contract,
         }
+        if content_profile is not None:
+            canonical_profile = json.dumps(
+                content_profile, sort_keys=True, separators=(",", ":")
+            ).encode()
+            self.lobby_environment_contract["content_profile_sha256"] = (
+                hashlib.sha256(canonical_profile).hexdigest()
+            )
         self.lobby_environment_contract_json = json.dumps(
             self.lobby_environment_contract, sort_keys=True, separators=(",", ":")
         )
@@ -111,7 +136,12 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         episode_seed = self._lobby_seed if seed is None else seed
         random.seed(episode_seed)
         np.random.seed(episode_seed)
-        self.game = LobbyGame(max_tier=self._max_tier, seed=episode_seed)
+        self.game = LobbyGame(
+            max_tier=self._max_tier,
+            seed=episode_seed,
+            behavior_version=self._behavior_version,
+            content_profile=self._content_profile,
+        )
         self.steps_taken = 0
         self.actions_in_turn = 0
         self.is_targeting = False

@@ -74,10 +74,11 @@ def build_environment_contract(
     max_tier: int,
     card_vocab_scheme: str,
     card_vocab_hash: str,
+    behavior_version: int = BEHAVIOR_VERSION,
 ) -> EnvironmentContract:
     return EnvironmentContract(
         name=ENVIRONMENT_NAME,
-        behavior_version=BEHAVIOR_VERSION,
+        behavior_version=behavior_version,
         observation_schema_version=OBSERVATION_SCHEMA_VERSION,
         action_schema_version=ACTION_SCHEMA_VERSION,
         observation_size=int(observation_size),

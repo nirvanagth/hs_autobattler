@@ -30,3 +30,12 @@ def test_environment_contract_json_roundtrip() -> None:
     encoded = contract_json(env.environment_contract)
     assert parse_contract(encoded) == env.environment_contract
 
+
+def test_behavior_version_is_explicit_and_defaults_to_frozen_v5() -> None:
+    assert HearthstoneEnv(max_tier=3).environment_contract["behavior_version"] == 5
+    assert (
+        HearthstoneEnv(max_tier=3, behavior_version=6).environment_contract[
+            "behavior_version"
+        ]
+        == 6
+    )
