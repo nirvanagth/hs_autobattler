@@ -65,3 +65,23 @@ schedule fixed. Compare:
 
 Run three training seeds per condition. Select using a frozen selection set and
 make claims only on a disjoint holdout set.
+
+## Pilot screen
+
+All five conditions ran for 8,192 steps at seeds 317, 342, and 373, followed by
+40 paired selection lobbies per run. Across seeds:
+
+| Condition | Mean placement | Seed SD | Top-4 | Win |
+|---|---:|---:|---:|---:|
+| Public critic | 3.458 | 0.255 | 73.3% | 12.5% |
+| Central critic | 3.317 | 0.231 | 74.2% | 17.5% |
+| Central + auxiliary | 3.433 | 0.240 | 74.2% | 15.0% |
+| Central + oracle | 3.300 | 0.214 | 74.2% | 18.3% |
+| Central + auxiliary + oracle | 3.575 | 0.492 | 70.0% | 7.5% |
+
+The central critic improved mean placement by 0.142 versus the public critic.
+Adding oracle shaping to it changed placement by only 0.017, while auxiliaries
+worsened it by 0.117 and the combined condition was worst. These are screening
+results, not holdout claims. Only public versus centralized critic advances to
+the 32,768-step confirmatory experiment. Exact artifacts are frozen in
+`benchmarks/hsbg_m1_pilot_v1.json`.

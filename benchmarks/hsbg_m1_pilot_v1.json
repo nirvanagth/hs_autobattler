@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_m1_pilot_v1",
+  "source_commit": "41e6965e6d05c7e45b6c470dc215907dbb71bbe3",
+  "league_sha256": "7ebe3b804a749d0ab24ce88eb2fd3ec7efe7d24ad77c2282f99d230a304e4476",
+  "parent_policy": {
+    "id": "round3_s217",
+    "sha256": "4b7f5ec504b47e6bd9a18cdeb4bd2c2a3255e9913b7c3b2fa733a030a1d193b3"
+  },
+  "training": {
+    "timesteps_per_run": 8192,
+    "seeds": [317, 342, 373],
+    "oracle_combats": 16
+  },
+  "selection": {
+    "episodes_per_run": 40,
+    "seed_base": 400000,
+    "schedule_sha256": "8b9ccdd7b368d1e8cfa2f3cb21b0c3e9a7e134670eb34386aa32852ee158aad4"
+  },
+  "summary_sha256": "624c726f1919620effea982bd22572b6e1540fff13a77a6da8440df167608b9e",
+  "results": {
+    "public": {
+      "mean_placement": 3.4583333333333335,
+      "seed_std": 0.25535922410074274,
+      "top4_rate": 0.7333333333333334,
+      "win_rate": 0.125
+    },
+    "central": {
+      "mean_placement": 3.316666666666667,
+      "seed_std": 0.23094010767585052,
+      "top4_rate": 0.7416666666666667,
+      "win_rate": 0.175
+    },
+    "central_aux": {
+      "mean_placement": 3.433333333333333,
+      "seed_std": 0.2402255884233263,
+      "top4_rate": 0.7416666666666667,
+      "win_rate": 0.15
+    },
+    "central_oracle": {
+      "mean_placement": 3.3000000000000003,
+      "seed_std": 0.2136000936329382,
+      "top4_rate": 0.7416666666666667,
+      "win_rate": 0.18333333333333335
+    },
+    "central_aux_oracle": {
+      "mean_placement": 3.575,
+      "seed_std": 0.4918078893226503,
+      "top4_rate": 0.7000000000000001,
+      "win_rate": 0.075
+    }
+  },
+  "decision": "advance public versus central to confirmatory budget; do not advance auxiliary or oracle"
+}

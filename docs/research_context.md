@@ -215,6 +215,12 @@ common-random-number oracle potential shaping is implemented separately from
 the actor input and passed a repeatability test plus 128-step smoke. See
 `docs/m1_central_critic.md`.
 
+M1 pilot: five conditions × three seeds × 8,192 steps completed. Mean
+placements were public 3.458, central 3.317, central+aux 3.433, central+oracle
+3.300, and combined 3.575. Oracle added only 0.017 placement over central;
+auxiliary losses did not help. Advance only public versus central to the
+confirmatory budget. See `benchmarks/hsbg_m1_pilot_v1.json`.
+
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.
 
