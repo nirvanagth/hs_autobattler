@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import random
 import sys
 import time
@@ -106,14 +107,28 @@ def load_agent(path: Path, device: torch.device):
     n_layers = int(saved_args.get("n_layers", 4))
     actor_type = str(saved_args.get("actor_type", "flat"))
     card_vocab_scheme = str(saved_args.get("card_vocab_scheme", LEGACY_SORTED))
+    max_tier = int(saved_args.get("max_tier", 6))
     num_card_ids = infer_num_card_ids(sd)
-    probe_env = HearthstoneEnv(card_vocab_scheme=card_vocab_scheme)
+    probe_env = HearthstoneEnv(
+        max_tier=max_tier, card_vocab_scheme=card_vocab_scheme
+    )
     current_vocab_hash = probe_env.card_vocab_hash
+    current_environment_contract = probe_env.environment_contract
     checkpoint_vocab_hash = ckpt.get("card_vocab_hash")
     if checkpoint_vocab_hash is not None and checkpoint_vocab_hash != current_vocab_hash:
         raise ValueError(
             "checkpoint card vocabulary does not match the evaluation environment: "
             f"checkpoint={checkpoint_vocab_hash}, current={current_vocab_hash}"
+        )
+    checkpoint_environment_contract = ckpt.get("environment_contract")
+    if (
+        checkpoint_environment_contract is not None
+        and checkpoint_environment_contract != current_environment_contract
+    ):
+        raise ValueError(
+            "checkpoint environment contract does not match evaluator: "
+            f"checkpoint={checkpoint_environment_contract}, "
+            f"current={current_environment_contract}"
         )
     agent = HSTransformerAgent(
         n_actions=34,
@@ -135,6 +150,7 @@ def load_agent(path: Path, device: torch.device):
         "global_step": ckpt.get("global_step"),
         "card_vocab_hash": checkpoint_vocab_hash,
         "checkpoint_sha256": file_sha256(path),
+        "environment_contract": checkpoint_environment_contract,
     }
     return agent, meta
 
@@ -244,6 +260,7 @@ def play_episode(env: HearthstoneEnv, agent, device: torch.device,
     else:
         outcome = "draw"
     return {
+        "seed": seed,
         "outcome": outcome,
         "hp_diff": float(p0.health - p1.health),
         "board_power": float(env.get_board_power()),
@@ -262,12 +279,15 @@ def run_matchup(env_factory, agent, device: torch.device, games: int,
         "0": {"games": 0, "wins": 0, "losses": 0, "draws": 0},
         "1": {"games": 0, "wins": 0, "losses": 0, "draws": 0},
     }
+    episode_records = []
     t0 = time.time()
     progress_every = max(1, games // 10)
     for i in range(games):
         seat = i % 2 if both_seats else 0
         episode_seed = seed + (i // 2 if both_seats else i)
         ep = play_episode(env_factory(seat), agent, device, episode_seed)
+        ep["candidate_seat"] = seat
+        episode_records.append(ep)
         seat_stats = seat_results[str(seat)]
         seat_stats["games"] += 1
         if ep["outcome"] == "win":
@@ -289,19 +309,77 @@ def run_matchup(env_factory, agent, device: torch.device, games: int,
             print(f"  [{label}] {done_n}/{games} games "
                   f"(W {wins} L {losses} D {draws}) {el:.0f}s",
                   flush=True)
+    win_interval = wilson_interval(wins, games)
     return {
         "games": games,
         "wins": wins,
         "losses": losses,
         "draws": draws,
         "win_rate": round(100.0 * wins / games, 2),
+        "win_rate_ci_low": round(100.0 * win_interval[0], 2),
+        "win_rate_ci_high": round(100.0 * win_interval[1], 2),
         "avg_hp_diff": round(float(np.mean(hp_diffs)), 2),
         "avg_board_power": round(float(np.mean(board_powers)), 2),
         "avg_max_tier": round(float(np.mean(max_tiers)), 2),
         "avg_turns": round(float(np.mean(turns)), 2),
         "both_seats": both_seats,
         "seat_results": seat_results,
+        "episodes": episode_records,
     }
+
+
+def wilson_interval(successes: int, total: int) -> tuple[float, float]:
+    if total <= 0:
+        return 0.0, 0.0
+    z = 1.959963984540054
+    p = successes / total
+    denominator = 1.0 + z * z / total
+    center = (p + z * z / (2.0 * total)) / denominator
+    radius = z * math.sqrt(
+        p * (1.0 - p) / total + z * z / (4.0 * total * total)
+    ) / denominator
+    return max(0.0, center - radius), min(1.0, center + radius)
+
+
+def paired_bootstrap(
+    left: list[dict], right: list[dict], seed: int, samples: int = 10_000
+) -> dict[str, float | int | None]:
+    def score(record: dict) -> float:
+        return 1.0 if record["outcome"] == "win" else 0.5 if record["outcome"] == "draw" else 0.0
+
+    left_map = {(row["seed"], row["candidate_seat"]): score(row) for row in left}
+    right_map = {(row["seed"], row["candidate_seat"]): score(row) for row in right}
+    keys = sorted(set(left_map) & set(right_map))
+    if not keys:
+        return {"n": 0, "mean": None, "ci_low": None, "ci_high": None}
+    differences = np.asarray([left_map[key] - right_map[key] for key in keys])
+    rng = np.random.default_rng(seed)
+    indices = rng.integers(0, len(differences), size=(samples, len(differences)))
+    bootstrap_means = differences[indices].mean(axis=1)
+    return {
+        "n": len(differences),
+        "mean": float(differences.mean()),
+        "ci_low": float(np.quantile(bootstrap_means, 0.025)),
+        "ci_high": float(np.quantile(bootstrap_means, 0.975)),
+    }
+
+
+def build_paired_comparisons(results: dict, seed: int) -> dict:
+    candidates = [key for key in results if not key.startswith("__")]
+    comparisons = {}
+    for left_index, left in enumerate(candidates):
+        for right in candidates[left_index + 1:]:
+            for matchup in MATCHUPS:
+                left_stats = results[left].get(matchup)
+                right_stats = results[right].get(matchup)
+                if not left_stats or not right_stats:
+                    continue
+                if "episodes" not in left_stats or "episodes" not in right_stats:
+                    continue
+                comparisons[f"{left}_minus_{right}|{matchup}"] = paired_bootstrap(
+                    left_stats["episodes"], right_stats["episodes"], seed
+                )
+    return comparisons
 
 
 # ----------------------------------------------------------------------------
@@ -427,6 +505,18 @@ def main() -> None:
         print("[error] no checkpoints to evaluate")
         sys.exit(1)
 
+    stem_counts: dict[str, int] = {}
+    for path in ckpt_paths:
+        stem_counts[path.stem] = stem_counts.get(path.stem, 0) + 1
+    checkpoint_names = {
+        path: (
+            path.stem
+            if stem_counts[path.stem] == 1
+            else f"{path.parent.name}_{path.stem}"
+        )
+        for path in ckpt_paths
+    }
+
     matchups = [m for m in MATCHUPS if m in args.matchups]
 
     # ---- opponent resources ----
@@ -494,7 +584,7 @@ def main() -> None:
 
     try:
         for ckpt_path in ckpt_paths:
-            ckpt_name = ckpt_path.stem
+            ckpt_name = checkpoint_names[ckpt_path]
             print(f"\n[eval] loading checkpoint {ckpt_path}")
             agent, meta = load_agent(ckpt_path, device)
             print(f"[eval]   arch d_model={meta['d_model']} "
@@ -548,6 +638,8 @@ def main() -> None:
     except KeyboardInterrupt:
         print("\n[eval] interrupted by user; partial results are saved.")
 
+    results["__comparisons__"] = build_paired_comparisons(results, args.seed)
+    save_results(out_path, results)
     print_final_table(results)
     print(f"[eval] results written to {out_path}")
 

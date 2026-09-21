@@ -38,6 +38,7 @@ from hearthstone.env.es_bot import (
 )
 from hearthstone.env.hs_env import HearthstoneEnv
 from hearthstone.env.card_vocab import CARD_VOCAB_SCHEMES, STABLE_V1
+from hearthstone.env.environment_contract import contract_json
 
 
 # ============================================================
@@ -263,6 +264,7 @@ def main():
         card_vocab_scheme=np.array(env.card_vocab_scheme),
         card_vocabulary=np.asarray(env.card_id_vocabulary),
         teacher_weights_sha256=np.array(teacher_sha256),
+        environment_contract=np.array(contract_json(env.environment_contract)),
     )
 
     print(f"[done] {len(act_arr):,} steps from {args.episodes} episodes")

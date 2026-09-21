@@ -18,6 +18,7 @@ from hearthstone.engine.event_system import EventType
 from hearthstone.engine.game import Game
 from hearthstone.engine.spells import SPELLS_REQUIRE_TARGET
 from hearthstone.env.card_vocab import LEGACY_SORTED, build_card_vocabulary
+from hearthstone.env.environment_contract import build_environment_contract
 from hearthstone.env.es_bot import es_bot_turn
 from hearthstone.env.ghost_pool import BoardSnapshot, GhostPool
 from hearthstone.env.smart_bot import smart_bot_turn
@@ -170,6 +171,15 @@ class HearthstoneEnv(gym.Env[np.ndarray, int]):
         self._off_store = 7 + (7 + 10) * self.entity_features
         self._off_discover = 7 + (7 + 10 + 7) * self.entity_features
         self._off_enemy = 7 + (7 + 10 + 7 + 3) * self.entity_features
+
+        self.environment_contract = build_environment_contract(
+            observation_size=total_obs_size,
+            entity_features=self.entity_features,
+            action_count=self.action_space.n,
+            max_tier=self._max_tier,
+            card_vocab_scheme=self.card_vocab_scheme,
+            card_vocab_hash=self.card_vocab_hash,
+        ).metadata()
 
         # Pre-compute trigger info per card_id (avoids per-entity lookup)
         self._trigger_cache: dict[str, tuple[bool, bool, bool, bool, bool]] = {}

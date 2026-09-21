@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from bc_collect import discounted_returns, es_pick_action, file_sha256
 from evaluate_checkpoints import load_agent, resolve_device
 from hearthstone.env.hs_env import HearthstoneEnv
+from hearthstone.env.environment_contract import contract_json
 
 
 def query_expert_preserving_rng(
@@ -200,6 +201,7 @@ def main() -> None:
         opponent_mode=np.array(args.opponent_mode),
         source=np.array("dagger"),
         source_is_dagger=np.ones(len(all_obs), dtype=np.bool_),
+        environment_contract=np.array(contract_json(env.environment_contract)),
     )
 
     total = len(all_obs)

@@ -54,7 +54,9 @@ def main() -> None:
         if field not in base or field not in dagger:
             raise ValueError(f"both datasets must contain {field!r}")
 
-    for key in ("card_vocab_hash", "card_vocab_scheme"):
+    for key in ("card_vocab_hash", "card_vocab_scheme", "environment_contract"):
+        if key not in base and key not in dagger:
+            continue
         if scalar_string(base, key) != scalar_string(dagger, key):
             raise ValueError(
                 f"dataset {key} mismatch: base={scalar_string(base, key)!r}, "
@@ -117,6 +119,8 @@ def main() -> None:
         "dagger_policy_checkpoint_sha256": dagger["policy_checkpoint_sha256"],
         "dagger_beta": dagger["dagger_beta"],
     }
+    if "environment_contract" in base:
+        combined["environment_contract"] = base["environment_contract"]
 
     base_board_powers = base["board_powers"] if "board_powers" in base else np.array([])
     dagger_board_powers = (

@@ -277,6 +277,7 @@ def main():
 
     num_card_ids = envs.get_attr("num_card_ids")[0]
     card_vocab_hash = envs.get_attr("card_vocab_hash")[0]
+    environment_contract = envs.get_attr("environment_contract")[0]
     print(f"[env] obs_dim={obs_dim} n_actions={n_actions} card_ids={num_card_ids}")
     print(f"[opponents] mode={args.opponent_mode} es_envs={n_es_envs}/{args.n_envs}")
     print(
@@ -326,6 +327,12 @@ def main():
             raise ValueError(
                 "checkpoint card vocabulary does not match the current environment: "
                 f"checkpoint={checkpoint_vocab_hash}, current={card_vocab_hash}"
+            )
+        checkpoint_environment = ckpt.get("environment_contract")
+        if checkpoint_environment not in (None, environment_contract):
+            raise ValueError(
+                "checkpoint environment contract does not match current environment: "
+                f"checkpoint={checkpoint_environment}, current={environment_contract}"
             )
         checkpoint_opponents = ckpt.get("opponent_contract")
         if "optimizer" in ckpt and checkpoint_opponents not in (None, opponent_contract):
@@ -578,6 +585,7 @@ def main():
                 "card_vocab_hash": card_vocab_hash,
                 "opponent_contract": opponent_contract,
                 "reward_contract": reward_contract,
+                "environment_contract": environment_contract,
             }, ckpt_path)
             print(f"  [save] {ckpt_path}")
 
@@ -591,6 +599,7 @@ def main():
         "card_vocab_hash": card_vocab_hash,
         "opponent_contract": opponent_contract,
         "reward_contract": reward_contract,
+        "environment_contract": environment_contract,
     }, final_path)
     print(f"[done] {global_step:,} steps, saved to {final_path}")
 

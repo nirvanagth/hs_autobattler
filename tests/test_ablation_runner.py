@@ -6,6 +6,7 @@ from scripts.run_matched_ablation import build_eval_command, build_train_command
 from scripts.run_matched_ppo_ablation import (
     build_train_command as build_ppo_train_command,
 )
+from scripts.evaluate_checkpoints import paired_bootstrap, wilson_interval
 
 
 def test_train_command_pins_variant_seed_and_budget(tmp_path: Path) -> None:
@@ -59,3 +60,22 @@ def test_ppo_ablation_changes_only_variant_controls(tmp_path: Path) -> None:
     assert oracle[oracle.index("--bc-kl-coef") + 1] == "0.1"
     assert oracle[oracle.index("--reward-mode") + 1] == "oracle_potential"
     assert oracle[oracle.index("--oracle-n-combats") + 1] == "64"
+
+
+def test_wilson_interval_contains_observed_rate() -> None:
+    low, high = wilson_interval(60, 100)
+    assert low < 0.6 < high
+
+
+def test_paired_bootstrap_uses_seed_and_seat_pairs() -> None:
+    left = [
+        {"seed": 1, "candidate_seat": 0, "outcome": "win"},
+        {"seed": 1, "candidate_seat": 1, "outcome": "draw"},
+    ]
+    right = [
+        {"seed": 1, "candidate_seat": 0, "outcome": "loss"},
+        {"seed": 1, "candidate_seat": 1, "outcome": "draw"},
+    ]
+    result = paired_bootstrap(left, right, seed=42, samples=1000)
+    assert result["n"] == 2
+    assert result["mean"] == 0.5

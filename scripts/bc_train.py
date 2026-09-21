@@ -33,6 +33,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from model import HSTransformerAgent, encode_twohot
 from hearthstone.env.hs_env import HearthstoneEnv
 from hearthstone.env.card_vocab import CARD_VOCAB_SCHEMES, LEGACY_SORTED
+from hearthstone.env.environment_contract import parse_contract
 
 
 def parse_args():
@@ -97,6 +98,10 @@ def main():
     dataset_vocab_scheme = (
         str(data["card_vocab_scheme"].item())
         if "card_vocab_scheme" in data else None
+    )
+    dataset_environment_contract = (
+        parse_contract(data["environment_contract"])
+        if "environment_contract" in data else None
     )
     teacher_weights_sha256 = (
         str(data["teacher_weights_sha256"].item())
@@ -179,6 +184,7 @@ def main():
     )
     num_card_ids = tmp_env.num_card_ids
     card_vocab_hash = tmp_env.card_vocab_hash
+    environment_contract = tmp_env.environment_contract
     dataset_vocab_hash = (
         str(data["card_vocab_hash"].item()) if "card_vocab_hash" in data else None
     )
@@ -186,6 +192,14 @@ def main():
         raise ValueError(
             "BC dataset card vocabulary does not match the current environment: "
             f"dataset={dataset_vocab_hash}, current={card_vocab_hash}"
+        )
+    if (
+        dataset_environment_contract is not None
+        and dataset_environment_contract != environment_contract
+    ):
+        raise ValueError(
+            "BC dataset environment contract does not match current environment: "
+            f"dataset={dataset_environment_contract}, current={environment_contract}"
         )
     del tmp_env
     print(f"[env] num_card_ids={num_card_ids}")
@@ -214,6 +228,11 @@ def main():
             )
         if checkpoint.get("card_vocab_hash") not in (None, card_vocab_hash):
             raise ValueError("resume checkpoint card vocabulary does not match dataset")
+        if checkpoint.get("environment_contract") not in (
+            None,
+            environment_contract,
+        ):
+            raise ValueError("resume checkpoint environment contract does not match dataset")
         agent.load_state_dict(checkpoint["model"])
         digest = hashlib.sha256()
         with resume_path.open("rb") as handle:
@@ -362,6 +381,7 @@ def main():
                 "card_vocab_hash": card_vocab_hash,
                 "teacher_weights_sha256": teacher_weights_sha256,
                 "parent_checkpoint_sha256": parent_checkpoint_sha256,
+                "environment_contract": environment_contract,
                 "val_base_acc": val_base_acc,
                 "val_dagger_acc": val_dagger_acc,
             }, out_path)
