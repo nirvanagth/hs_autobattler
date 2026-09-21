@@ -16,67 +16,9 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from evaluate_checkpoints import resolve_device
-from evaluate_lobby_models import load_model
-from hearthstone.env.smart_bot import smart_bot_turn
 from hearthstone.league import PolicyLeague
 from hearthstone.lobby_arena import LobbyArena
-
-
-class LoadedPolicy:
-    def begin_episode(self) -> None:
-        pass
-
-    def play_turn(self, arena: LobbyArena, player_id: int) -> int:
-        raise NotImplementedError
-
-
-class SmartPolicy(LoadedPolicy):
-    def play_turn(self, arena: LobbyArena, player_id: int) -> int:
-        smart_bot_turn(arena.game, player_id)
-        return 1
-
-
-class NeuralPolicy(LoadedPolicy):
-    def __init__(self, checkpoint: Path, device: torch.device) -> None:
-        self.model, self.contract = load_model(checkpoint, device)
-        self.device = device
-        self.hidden: dict[int, torch.Tensor | None] = {}
-
-    def begin_episode(self) -> None:
-        self.hidden.clear()
-
-    def play_turn(self, arena: LobbyArena, player_id: int) -> int:
-        def select(observation, mask, seat):
-            with torch.inference_mode():
-                logits, _, hidden = self.model(
-                    torch.as_tensor(
-                        observation, dtype=torch.float32, device=self.device
-                    ).unsqueeze(0),
-                    self.hidden.get(seat),
-                )
-                mask_tensor = torch.as_tensor(
-                    mask, dtype=torch.bool, device=self.device
-                ).unsqueeze(0)
-                action = int(
-                    logits.masked_fill(~mask_tensor, -1e8).argmax(dim=-1).item()
-                )
-            self.hidden[seat] = hidden
-            return action
-
-        return arena.play_action_turn(player_id, select)
-
-
-def load_policies(league: PolicyLeague, device: torch.device) -> dict[str, LoadedPolicy]:
-    policies: dict[str, LoadedPolicy] = {}
-    for policy_id, entry in league.entries.items():
-        if entry.kind == "heuristic_lobby_smart":
-            policies[policy_id] = SmartPolicy()
-        elif entry.kind == "neural_lobby_pointer":
-            policy = NeuralPolicy(Path(entry.artifact_path), device)
-            if policy.contract != entry.environment_contract:
-                raise ValueError(f"checkpoint contract mismatch for {policy_id}")
-            policies[policy_id] = policy
-    return policies
+from lobby_league_runtime import load_policies
 
 
 def evaluate(

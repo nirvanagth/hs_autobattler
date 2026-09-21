@@ -170,13 +170,14 @@ class PolicyLeague:
         *,
         seed: int,
         exponent: float = 2.0,
+        include_learner: bool = False,
     ) -> list[str]:
         if learner_id not in self.entries:
             raise KeyError(learner_id)
         candidates = sorted(
             policy_id
             for policy_id in self.entries
-            if policy_id != learner_id
+            if (include_learner or policy_id != learner_id)
             and self.policies_are_compatible(learner_id, policy_id)
         )
         if not candidates:
@@ -303,7 +304,11 @@ class PolicyLeague:
     def _set_main(self, policy_id: str, evidence: dict[str, Any]) -> None:
         self.main_policy_id = policy_id
         self.promotion_history.append(
-            {"sequence": len(self.promotion_history) + 1, "policy_id": policy_id, "evidence": evidence}
+            {
+                "sequence": len(self.promotion_history) + 1,
+                "policy_id": policy_id,
+                "evidence": evidence,
+            }
         )
 
     def to_dict(self) -> dict[str, Any]:

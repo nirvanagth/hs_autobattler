@@ -92,6 +92,18 @@ def test_pfsp_excludes_incompatible_neural_contracts(tmp_path: Path) -> None:
     assert set(sampled) == {"compatible", "smart"}
 
 
+def test_pfsp_can_include_parent_for_new_learner_training(tmp_path: Path) -> None:
+    league = PolicyLeague()
+    for policy_id in ("parent", "other"):
+        artifact = tmp_path / policy_id
+        artifact.write_text(policy_id)
+        league.add_policy(entry(policy_id, artifact))
+    sampled = league.sample_opponents(
+        "parent", 100, seed=9, include_learner=True
+    )
+    assert set(sampled) == {"parent", "other"}
+
+
 def test_promotion_requires_three_well_sampled_holdouts(tmp_path: Path) -> None:
     league = PolicyLeague()
     for policy_id in ("incumbent", "candidate", "h1", "h2", "h3"):
@@ -110,7 +122,10 @@ def test_promotion_requires_three_well_sampled_holdouts(tmp_path: Path) -> None:
     )
     assert decision.eligible
     assert league.main_policy_id == "candidate"
-    assert league.promotion_history[-1]["evidence"]["gate"]["mean_improvement"] == pytest.approx(0.05)
+    recorded_improvement = league.promotion_history[-1]["evidence"]["gate"][
+        "mean_improvement"
+    ]
+    assert recorded_improvement == pytest.approx(0.05)
 
 
 def test_promotion_rejects_catastrophic_holdout_regression(tmp_path: Path) -> None:

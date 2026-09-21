@@ -66,7 +66,21 @@ small for a performance claim. Report SHA-256:
 
 ## Next experiment
 
-Implement a league-aware eight-player learner, archive each candidate before
-evaluation, then use fixed selection seeds and disjoint holdout seeds. S1 stays
-open until three consecutive gated promotions succeed. Failed candidates and
-all per-opponent outcomes remain part of the population.
+`LeagueLobbyEnv` now rotates the learner seat, samples seven archived opponents
+with PFSP, preserves seat-order recruit decisions, and returns round plus final
+placement rewards. `scripts/train_lobby_league_ppo.py` initializes the
+feed-forward learner from an immutable parent and applies conservative PPO with
+teacher KL. It refuses to overwrite a candidate and stores the league and
+parent hashes in the checkpoint.
+
+A 128-step CPU smoke from `ff_s42` completed one rollout/update at 52.6 steps/s
+and saved a reloadable checkpoint. Its SHA-256 is:
+
+```text
+ccef4b1e489ad7028868ec5e07af2fd727554ceedbd9ad321a618216eac7630d
+```
+
+This smoke is an execution check, not a performance result. The next experiment
+is a fixed-budget, multi-seed training run followed by disjoint selection and
+holdout schedules. S1 stays open until three consecutive gated promotions
+succeed. Failed candidates and all per-opponent outcomes remain in the league.

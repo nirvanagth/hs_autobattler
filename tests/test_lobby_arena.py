@@ -1,9 +1,12 @@
 """Multi-policy lobby action driver tests."""
 
 import numpy as np
+import torch
 
 from hearthstone.env.smart_bot import smart_bot_turn
+from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
 from hearthstone.lobby_arena import LobbyArena
+from scripts.lobby_league_runtime import LeagueLobbyEnv
 
 
 def test_player_targeting_state_is_isolated() -> None:
@@ -39,3 +42,28 @@ def test_action_policy_can_finish_a_full_lobby() -> None:
             else:
                 smart_bot_turn(arena.game, player_id)
     assert sorted(arena.game.placements.values()) == list(range(1, 9))
+
+
+def test_league_training_env_rotates_seat_and_finishes(tmp_path) -> None:
+    artifact = tmp_path / "smart.py"
+    artifact.write_text("smart")
+    league = PolicyLeague()
+    league.add_policy(
+        PolicyEntry(
+            policy_id="smart",
+            kind="heuristic_lobby_smart",
+            artifact_path=str(artifact),
+            artifact_sha256=file_sha256(artifact),
+        )
+    )
+    league.bootstrap_main("smart", {})
+    env = LeagueLobbyEnv(league, "smart", seed=8, device=torch.device("cpu"))
+    observation, info = env.reset(seed=11)
+    assert observation.shape == env.observation_space.shape
+    assert info["learner_seat"] == 3
+    terminated = truncated = False
+    while not (terminated or truncated):
+        action = int(np.flatnonzero(env.action_masks())[0])
+        _, _, terminated, truncated, info = env.step(action)
+    assert info["placement"] in range(1, 9)
+    assert env.learner_seat not in env.arena.game.active_player_ids

@@ -181,11 +181,14 @@ S1 progress:
   neural policies and SmartBot together in one shared-pool lobby;
 - a two-game mixed-population smoke completed with full placements. It is not
   performance evidence. See `docs/s1_policy_league.md`.
+- `LeagueLobbyEnv` and `scripts/train_lobby_league_ppo.py` connect that
+  population to conservative feed-forward PPO; a 128-step end-to-end smoke
+  completed successfully.
 
 Next extension/execution target:
 
-- implement league-aware eight-player training;
-- freeze selection and disjoint holdout schedules;
+- run the fixed-budget multi-seed league PPO experiment;
+- freeze selection and disjoint holdout evaluation schedules;
 - archive and evaluate candidates without overwriting history;
 - require three successive gated promotions before completing S1.
 
