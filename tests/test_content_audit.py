@@ -111,3 +111,16 @@ def test_handler_complete_tier2_cards_pass_verified_admission() -> None:
     assert validate_content_admission(
         manifest, card_ids=tier_two, spell_ids=[]
     )["cards"] == 17
+
+
+def test_handler_complete_tier1_to_tier3_cards_pass_verified_admission() -> None:
+    manifest = audited_manifest()
+    admitted = [
+        entry["id"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"] and entry["handler_complete"]
+    ]
+    assert len(admitted) == 51
+    assert validate_content_admission(
+        manifest, card_ids=admitted, spell_ids=[]
+    )["accepted"] == 51

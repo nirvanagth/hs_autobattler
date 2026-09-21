@@ -155,7 +155,8 @@
       "test_reference_files": [
         "tests/test_effect_types.py",
         "tests/test_f0_tier1_scenarios.py",
-        "tests/test_f0_tier2_scenarios.py"
+        "tests/test_f0_tier2_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py"
       ],
       "tier": 1,
       "tribes": [
@@ -559,6 +560,7 @@
         "tests/test_effect_types.py",
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_f0_tier2_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py"
       ],
@@ -636,6 +638,7 @@
         "tests/test_effect_types.py",
         "tests/test_entities.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -1468,6 +1471,7 @@
       "tags": [],
       "test_reference_files": [
         "tests/test_f0_tier2_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 2,
@@ -2108,7 +2112,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -2129,6 +2133,7 @@
       ],
       "test_reference_files": [
         "tests/test_entities.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 3,
@@ -2138,11 +2143,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_annoy_o_module_has_magnetic_taunt_divine_shield"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -2160,6 +2167,7 @@
         "VENOMOUS"
       ],
       "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 3,
@@ -2167,7 +2175,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_deadly_spore_venomous_is_consumed_after_attack"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3287,7 +3297,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastBuffSelf"
       ],
@@ -3307,6 +3317,7 @@
       "symbol": "TIMECAPN_HOOKTAIL",
       "tags": [],
       "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_t3t4_cards.py"
       ],
       "tier": 3,
@@ -3319,7 +3330,9 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_timecapn_hooktail_gains_attack_on_friendly_spell"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3433,7 +3446,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -3451,6 +3464,7 @@
         "CLEAVE"
       ],
       "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_t3t4_cards.py"
       ],
       "tier": 3,
@@ -3460,11 +3474,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_wildfire_elemental_cleave_hits_adjacent_targets"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "ActivateGetRandomUnit"
       ],
@@ -3484,6 +3500,7 @@
       "symbol": "BREAKOUT_MASTERMIND",
       "tags": [],
       "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_golden_logic.py"
       ],
       "tier": 3,
@@ -3495,11 +3512,13 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_breakout_mastermind_activate_pays_two_and_gets_murloc"
+      ]
     },
     {
       "avenge_registered": true,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "AvengeEffect"
       ],
@@ -3518,7 +3537,9 @@
       ],
       "symbol": "DUSTBONE_DEVASTATOR",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Undead"
@@ -3526,11 +3547,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_dustbone_devastator_avenge_buffs_undead"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffOtherType"
       ],
@@ -3549,7 +3572,9 @@
       ],
       "symbol": "MAMA_MRRGLTON",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Murloc"
@@ -3559,11 +3584,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_mama_mrrglton_buffs_other_murloc_attack"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlySellTypeBuffSelf"
       ],
@@ -3582,7 +3609,9 @@
       ],
       "symbol": "METEORITE_CRASHER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Elemental"
@@ -3592,11 +3621,13 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_meteorite_crasher_buffs_after_other_elemental_sold"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffOtherType"
       ],
@@ -3615,7 +3646,9 @@
       ],
       "symbol": "PAPA_MRRGLTON",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Murloc"
@@ -3625,11 +3658,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_papa_mrrglton_buffs_other_murloc_health"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "ActivateGainGoldNextTurn"
       ],
@@ -3648,7 +3683,9 @@
       ],
       "symbol": "PRIVATE_INVESTIGATOR",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Pirate"
@@ -3658,11 +3695,13 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_private_investigator_activate_banks_gold_next_turn"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryModifyMechanic"
       ],
@@ -3681,7 +3720,9 @@
       ],
       "symbol": "SAND_SWIRLER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Elemental"
@@ -3691,11 +3732,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_sand_swirler_battlecry_increases_elemental_attack_bonus"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyCastSpellOnRight"
       ],
@@ -3714,7 +3757,9 @@
       ],
       "symbol": "DEEP_SEA_ANGLER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Naga"
@@ -3724,11 +3769,13 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_deep_sea_angler_rally_casts_spell_on_right"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffLeftmostTypeWindfury"
       ],
@@ -3747,7 +3794,9 @@
       ],
       "symbol": "WAVERIDER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py"
+      ],
       "tier": 3,
       "tribes": [
         "Naga"
@@ -3757,7 +3806,9 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier3_scenarios.py::test_waverider_buffs_leftmost_naga_and_grants_windfury"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4723,6 +4774,7 @@
       "symbol": "TRENCH_FIGHTER",
       "tags": [],
       "test_reference_files": [
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py"
       ],
@@ -7981,6 +8033,7 @@
         "tests/test_event_system.py",
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_f0_tier2_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_integration.py",
         "tests/test_ml_components.py",
         "tests/test_pool.py",
@@ -8251,6 +8304,7 @@
       "test_reference_files": [
         "tests/test_effect_types.py",
         "tests/test_event_system.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_integration.py",
         "tests/test_new_cards.py",
         "tests/test_rl_env.py"
@@ -8277,6 +8331,7 @@
         "tests/test_event_system.py",
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_f0_tier2_scenarios.py",
+        "tests/test_f0_tier3_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -8770,11 +8825,11 @@
   ],
   "summary": {
     "cards": 229,
-    "cards_with_test_references": 152,
+    "cards_with_test_references": 160,
     "classifications": {
-      "implemented_unverified": 177,
+      "implemented_unverified": 164,
       "partial": 10,
-      "verified": 70
+      "verified": 83
     },
     "handler_complete": 247,
     "handler_incomplete": 10,

@@ -238,6 +238,12 @@ affects Deflect-o-Bot and other summon listeners. The manifest is now 70
 verified / 177 implemented-unverified / 10 partial. Fix this only under the new
 behavior-v6 contract.
 
+F0-E Tier-3 is complete. Nineteen of 21 current Tier-3 cards pass verified
+admission. Across Tier 1--3, 51/54 shop cards pass; Ancestral Automaton,
+Deflect-o-Bot, and Waveling are explicitly partial. The full manifest is now
+83 verified / 164 implemented-unverified / 10 partial. Next is behavior-v6
+repair/exclusion plus the active Tavern spell pool.
+
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
 and normal public-policy checkpoint reload both passed. Deterministic

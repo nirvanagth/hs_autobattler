@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `71dfe38d776b116bbceb787767bae229d82e7239ef4c67950e67d59db0ea4ab7`.
+  `d0bc3c17bd249bb1003512bdfd6d4c8c79fd5dbe12e20b31821c081b49bc13a9`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -82,8 +82,16 @@ Progress:
   works for explicit summon events but legacy Tavern play never emits one. The
   manifest now reports 70 verified, 177 implemented-unverified, and 10 partial.
 
-Next: add dedicated scenarios for remaining current Tier-3 shop cards, then
-resolve all partial definitions under behavior-v6.
+- **F0-E Tier-3 scenarios — COMPLETE.** Thirteen new behavior scenarios cover
+  every handler-complete current Tier-3 shop card. Nineteen of 21 Tier-3 cards
+  pass verified admission; Deflect-o-Bot and Waveling remain partial for known
+  integration/metadata defects. Across the current Tier 1--3 shop, 51 of 54
+  cards now pass strict admission. The other three are Ancestral Automaton,
+  Deflect-o-Bot, and Waveling. The full manifest is 83 verified, 164
+  implemented-unverified, and 10 partial.
+
+Next: define behavior-v6 event semantics and repair or exclude the three
+current-pool partial cards, then verify the Tier 1--3 Tavern spell pool.
 
 ## F1. Verified full-tier lobby — PENDING
 

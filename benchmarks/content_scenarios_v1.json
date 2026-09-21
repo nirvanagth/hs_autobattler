@@ -4,6 +4,12 @@
     "102": [
       "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
     ],
+    "303": [
+      "tests/test_f0_tier3_scenarios.py::test_annoy_o_module_has_magnetic_taunt_divine_shield"
+    ],
+    "304": [
+      "tests/test_f0_tier3_scenarios.py::test_deadly_spore_venomous_is_consumed_after_attack"
+    ],
     "103": [
       "tests/test_f0_tier1_scenarios.py::test_cord_puller_deathrattle_summons_microbot"
     ],
@@ -183,6 +189,39 @@
     "332": [
       "tests/test_new_t3t4_cards.py::TestTheGladIator::test_enemy_spell_does_not_buff",
       "tests/test_new_t3t4_cards.py::TestTheGladIator::test_gains_atk_on_spell_cast"
+    ],
+    "333": [
+      "tests/test_f0_tier3_scenarios.py::test_timecapn_hooktail_gains_attack_on_friendly_spell"
+    ],
+    "337": [
+      "tests/test_f0_tier3_scenarios.py::test_wildfire_elemental_cleave_hits_adjacent_targets"
+    ],
+    "338": [
+      "tests/test_f0_tier3_scenarios.py::test_breakout_mastermind_activate_pays_two_and_gets_murloc"
+    ],
+    "339": [
+      "tests/test_f0_tier3_scenarios.py::test_dustbone_devastator_avenge_buffs_undead"
+    ],
+    "340": [
+      "tests/test_f0_tier3_scenarios.py::test_mama_mrrglton_buffs_other_murloc_attack"
+    ],
+    "341": [
+      "tests/test_f0_tier3_scenarios.py::test_meteorite_crasher_buffs_after_other_elemental_sold"
+    ],
+    "342": [
+      "tests/test_f0_tier3_scenarios.py::test_papa_mrrglton_buffs_other_murloc_health"
+    ],
+    "343": [
+      "tests/test_f0_tier3_scenarios.py::test_private_investigator_activate_banks_gold_next_turn"
+    ],
+    "344": [
+      "tests/test_f0_tier3_scenarios.py::test_sand_swirler_battlecry_increases_elemental_attack_bonus"
+    ],
+    "345": [
+      "tests/test_f0_tier3_scenarios.py::test_deep_sea_angler_rally_casts_spell_on_right"
+    ],
+    "346": [
+      "tests/test_f0_tier3_scenarios.py::test_waverider_buffs_leftmost_naga_and_grants_windfury"
     ],
     "403": [
       "tests/test_new_t3t4_cards.py::TestBonker::test_plays_blood_gems_on_others"
