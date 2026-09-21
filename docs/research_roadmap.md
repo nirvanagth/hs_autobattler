@@ -59,7 +59,7 @@ errors against SmartBot and ES (100 seeds each). DAgger recovery advantages were
 small and every 95% interval crossed zero. The gate was not met, so the result
 was recorded as negative and the experiment was not expanded to 200 seeds.
 
-### R2. Matched representation and learning ablations — IN PROGRESS
+### R2. Matched representation and learning ablations — COMPLETE
 
 Train at least three seeds with identical data and budgets:
 
@@ -81,10 +81,11 @@ Progress:
 - **R2-B DAgger disagreement weights — COMPLETE.** Three matched seeds selected
   5x as the balanced default: 60.67 ± 1.04% vs ES and 87.00 ± 0.87% vs
   SmartBot. See `docs/r2_dagger_weight_ablation.md`.
-- **R2-C PPO/reward variants — NEXT.** Run sparse PPO, KL-PPO, and
-  KL-PPO+oracle from matched parent checkpoints and seeds.
+- **R2-C PPO/reward variants — COMPLETE.** KL-PPO was the only condition to
+  improve both opponent means over the 5x DAgger parent. Oracle consistently
+  reduced ES performance versus matched KL. See `docs/r2_ppo_ablation.md`.
 
-### R3. Freeze the benchmark — PENDING
+### R3. Freeze the benchmark — IN PROGRESS
 
 - Assign an explicit environment behavior version and fixed card-pool snapshot.
 - Add raw-result export, Wilson intervals, paired bootstrap, and policy rating.

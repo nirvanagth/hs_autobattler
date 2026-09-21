@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **R2 Matched representation and learning ablations**.
+Roadmap item: **R3 Freeze the benchmark**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -134,20 +134,28 @@ R2-B is complete. Three-seed disagreement-weight results:
 Five-times disagreement weight is promoted as the balanced DAgger default.
 See `docs/r2_dagger_weight_ablation.md`.
 
+R2-C is complete. Three-seed matched PPO results:
+
+- Plain PPO: 60.33 ± 2.02% ES, 86.17 ± 1.61% SmartBot.
+- KL-PPO: 61.83 ± 1.76% ES, 88.17 ± 0.58% SmartBot.
+- KL+Oracle: 60.33 ± 0.76% ES, 88.17 ± 0.29% SmartBot.
+
+Promote 5x DAgger + teacher-KL PPO. Oracle remains a negative-result ablation.
+See `docs/r2_ppo_ablation.md`.
+
 Immediate implementation target:
 
 ```text
-scripts/run_matched_ablation.py
+versioned environment contract + raw statistical evaluator
 ```
 
 Next extension/execution target:
 
-- run R2-C sparse PPO, KL-PPO, and KL-PPO+oracle with matched seeds, parent
-  checkpoints, rollout budgets, opponents, and holdout evaluation;
-- keep data, seeds, model sizes, budgets, and evaluation suites matched;
-- run at least three training seeds before promoting a research claim;
-- record command lines, artifact hashes, status, and failure information;
-- support local smoke presets before expensive production runs.
+- add an explicit environment behavior version and card-pool snapshot digest;
+- persist those contracts in datasets and checkpoints and reject mismatches;
+- export raw per-episode evaluation records, Wilson intervals, and paired
+  bootstrap comparisons;
+- provide a one-command smoke verifier for a fresh checkout.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.
