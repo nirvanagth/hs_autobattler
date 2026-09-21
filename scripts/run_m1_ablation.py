@@ -130,6 +130,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--parent-id", required=True)
     parser.add_argument("--output-root", required=True)
     parser.add_argument(
+        "--reuse-root",
+        help="reuse matching checkpoints from another immutable experiment root",
+    )
+    parser.add_argument(
         "--conditions", nargs="+", choices=tuple(CONDITION_FLAGS), default=list(CONDITION_FLAGS)
     )
     parser.add_argument("--seeds", nargs="+", type=int, default=[317, 342, 373])
@@ -155,6 +159,35 @@ def main() -> None:
     league_path = Path(args.league).resolve()
     league = PolicyLeague.load(league_path)
     parent = league.entries[args.parent_id]
+    reuse_root = Path(args.reuse_root).resolve() if args.reuse_root else None
+    compatible_opponents = [
+        policy_id
+        for policy_id in league.entries
+        if policy_id != args.parent_id
+        and league.policies_are_compatible(args.parent_id, policy_id)
+    ]
+    if (
+        args.phase in {"eval", "all"}
+        and args.eval_min_per_policy * len(compatible_opponents)
+        > args.eval_episodes * 7
+    ):
+        raise ValueError(
+            "evaluation schedule cannot satisfy minimum coverage: "
+            f"{len(compatible_opponents)} policies * {args.eval_min_per_policy} "
+            f"> {args.eval_episodes * 7} seats"
+        )
+    reused_checkpoints = {}
+    if reuse_root is not None:
+        for condition in args.conditions:
+            for seed in args.seeds:
+                run_id = f"{condition}_seed{seed}"
+                checkpoint = reuse_root / run_id / f"{run_id}.pt"
+                if not checkpoint.is_file():
+                    raise FileNotFoundError(checkpoint)
+                reused_checkpoints[run_id] = {
+                    "path": str(checkpoint),
+                    "sha256": file_sha256(checkpoint),
+                }
     config = {
         "schema_version": 1,
         "source_commit": git_head(),
@@ -173,6 +206,7 @@ def main() -> None:
         "eval_episodes": args.eval_episodes,
         "eval_seed": args.eval_seed,
         "eval_min_per_policy": args.eval_min_per_policy,
+        "reused_checkpoints": reused_checkpoints,
     }
     manifest_path = output_root / "manifest.json"
     if manifest_path.exists():
@@ -189,9 +223,13 @@ def main() -> None:
         for condition in args.conditions:
             for seed in args.seeds:
                 run_id = f"{condition}_seed{seed}"
-                checkpoint = output_root / run_id / f"{run_id}.pt"
+                checkpoint = (
+                    reuse_root / run_id / f"{run_id}.pt"
+                    if reuse_root is not None
+                    else output_root / run_id / f"{run_id}.pt"
+                )
                 checkpoints[run_id] = checkpoint
-                if not checkpoint.exists():
+                if reuse_root is None and not checkpoint.exists():
                     tasks.append(
                         (
                             f"train:{run_id}",
@@ -204,7 +242,11 @@ def main() -> None:
         for condition in args.conditions:
             for seed in args.seeds:
                 run_id = f"{condition}_seed{seed}"
-                checkpoints[run_id] = output_root / run_id / f"{run_id}.pt"
+                checkpoints[run_id] = (
+                    reuse_root / run_id / f"{run_id}.pt"
+                    if reuse_root is not None
+                    else output_root / run_id / f"{run_id}.pt"
+                )
 
     if args.phase in {"eval", "all"}:
         schedule = output_root / "selection_schedule.json"

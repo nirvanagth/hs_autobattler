@@ -6,7 +6,7 @@ from scripts.summarize_m1_ablation import summarize
 
 
 def test_summary_ranks_conditions_by_mean_placement(tmp_path) -> None:
-    (tmp_path / "manifest.json").write_text("{}")
+    (tmp_path / "manifest.json").write_text('{"reused_checkpoints": {}}')
     (tmp_path / "selection_schedule.json").write_text("{}")
     comparisons = {"comparisons": {}}
     for condition, placements in {"first": (2.0, 4.0), "second": (1.0, 2.0)}.items():

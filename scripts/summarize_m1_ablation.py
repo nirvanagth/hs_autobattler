@@ -22,11 +22,14 @@ def mean_std(values: list[float]) -> dict[str, float]:
 
 
 def summarize(root: Path, conditions: list[str], seeds: list[int]) -> dict:
+    manifest_path = root / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    reused = manifest.get("reused_checkpoints", {})
     comparison_path = root / "selection_comparison.json"
     comparison = json.loads(comparison_path.read_text())
     result = {
         "schema_version": 1,
-        "manifest_sha256": file_sha256(root / "manifest.json"),
+        "manifest_sha256": file_sha256(manifest_path),
         "schedule_sha256": file_sha256(root / "selection_schedule.json"),
         "comparison_sha256": file_sha256(comparison_path),
         "conditions": {},
@@ -38,7 +41,11 @@ def summarize(root: Path, conditions: list[str], seeds: list[int]) -> dict:
         for seed in seeds:
             run_id = f"{condition}_seed{seed}"
             run_dir = root / run_id
-            checkpoint = run_dir / f"{run_id}.pt"
+            checkpoint = Path(
+                reused.get(run_id, {}).get(
+                    "path", run_dir / f"{run_id}.pt"
+                )
+            )
             report_path = run_dir / "selection.json"
             report = json.loads(report_path.read_text())
             metrics["placement"].append(float(report["mean_placement"]))

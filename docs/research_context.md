@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **M1 Centralized critic and auxiliary combat tasks**.
+Roadmap item: **M2 Search**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -203,10 +203,9 @@ S1 progress:
 
 Next extension/execution target:
 
-- run the five-condition, three-seed M1 ablation against current main
-  `round3_s217`;
-- compare centralized value learning and public-feature auxiliary learning to
-  oracle reward shaping on frozen selection and holdout schedules.
+- implement deterministic Tavern snapshot/restore;
+- add depth-1 legal-action search using policy/value evaluation;
+- benchmark search gain against latency before considering deeper MCTS.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
@@ -220,6 +219,14 @@ placements were public 3.458, central 3.317, central+aux 3.433, central+oracle
 3.300, and combined 3.575. Oracle added only 0.017 placement over central;
 auxiliary losses did not help. Advance only public versus central to the
 confirmatory budget. See `benchmarks/hsbg_m1_pilot_v1.json`.
+
+M1 confirmation: public and centralized critics were trained for 32,768 steps
+at three new seeds and evaluated for 270 paired lobbies with at least 200 seats
+per archived opponent. Public mean placement was 2.705 ± 0.397 across seeds;
+central was 2.852 ± 0.730. Central-minus-public paired placement changes were
+-0.570, +1.126, and -0.996. Auxiliary and oracle variants had already failed
+the pilot screen. No M1 candidate was promoted; keep the public critic default.
+See `benchmarks/hsbg_m1_confirmatory_v1.json`.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

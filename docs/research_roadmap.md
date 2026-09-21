@@ -157,7 +157,7 @@ statistically clear placement gain. S1 is complete.
 
 ## Phase M — representation and planning
 
-### M1. Centralized critic and auxiliary combat tasks — IN PROGRESS
+### M1. Centralized critic and auxiliary combat tasks — COMPLETE (HYPOTHESES NOT SUPPORTED)
 
 - Public-information actor, privileged training-only critic.
 - Combat outcome and expected-damage auxiliary heads.
@@ -167,10 +167,16 @@ Progress: the 8,282-value privileged critic observation, centralized value
 encoder, public-feature combat outcome/damage heads, and league-PPO losses are
 implemented. Deterministic CRN lobby-oracle shaping is also wired into the same
 trainer. Leakage, repeatability, end-to-end training, and checkpoint reload
-smokes pass. The matched ablation remains. See
+smokes pass. See
 `docs/m1_central_critic.md`.
 
-### M2. Search — PENDING
+Result: a five-condition, three-seed pilot found only a small centralized-
+critic signal and no additive auxiliary/oracle benefit. A 32,768-step,
+three-seed confirmation reversed the central-critic signal: mean placement was
+2.852 versus 2.705 for the public critic, with much higher seed variance. Both
+were worse than the unchanged parent at 2.233. No M1 policy was promoted.
+
+### M2. Search — IN PROGRESS
 
 - Deterministic Tavern snapshot/restore.
 - Depth-1 action evaluation, then policy/value-guided MCTS.

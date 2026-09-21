@@ -85,3 +85,24 @@ worsened it by 0.117 and the combined condition was worst. These are screening
 results, not holdout claims. Only public versus centralized critic advances to
 the 32,768-step confirmatory experiment. Exact artifacts are frozen in
 `benchmarks/hsbg_m1_pilot_v1.json`.
+
+## Confirmatory result
+
+Public and centralized critics were retrained for 32,768 steps at seeds 417,
+442, and 473. All six checkpoints were evaluated on the same 270-lobby
+schedule, with each of nine archived opponents appearing at least 200 times.
+
+| Condition | Mean placement | Seed SD | Top-4 | Win |
+|---|---:|---:|---:|---:|
+| Public critic | 2.705 | 0.397 | 84.1% | 36.5% |
+| Central critic | 2.852 | 0.730 | 82.2% | 30.7% |
+
+The paired central-minus-public placement changes by seed were -0.570, +1.126,
+and -0.996. The effect was highly unstable and the across-seed mean was -0.147
+placement. Both trained conditions were also worse on average than the
+unmodified `round3_s217` parent at 2.233.
+
+The M1 hypotheses are therefore not supported in the current setup. No M1
+checkpoint is promoted. The centralized critic, auxiliary heads, and oracle
+remain available as experimental switches, but the public critic remains the
+default. Exact hashes are in `benchmarks/hsbg_m1_confirmatory_v1.json`.

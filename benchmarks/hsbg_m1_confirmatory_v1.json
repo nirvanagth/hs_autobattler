@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_m1_confirmatory_v1",
+  "parent_policy": {
+    "id": "round3_s217",
+    "sha256": "4b7f5ec504b47e6bd9a18cdeb4bd2c2a3255e9913b7c3b2fa733a030a1d193b3"
+  },
+  "training": {
+    "conditions": ["public", "central"],
+    "timesteps_per_run": 32768,
+    "seeds": [417, 442, 473]
+  },
+  "evaluation": {
+    "episodes_per_run": 270,
+    "seed_base": 410000,
+    "min_seats_per_archived_policy": 200,
+    "manifest_sha256": "654b0bbff67963cc91aa8599b0e39ca856ed5d985041bd0b36e3da92588c1002",
+    "schedule_sha256": "a2a9129b1021aa7f16c085a67033ad46f4b32d82a51ec18232ded088bf0d1987",
+    "comparison_sha256": "fb86975d866f4708196f3eda3cc6ab1a51ed62d0474d744cbc07335c2322f725",
+    "summary_sha256": "1ec684579460133e6beddc29716df38ff70f1071a075f94a7702d5c45df269cf"
+  },
+  "parent": {
+    "mean_placement": 2.2333333333333334,
+    "top4_rate": 0.9148148148148149,
+    "win_rate": 0.37777777777777777
+  },
+  "public": {
+    "mean_placement": 2.7049382716049384,
+    "seed_std": 0.39728732667426647,
+    "top4_rate": 0.8407407407407408,
+    "win_rate": 0.3654320987654321
+  },
+  "central": {
+    "mean_placement": 2.8518518518518516,
+    "seed_std": 0.730324917825421,
+    "top4_rate": 0.8222222222222222,
+    "win_rate": 0.3074074074074074
+  },
+  "central_minus_public_paired_placement_by_seed": {
+    "417": -0.5703703703703704,
+    "442": 1.125925925925926,
+    "473": -0.9962962962962963
+  },
+  "decision": "central critic not promoted; retain public critic default"
+}
