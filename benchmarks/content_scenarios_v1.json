@@ -4,6 +4,60 @@
     "102": [
       "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
     ],
+    "305": [
+      "tests/test_new_cards.py::TestCadaverCaretaker::test_summons_three_skeletons"
+    ],
+    "306": [
+      "tests/test_new_cards.py::TestBrinyBootlegger::test_deathrattle_adds_tavern_coin"
+    ],
+    "307": [
+      "tests/test_new_cards.py::TestHandlessForsaken::test_summons_hand_token_with_reborn"
+    ],
+    "308": [
+      "tests/test_new_cards.py::TestGreedySnaketongue::test_rally_adds_tavern_coin"
+    ],
+    "309": [
+      "tests/test_new_cards.py::TestRoadboar::test_rally_adds_two_blood_gems"
+    ],
+    "310": [
+      "tests/test_new_cards.py::TestGoldgrubber::test_buff_per_golden",
+      "tests/test_new_cards.py::TestGoldgrubber::test_no_buff_without_golden"
+    ],
+    "311": [
+      "tests/test_new_cards.py::TestGemsplitter::test_enemy_ds_lost_does_not_trigger",
+      "tests/test_new_cards.py::TestGemsplitter::test_friendly_ds_lost_adds_blood_gem"
+    ],
+    "312": [
+      "tests/test_new_cards.py::TestCanopySwinger::test_bc_buffs_board_murlocs",
+      "tests/test_new_cards.py::TestCanopySwinger::test_bc_buffs_hand_murlocs"
+    ],
+    "313": [
+      "tests/test_new_cards.py::TestHotSpringer::test_bc_buffs_murloc_hp"
+    ],
+    "314": [
+      "tests/test_new_cards.py::TestRampager::test_rally_damages_friendly_board"
+    ],
+    "315": [
+      "tests/test_new_cards.py::TestFelemental::test_bc_buffs_current_shop"
+    ],
+    "316": [
+      "tests/test_new_cards.py::TestPricklyPiper::test_dr_increments_blood_gem_atk"
+    ],
+    "317": [
+      "tests/test_new_cards.py::TestAmberGuardian::test_soc_buffs_random_dragon_and_gives_ds"
+    ],
+    "318": [
+      "tests/test_new_cards.py::TestHardyOrca::test_self_damage_buffs_others",
+      "tests/test_new_cards.py::TestHardyOrca::test_self_not_buffed"
+    ],
+    "319": [
+      "tests/test_new_cards.py::TestColdlightDiver::test_bc_adds_coin",
+      "tests/test_new_cards.py::TestColdlightDiver::test_dr_adds_coin"
+    ],
+    "320": [
+      "tests/test_new_cards.py::TestJellyBelly::test_buffs_self_on_reborn_summon",
+      "tests/test_new_cards.py::TestJellyBelly::test_does_not_buff_on_normal_summon"
+    ],
     "321": [
       "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_buffs_undead_on_board_on_death",
       "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_does_not_buff_non_undead"
@@ -11,12 +65,68 @@
     "324": [
       "tests/test_new_t3t4_cards.py::TestBriarbackDrummer::test_adds_barrage_spell"
     ],
+    "325": [
+      "tests/test_new_t3t4_cards.py::TestDeflectOBot::test_gains_atk_and_ds_on_mech_summoned",
+      "tests/test_new_t3t4_cards.py::TestDeflectOBot::test_no_trigger_on_non_mech"
+    ],
+    "327": [
+      "tests/test_new_t3t4_cards.py::TestPrehistoricTinkerer::test_buffs_rightmost_on_refresh"
+    ],
+    "328": [
+      "tests/test_new_t3t4_cards.py::TestRoaringRecruiter::test_buffs_dragon_attacker",
+      "tests/test_new_t3t4_cards.py::TestRoaringRecruiter::test_no_self_buff"
+    ],
+    "329": [
+      "tests/test_new_t3t4_cards.py::TestScourfin::test_buffs_hand_minion_on_death",
+      "tests/test_new_t3t4_cards.py::TestScourfin::test_no_crash_empty_hand"
+    ],
     "332": [
       "tests/test_new_t3t4_cards.py::TestTheGladIator::test_enemy_spell_does_not_buff",
       "tests/test_new_t3t4_cards.py::TestTheGladIator::test_gains_atk_on_spell_cast"
     ],
+    "403": [
+      "tests/test_new_t3t4_cards.py::TestBonker::test_plays_blood_gems_on_others"
+    ],
+    "408": [
+      "tests/test_new_t3t4_cards.py::TestGreaseBot::test_buffs_unit_that_lost_ds"
+    ],
+    "412": [
+      "tests/test_new_t3t4_cards.py::TestKingBagurgle::test_buffs_murlocs_board_and_hand",
+      "tests/test_new_t3t4_cards.py::TestKingBagurgle::test_no_buff_non_murloc"
+    ],
+    "413": [
+      "tests/test_new_t3t4_cards.py::TestMarqueeTicker::test_adds_spell_at_eot"
+    ],
+    "414": [
+      "tests/test_new_t3t4_cards.py::TestPrizedPromoDrake::test_buffs_all_dragons_at_soc"
+    ],
+    "416": [
+      "tests/test_new_t3t4_cards.py::TestRazorfenFlapper::test_dr_adds_blood_gem_barrage"
+    ],
     "417": [
       "tests/test_new_t3t4_cards.py::TestRefreshingAnomaly::test_grants_two_free_refreshes"
+    ],
+    "418": [
+      "tests/test_new_t3t4_cards.py::TestSilentEnforcer::test_deals_2_damage_to_all"
+    ],
+    "421": [
+      "tests/test_new_t3t4_cards.py::TestSoulsplitter::test_gives_undead_reborn_at_soc"
+    ],
+    "422": [
+      "tests/test_new_t3t4_cards.py::TestSpiritDrake::test_avenge_threshold_3_and_add_spell_target"
+    ],
+    "424": [
+      "tests/test_new_t3t4_cards.py::TestTunnelBlaster::test_deals_3_damage_to_all"
+    ],
+    "425": [
+      "tests/test_new_t3t4_cards.py::TestWannabeGargoyle::test_has_reborn",
+      "tests/test_new_t3t4_cards.py::TestWannabeGargoyle::test_stats"
+    ],
+    "426": [
+      "tests/test_new_t3t4_cards.py::TestWitchwingNestmatron::test_avenge_threshold_3_and_add_unit_target"
+    ],
+    "427": [
+      "tests/test_new_t3t4_cards.py::TestTrenchFighter::test_adds_gem_confiscation_at_eot"
     ]
   },
   "spells": {

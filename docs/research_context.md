@@ -224,10 +224,10 @@ completeness is 53/54; nothing is called scenario-verified until an explicit
 verification index is added.
 
 F0-B is complete. `benchmarks/content_scenarios_v1.json` is the authoritative
-scenario index and currently verifies five minions plus two spells. Its node
+scenario index and currently verifies 38 minions plus two spells. Its node
 IDs are validated against the test AST. The admission API rejects unknown,
 partial, and merely referenced-but-unverified content. The current manifest is
-7 verified / 244 implemented-unverified / 6 partial.
+40 verified / 211 implemented-unverified / 6 partial.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

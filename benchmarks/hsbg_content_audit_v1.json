@@ -2051,7 +2051,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleSummon"
       ],
@@ -2088,11 +2088,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestCadaverCaretaker::test_summons_three_skeletons"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleAddSpell"
       ],
@@ -2129,11 +2131,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestBrinyBootlegger::test_deathrattle_adds_tavern_coin"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleSummonWithTag"
       ],
@@ -2170,11 +2174,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestHandlessForsaken::test_summons_hand_token_with_reborn"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyAddSpell"
       ],
@@ -2211,11 +2217,13 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestGreedySnaketongue::test_rally_adds_tavern_coin"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyAddSpell"
       ],
@@ -2252,11 +2260,13 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestRoadboar::test_rally_adds_two_blood_gems"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "EndOfTurnBuffSelfPerGolden"
       ],
@@ -2287,11 +2297,14 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestGoldgrubber::test_buff_per_golden",
+        "tests/test_new_cards.py::TestGoldgrubber::test_no_buff_without_golden"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnDivineShieldLostAddSpell"
       ],
@@ -2330,11 +2343,14 @@
         "DIVINE_SHIELD_LOST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestGemsplitter::test_enemy_ds_lost_does_not_trigger",
+        "tests/test_new_cards.py::TestGemsplitter::test_friendly_ds_lost_adds_blood_gem"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffAllByTypeIncludeHand"
       ],
@@ -2366,11 +2382,14 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestCanopySwinger::test_bc_buffs_board_murlocs",
+        "tests/test_new_cards.py::TestCanopySwinger::test_bc_buffs_hand_murlocs"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffAllByTypeIncludeHand"
       ],
@@ -2402,11 +2421,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestHotSpringer::test_bc_buffs_murloc_hp"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyDamageOwnBoard"
       ],
@@ -2438,11 +2459,13 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestRampager::test_rally_damages_friendly_board"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "CustomEffect"
       ],
@@ -2474,11 +2497,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestFelemental::test_bc_buffs_current_shop"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleModifyMechanic"
       ],
@@ -2509,11 +2534,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestPricklyPiper::test_dr_increments_blood_gem_atk"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffRandomFriendlyTypeAndDS"
       ],
@@ -2547,11 +2574,13 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestAmberGuardian::test_soc_buffs_random_dragon_and_gives_ds"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSelfDamagedBuffBoard"
       ],
@@ -2584,11 +2613,14 @@
         "MINION_DAMAGED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestHardyOrca::test_self_damage_buffs_others",
+        "tests/test_new_cards.py::TestHardyOrca::test_self_not_buffed"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell",
         "DeathrattleAddSpell"
@@ -2633,11 +2665,14 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestColdlightDiver::test_bc_adds_coin",
+        "tests/test_new_cards.py::TestColdlightDiver::test_dr_adds_coin"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlyRebornBuffSelf"
       ],
@@ -2668,7 +2703,10 @@
         "MINION_SUMMONED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestJellyBelly::test_buffs_self_on_reborn_summon",
+        "tests/test_new_cards.py::TestJellyBelly::test_does_not_buff_on_normal_summon"
+      ]
     },
     {
       "avenge_registered": false,
@@ -2827,7 +2865,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlySummonedTypeBuff"
       ],
@@ -2860,7 +2898,10 @@
         "MINION_SUMMONED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestDeflectOBot::test_gains_atk_and_ds_on_mech_summoned",
+        "tests/test_new_t3t4_cards.py::TestDeflectOBot::test_no_trigger_on_non_mech"
+      ]
     },
     {
       "avenge_registered": false,
@@ -2900,7 +2941,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnTavernRefreshBuffRightmostShop"
       ],
@@ -2933,11 +2974,13 @@
         "TAVERN_REFRESHED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestPrehistoricTinkerer::test_buffs_rightmost_on_refresh"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlyAttackBuffSelf"
       ],
@@ -2968,11 +3011,14 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestRoaringRecruiter::test_buffs_dragon_attacker",
+        "tests/test_new_t3t4_cards.py::TestRoaringRecruiter::test_no_self_buff"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleBuffHandRandom"
       ],
@@ -3003,7 +3049,10 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestScourfin::test_buffs_hand_minion_on_death",
+        "tests/test_new_t3t4_cards.py::TestScourfin::test_no_crash_empty_hand"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3656,7 +3705,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyBuffAllOthersByType"
       ],
@@ -3687,7 +3736,9 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestBonker::test_plays_blood_gems_on_others"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3827,7 +3878,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnDivineShieldLostBuffUnit"
       ],
@@ -3860,7 +3911,9 @@
         "DIVINE_SHIELD_LOST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestGreaseBot::test_buffs_unit_that_lost_ds"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3971,7 +4024,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffAllByTypeIncludeHand"
       ],
@@ -4002,11 +4055,14 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestKingBagurgle::test_buffs_murlocs_board_and_hand",
+        "tests/test_new_t3t4_cards.py::TestKingBagurgle::test_no_buff_non_murloc"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "EndOfTurnAddRandomSpell"
       ],
@@ -4035,11 +4091,13 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestMarqueeTicker::test_adds_spell_at_eot"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffAllFriendlyType"
       ],
@@ -4070,7 +4128,9 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestPrizedPromoDrake::test_buffs_all_dragons_at_soc"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4107,7 +4167,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleAddSpell"
       ],
@@ -4144,7 +4204,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestRazorfenFlapper::test_dr_adds_blood_gem_barrage"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4185,7 +4247,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleDamageAllMinions"
       ],
@@ -4218,7 +4280,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestSilentEnforcer::test_deals_2_damage_to_all"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4293,7 +4357,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatGiveFriendlyTypeReborn"
       ],
@@ -4326,11 +4390,13 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestSoulsplitter::test_gives_undead_reborn_at_soc"
+      ]
     },
     {
       "avenge_registered": true,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "AvengeEffect"
       ],
@@ -4359,7 +4425,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestSpiritDrake::test_avenge_threshold_3_and_add_spell_target"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4398,7 +4466,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleDamageAllMinions"
       ],
@@ -4431,11 +4499,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestTunnelBlaster::test_deals_3_damage_to_all"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -4463,11 +4533,14 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestWannabeGargoyle::test_has_reborn",
+        "tests/test_new_t3t4_cards.py::TestWannabeGargoyle::test_stats"
+      ]
     },
     {
       "avenge_registered": true,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "AvengeEffect"
       ],
@@ -4496,11 +4569,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestWitchwingNestmatron::test_avenge_threshold_3_and_add_unit_target"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "EndOfTurnAddSpell"
       ],
@@ -4538,7 +4613,9 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestTrenchFighter::test_adds_gem_confiscation_at_eot"
+      ]
     },
     {
       "avenge_registered": false,
@@ -8558,9 +8635,9 @@
     "cards": 229,
     "cards_with_test_references": 134,
     "classifications": {
-      "implemented_unverified": 244,
+      "implemented_unverified": 211,
       "partial": 6,
-      "verified": 7
+      "verified": 40
     },
     "handler_complete": 251,
     "handler_incomplete": 6,
