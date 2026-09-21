@@ -437,6 +437,13 @@ class TavernManager:
                 indices_to_pop_board.append(idx)
                 removed_count += 1
 
+        # A triplet is represented by a Golden card in hand. If all consumed
+        # copies are on board and the hand is full, defer formation instead of
+        # deleting three pool copies with nowhere to place the result.
+        hand_size_after_consumption = len(player.hand) - len(indices_to_pop_hand)
+        if hand_size_after_consumption >= 10:
+            return
+
         total_perm_hp = 0
         total_perm_atk = 0
         total_turn_hp = 0
@@ -497,9 +504,6 @@ class TavernManager:
         golden_unit.absorbed_pool_copies = merged_absorbed_pool
         golden_unit.recalc_stats()
         golden_unit.restore_stats()
-
-        if len(player.hand) >= 10:
-            return
 
         player.hand.append(HandCard(uid=golden_unit.uid, unit=golden_unit))
         recalculate_board_auras(player.board)

@@ -91,7 +91,7 @@ class CardPool:
                     search_tiers.append(t)
 
         for t in search_tiers:
-            unique_ids_in_pool = set(self.tiers[t])
+            unique_ids_in_pool = sorted(set(self.tiers[t]), key=str)
             for card_id in unique_ids_in_pool:
                 data = CARD_DB.get(card_id)
                 if not data:

@@ -100,7 +100,7 @@ one-command verifier passed. See `docs/r3_benchmark_freeze.md`.
 
 ## Phase E — full environment structure
 
-### E1. Restricted-pool eight-player skeleton — IN PROGRESS
+### E1. Restricted-pool eight-player skeleton — COMPLETE
 
 - Eight players, shared pool, pairings, ghosts, damage cap, elimination, and
   placement reward.
@@ -109,7 +109,10 @@ one-command verifier passed. See `docs/r3_benchmark_freeze.md`.
 Gate: 100,000 bot games without pairing, pool, elimination, or conservation
 violations.
 
-### E2. Public opponent information and memory — PENDING
+Result: 100,000/100,000 SmartBot lobbies passed at 32.1 games/s with 24.31
+average rounds and near-uniform seat winners. See `docs/e1_lobby_core.md`.
+
+### E2. Public opponent information and memory — IN PROGRESS
 
 - Last-seen boards, turns-since-seen, health/armor, and opponent identity.
 - Recurrent memory benchmark versus feed-forward policies.

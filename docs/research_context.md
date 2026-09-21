@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **E1 Restricted-pool eight-player skeleton**.
+Roadmap item: **E2 Public opponent information and memory**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -150,19 +150,26 @@ persist and validate this contract. `scripts/verify_research_platform.py`
 passed its complete smoke pipeline; the full suite passed 875 tests with 33
 skips. See `docs/r3_benchmark_freeze.md`.
 
+E1 is complete. `LobbyGame` implements the restricted Tier-3 eight-player
+lifecycle and passed 100,000 SmartBot lobbies with exact pool conservation,
+pairing uniqueness, complete placements, and bounded termination. Average game
+length was 24.31 rounds at 32.1 games/s; seat win shares were 12.27%–12.67%.
+See `docs/e1_lobby_core.md`.
+
 Immediate implementation target:
 
 ```text
-restricted Tier-3 eight-player environment core
+eight-player public observation schema + recurrent policy benchmark
 ```
 
 Next extension/execution target:
 
-- implement eight player lifecycle, shared pool, deterministic pairings,
-  ghosts, damage cap, elimination, and placement;
-- keep the first skeleton on a frozen Tier-3 ruleset;
-- add conservation and 100,000-game lifecycle stress tests;
-- preserve `hsbg_1v1_v1` unchanged as the regression benchmark.
+- expose all players' health, tier, alive state, last opponent, last-seen board,
+  and turns-since-seen without leaking hidden current boards;
+- add an eight-player Gymnasium wrapper around `LobbyGame`;
+- benchmark feed-forward Pointer against Pointer+GRU on identical observation
+  histories and training budgets;
+- retain `hsbg_1v1_v1/v2/v3` as immutable regression manifests.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

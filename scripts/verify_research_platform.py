@@ -20,7 +20,7 @@ from hearthstone.env.es_bot import N_WEIGHTS
 from hearthstone.env.hs_env import HearthstoneEnv
 
 
-DEFAULT_BENCHMARK = ROOT / "benchmarks" / "hsbg_1v1_v2.json"
+DEFAULT_BENCHMARK = ROOT / "benchmarks" / "hsbg_1v1_v3.json"
 
 
 def file_sha256(path: Path) -> str:

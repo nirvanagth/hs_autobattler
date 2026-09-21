@@ -103,6 +103,21 @@ class TestTripletStatSegregation:
         # After end-of-turn: base(2) + perm(2) = 4, turn gone
         assert golden.cur_atk == 4
 
+    def test_full_hand_defers_board_only_triplet(
+        self,
+        player: Player,
+        tavern: "TavernManager",
+        mock_unit: Callable[..., Unit],
+    ) -> None:
+        player.hand = [HandCard(uid=10_000 + index) for index in range(10)]
+        player.board = [mock_unit(CardIDs.BREAKOUT_MASTERMIND) for _ in range(3)]
+
+        tavern._check_triplet(player, CardIDs.BREAKOUT_MASTERMIND)
+
+        assert len(player.hand) == 10
+        assert len(player.board) == 3
+        assert all(unit.pool_copies == 1 for unit in player.board)
+
 
 # ===================================================================
 #  TRIPLET REWARD TIER

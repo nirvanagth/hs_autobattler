@@ -71,3 +71,12 @@ or action change must create a new behavior/schema version and benchmark
 manifest rather than silently changing v1. The roadmap may proceed to the
 restricted-pool eight-player skeleton while retaining v1 for regression tests.
 
+Subsequent E1 stress work exercised that policy:
+
+- `hsbg_1v1_v2` / behavior v3 records exact pool-copy provenance.
+- `hsbg_1v1_v3` / behavior v5 makes Discover ordering independent of
+  `PYTHONHASHSEED` and prevents board-only triplets from disappearing when the
+  hand is full.
+
+The earlier manifests remain tracked historical contracts; the verifier targets
+v3 by default on the current branch.

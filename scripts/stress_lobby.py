@@ -87,7 +87,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--games", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=100_000)
-    parser.add_argument("--max-rounds", type=int, default=60)
+    parser.add_argument("--max-rounds", type=int, default=200)
     parser.add_argument("--log-every", type=int, default=100)
     return parser.parse_args()
 

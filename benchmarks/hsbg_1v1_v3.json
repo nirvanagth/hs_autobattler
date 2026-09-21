@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_1v1_v3",
+  "based_on": "hsbg_1v1_v2",
+  "frozen_on": "2026-09-20",
+  "change": "Deterministic Discover ordering and lossless full-hand triplet deferral.",
+  "environment_contract": {
+    "name": "hsbg_1v1_research",
+    "behavior_version": 5,
+    "observation_schema_version": 1,
+    "action_schema_version": 1,
+    "observation_size": 1036,
+    "entity_features": 38,
+    "action_count": 34,
+    "max_tier": 6,
+    "card_vocab_scheme": "stable_v1",
+    "card_vocab_hash": "3d23761f068035bdcf0ca5690275ba5334c34ad28478151666b8ef6a78c3cfd2",
+    "card_pool_digest": "58bf222f245ef7d5d8b1b9e4efeca855a74ea6a4b9b7c4689da3d032a4e75fae"
+  },
+  "dataset": {
+    "status": "recollection_required",
+    "reason": "hsbg_1v1_v1 datasets predate pool provenance and deterministic Discover ordering"
+  },
+  "opponents": {
+    "es": {
+      "path": "artifacts/es_bot/best.npz",
+      "sha256": "0b18c9a10e2da4fc2cc04104003ae8d75e5c0bfdb68449acc169c559db8ed7c1"
+    },
+    "smartbot_source": {
+      "path": "src/hearthstone/env/smart_bot.py",
+      "sha256": "953c08ff62c645405b9032ad84bab609304b8359cc701c50daaaf6b9ac053c48"
+    }
+  },
+  "evaluation": {
+    "paired_seats": true,
+    "games_per_opponent": 200,
+    "selection_seed_base": 80000,
+    "required_metrics": [
+      "raw_episode_outcomes",
+      "win_rate",
+      "wilson_interval",
+      "health_margin",
+      "paired_bootstrap"
+    ]
+  },
+  "verification": {
+    "quick": "PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/verify_research_platform.py",
+    "full": "PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/verify_research_platform.py --full-tests"
+  }
+}

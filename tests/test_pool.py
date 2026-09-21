@@ -6,6 +6,8 @@ discovery (unique, exact tier, predicate), token exclusion, spell pool.
 
 from __future__ import annotations
 
+import random
+
 from hearthstone.engine.configs import CARD_DB, ROTATED_OUT, SPELL_DB, TIER_COPIES
 from hearthstone.engine.enums import CardIDs, UnitType
 from hearthstone.engine.pool import CardPool, SpellPool
@@ -143,6 +145,19 @@ class TestCardPoolReturn:
 
 class TestCardPoolDiscovery:
     """Discovery drawing: unique, exact tier, predicate filtering."""
+
+    def test_discovery_is_independent_of_internal_pool_order(self) -> None:
+        first = CardPool()
+        second = CardPool()
+        for cards in second.tiers.values():
+            cards.reverse()
+
+        random.seed(12345)
+        first_draw = first.draw_discovery_cards(3, tier=3)
+        random.seed(12345)
+        second_draw = second.draw_discovery_cards(3, tier=3)
+
+        assert first_draw == second_draw
 
     def test_discovery_draws_unique_cards(self) -> None:
         pool = CardPool()
