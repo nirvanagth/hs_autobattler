@@ -176,13 +176,19 @@ three-seed confirmation reversed the central-critic signal: mean placement was
 2.852 versus 2.705 for the public critic, with much higher seed variance. Both
 were worse than the unchanged parent at 2.233. No M1 policy was promoted.
 
-### M2. Search — IN PROGRESS
+### M2. Search — COMPLETE (HYPOTHESIS NOT SUPPORTED)
 
 - Deterministic Tavern snapshot/restore.
 - Depth-1 action evaluation, then policy/value-guided MCTS.
 - Multiple determinizations for random shop outcomes.
 
 Gate: search improves matched holdout performance enough to justify latency.
+
+Result: deterministic snapshot/restore and a public-information depth-one
+planner were implemented. On 40 paired lobbies, search changed mean placement
+from 3.900 to 4.625 (delta -0.725, 95% CI [-1.575, +0.100]) while increasing
+inference latency from 3.44 to 80.16 ms/decision. The gate failed, so deeper
+MCTS was not implemented. See `docs/m2_search.md`.
 
 ## Promotion ladder
 

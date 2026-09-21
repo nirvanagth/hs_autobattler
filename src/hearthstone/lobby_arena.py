@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import copy
+import random
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -32,6 +35,15 @@ class LobbyActionResult:
     accepted: bool
     action_type: str
     info: str
+
+
+@dataclass(frozen=True)
+class LobbyArenaSnapshot:
+    game: LobbyGame
+    player_states: dict[int, PlayerActionState]
+    python_random_state: object
+    numpy_random_state: tuple[Any, ...]
+    active_player_id: int
 
 
 ActionSelector = Callable[[np.ndarray, np.ndarray, int], int]
@@ -136,6 +148,24 @@ class LobbyArena:
             self._store(player_id)
         self._activate(original_player)
         return observation
+
+    def snapshot(self) -> LobbyArenaSnapshot:
+        """Capture all mutable simulator and RNG state for branch search."""
+        return LobbyArenaSnapshot(
+            game=copy.deepcopy(self.game),
+            player_states=copy.deepcopy(self.player_states),
+            python_random_state=random.getstate(),
+            numpy_random_state=np.random.get_state(),
+            active_player_id=self.env.my_player_id,
+        )
+
+    def restore(self, snapshot: LobbyArenaSnapshot) -> None:
+        """Restore a reusable snapshot without aliasing it to live state."""
+        self.env.game = copy.deepcopy(snapshot.game)
+        self.player_states = copy.deepcopy(snapshot.player_states)
+        random.setstate(snapshot.python_random_state)
+        np.random.set_state(snapshot.numpy_random_state)
+        self._activate(snapshot.active_player_id)
 
     def apply_action(self, player_id: int, action: int) -> LobbyActionResult:
         if player_id not in self.game.active_player_ids:

@@ -1,6 +1,6 @@
 # HS Autobattler persistent research context
 
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 This file is the handoff point for future work. Read it together with
 `docs/research_roadmap.md` and `docs/v2_prepatch_experiment.md` before changing
@@ -112,7 +112,8 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **M2 Search**.
+The recorded R/E/S/M roadmap is complete. The next research decision should be
+a new phase rather than more tuning of the current Tier-3 setup.
 
 R2-A is complete. Three-seed matched results:
 
@@ -203,9 +204,11 @@ S1 progress:
 
 Next extension/execution target:
 
-- implement deterministic Tavern snapshot/restore;
-- add depth-1 legal-action search using policy/value evaluation;
-- benchmark search gain against latency before considering deeper MCTS.
+- expand environment fidelity and card/hero coverage, or train an explicit
+  counterfactual action-value/world model before revisiting search;
+- preserve `round3_s217` as the current promoted policy;
+- do not enable centralized critic, auxiliary heads, oracle shaping, or search
+  by default based on the current negative results.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
@@ -227,6 +230,12 @@ central was 2.852 ± 0.730. Central-minus-public paired placement changes were
 -0.570, +1.126, and -0.996. Auxiliary and oracle variants had already failed
 the pilot screen. No M1 candidate was promoted; keep the public critic default.
 See `benchmarks/hsbg_m1_confirmatory_v1.json`.
+
+M2 is complete with a negative result. Deterministic Tavern snapshot/restore
+and depth-one value search were implemented. Across 40 paired lobbies, search
+worsened mean placement by 0.725 (95% CI [-1.575, +0.100]) and increased CPU
+latency from 3.44 to 80.16 ms/decision. Deeper MCTS was not justified. See
+`docs/m2_search.md` and `benchmarks/hsbg_m2_depth1_v1.json`.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

@@ -10,6 +10,8 @@ from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
 from hearthstone.lobby_arena import CENTRAL_OBSERVATION_SIZE, LobbyArena
 from scripts.lobby_league_runtime import LeagueLobbyEnv
 from scripts.lobby_bc_collect import smart_pick_action
+from scripts.lobby_model import LobbyPointerAgent
+from scripts.lobby_search import DepthOnePlanner
 
 
 def test_player_targeting_state_is_isolated() -> None:
@@ -42,6 +44,37 @@ def test_central_observation_contains_hidden_shop_state() -> None:
     assert np.array_equal(public_before, arena.observation(0))
     assert not np.array_equal(central_before, arena.central_observation())
     assert arena.central_observation().shape == (CENTRAL_OBSERVATION_SIZE,)
+
+
+def test_snapshot_restore_replays_random_tavern_action() -> None:
+    arena = LobbyArena(seed=21)
+    before = arena.observation(0)
+    snapshot = arena.snapshot()
+    first = arena.apply_action(0, 1)
+    first_child = arena.observation(0)
+    assert first.accepted
+    assert not np.array_equal(before, first_child)
+    arena.restore(snapshot)
+    assert np.array_equal(before, arena.observation(0))
+    second = arena.apply_action(0, 1)
+    assert second.accepted
+    assert np.array_equal(first_child, arena.observation(0))
+
+
+def test_depth_one_search_is_non_mutating_and_returns_legal_action() -> None:
+    arena = LobbyArena(seed=22)
+    model = LobbyPointerAgent(
+        num_card_ids=arena.env.num_card_ids,
+        d_model=32,
+        n_heads=4,
+        n_layers=1,
+    ).eval()
+    before = arena.observation(0)
+    mask = arena.action_mask(0)
+    result = DepthOnePlanner(model, torch.device("cpu")).choose_action(arena, 0)
+    assert mask[result.action]
+    assert result.expanded_actions == int(mask.sum())
+    assert np.array_equal(before, arena.observation(0))
 
 
 def test_action_policy_can_finish_a_full_lobby() -> None:

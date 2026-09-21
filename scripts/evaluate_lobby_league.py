@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from evaluate_checkpoints import resolve_device
 from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
 from hearthstone.lobby_arena import LobbyArena
-from lobby_league_runtime import load_policies
+from lobby_league_runtime import NeuralPolicy, SearchPolicy, load_policies
 
 
 def evaluate(
@@ -29,10 +29,21 @@ def evaluate(
     seed_base: int,
     device: torch.device,
     schedule: dict[str, object] | None = None,
-) -> tuple[list[dict[str, object]], dict[str, Counter]]:
+    search: bool = False,
+    policy_prior_weight: float = 0.05,
+) -> tuple[list[dict[str, object]], dict[str, Counter], dict[str, object]]:
     policies = load_policies(league, device)
     if candidate_id not in policies:
         raise ValueError(f"candidate is not a runnable lobby policy: {candidate_id}")
+    if search:
+        entry = league.entries[candidate_id]
+        if entry.kind != "neural_lobby_pointer":
+            raise ValueError("depth-one search requires a neural lobby candidate")
+        policies[candidate_id] = SearchPolicy(
+            Path(entry.artifact_path),
+            device,
+            policy_prior_weight=policy_prior_weight,
+        )
     arena = LobbyArena(max_tier=3, seed=seed_base)
     records: list[dict[str, object]] = []
     outcomes: dict[str, Counter] = defaultdict(Counter)
@@ -90,7 +101,32 @@ def evaluate(
             f"candidate_place={candidate_placement}",
             flush=True,
         )
-    return records, outcomes
+    candidate_policy = policies[candidate_id]
+    diagnostics: dict[str, object] = {"search": search}
+    if isinstance(candidate_policy, NeuralPolicy):
+        diagnostics.update(
+            {
+                "decisions": candidate_policy.decisions,
+                "inference_seconds": candidate_policy.elapsed_seconds,
+                "milliseconds_per_decision": (
+                    1000.0 * candidate_policy.elapsed_seconds / candidate_policy.decisions
+                    if candidate_policy.decisions
+                    else 0.0
+                ),
+            }
+        )
+    if isinstance(candidate_policy, SearchPolicy):
+        diagnostics.update(
+            {
+                "expanded_actions": candidate_policy.expanded_actions,
+                "mean_expanded_actions": (
+                    candidate_policy.expanded_actions / candidate_policy.decisions
+                    if candidate_policy.decisions
+                    else 0.0
+                ),
+            }
+        )
+    return records, outcomes, diagnostics
 
 
 def main() -> None:
@@ -104,6 +140,8 @@ def main() -> None:
     parser.add_argument("--out", required=True)
     parser.add_argument("--schedule")
     parser.add_argument("--record", action="store_true")
+    parser.add_argument("--search", action="store_true")
+    parser.add_argument("--policy-prior-weight", type=float, default=0.05)
     args = parser.parse_args()
     league_path = Path(args.league).resolve()
     league = PolicyLeague.load(league_path)
@@ -126,13 +164,15 @@ def main() -> None:
     if schedule is not None and schedule["league_sha256"] != base_league_sha256:
         raise ValueError("schedule was generated from a different league manifest")
     episodes = len(schedule["games"]) if schedule is not None else args.episodes
-    records, outcomes = evaluate(
+    records, outcomes, diagnostics = evaluate(
         league,
         args.candidate,
         episodes=episodes,
         seed_base=args.seed_base,
         device=resolve_device(args.device),
         schedule=schedule,
+        search=args.search,
+        policy_prior_weight=args.policy_prior_weight,
     )
     if args.record:
         for opponent_id, counts in outcomes.items():
@@ -155,6 +195,7 @@ def main() -> None:
         "top4_rate": float(np.mean(np.asarray(placements) <= 4)),
         "win_rate": float(np.mean(np.asarray(placements) == 1)),
         "opponent_outcomes": {key: dict(value) for key, value in outcomes.items()},
+        "inference": diagnostics,
         "games": records,
     }
     output = Path(args.out)

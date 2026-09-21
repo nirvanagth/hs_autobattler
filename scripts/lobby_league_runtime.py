@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import sys
+import time
 from pathlib import Path
 
 import gymnasium as gym
@@ -21,6 +22,7 @@ from hearthstone.env.lobby_env import PLACEMENT_REWARDS
 from hearthstone.env.smart_bot import smart_bot_turn
 from hearthstone.league import PolicyLeague
 from hearthstone.lobby_arena import LobbyArena
+from lobby_search import DepthOnePlanner
 
 
 class LoadedPolicy:
@@ -42,12 +44,15 @@ class NeuralPolicy(LoadedPolicy):
         self.model, self.contract = load_model(checkpoint, device)
         self.device = device
         self.hidden: dict[int, torch.Tensor | None] = {}
+        self.decisions = 0
+        self.elapsed_seconds = 0.0
 
     def begin_episode(self) -> None:
         self.hidden.clear()
 
     def play_turn(self, arena: LobbyArena, player_id: int) -> int:
         def select(observation, mask, seat):
+            started = time.perf_counter()
             with torch.inference_mode():
                 logits, _, hidden = self.model(
                     torch.as_tensor(
@@ -62,7 +67,37 @@ class NeuralPolicy(LoadedPolicy):
                     logits.masked_fill(~mask_tensor, -1e8).argmax(dim=-1).item()
                 )
             self.hidden[seat] = hidden
+            self.elapsed_seconds += time.perf_counter() - started
+            self.decisions += 1
             return action
+
+        return arena.play_action_turn(player_id, select)
+
+
+class SearchPolicy(NeuralPolicy):
+    def __init__(
+        self,
+        checkpoint: Path,
+        device: torch.device,
+        *,
+        policy_prior_weight: float = 0.05,
+    ) -> None:
+        super().__init__(checkpoint, device)
+        if self.model.use_memory:
+            raise ValueError("depth-one search currently requires a feed-forward policy")
+        self.planner = DepthOnePlanner(
+            self.model, device, policy_prior_weight=policy_prior_weight
+        )
+        self.expanded_actions = 0
+
+    def play_turn(self, arena: LobbyArena, player_id: int) -> int:
+        def select(_observation, _mask, seat):
+            started = time.perf_counter()
+            result = self.planner.choose_action(arena, seat)
+            self.elapsed_seconds += time.perf_counter() - started
+            self.decisions += 1
+            self.expanded_actions += result.expanded_actions
+            return result.action
 
         return arena.play_action_turn(player_id, select)
 

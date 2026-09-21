@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_m2_depth1_v1",
+  "source_commit": "10eb70d",
+  "policy": {
+    "id": "round3_s217",
+    "sha256": "4b7f5ec504b47e6bd9a18cdeb4bd2c2a3255e9913b7c3b2fa733a030a1d193b3"
+  },
+  "evaluation": {
+    "episodes": 40,
+    "seed_base": 500100,
+    "schedule_sha256": "19a3f5d197b3f55a6f0a1a23c52b7849a46a2076bdae2f311caaff898ef5de15",
+    "baseline_report_sha256": "401968dd97dd3cc06daedb01ce284db1fe16e77311d82d17c639a22a8f167b2b"
+  },
+  "baseline": {
+    "mean_placement": 3.9,
+    "top4_rate": 0.6,
+    "win_rate": 0.125,
+    "milliseconds_per_decision": 3.4376509583231663
+  },
+  "depth_one": {
+    "policy_prior_weight": 0.05,
+    "mean_placement": 4.625,
+    "top4_rate": 0.5,
+    "win_rate": 0.2,
+    "mean_expanded_actions": 11.014943114280863,
+    "milliseconds_per_decision": 80.15537126649106,
+    "report_sha256": "1739799fa4355be83b5f8fe3d51ad5fdb0c222f71b8f887ec86eb60552b872c8"
+  },
+  "paired_placement_improvement": {
+    "mean": -0.725,
+    "ci_low": -1.575,
+    "ci_high": 0.1,
+    "comparison_sha256": "3d7326ef87169ab63c98bac97e3313bf5857da9cc05cb40da95ec8f1e9d435b6"
+  },
+  "decision": "do not proceed to deeper MCTS; leaf value is not reliable enough to justify 23.3x latency"
+}
