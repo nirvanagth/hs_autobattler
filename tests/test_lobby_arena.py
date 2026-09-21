@@ -1,12 +1,15 @@
 """Multi-policy lobby action driver tests."""
 
 import numpy as np
+import pytest
 import torch
 
+from hearthstone.engine.cpp_bridge import get_cpp_engine
 from hearthstone.env.smart_bot import smart_bot_turn
 from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
 from hearthstone.lobby_arena import CENTRAL_OBSERVATION_SIZE, LobbyArena
 from scripts.lobby_league_runtime import LeagueLobbyEnv
+from scripts.lobby_bc_collect import smart_pick_action
 
 
 def test_player_targeting_state_is_isolated() -> None:
@@ -85,3 +88,44 @@ def test_league_training_env_rotates_seat_and_finishes(tmp_path) -> None:
     assert info["placement"] in range(1, 9)
     assert env.learner_seat not in env.arena.game.active_player_ids
     assert combat_targets > 0
+
+
+@pytest.mark.skipif(get_cpp_engine() is None, reason="C++ combat engine unavailable")
+def test_lobby_oracle_potential_is_deterministic(tmp_path) -> None:
+    artifact = tmp_path / "smart.py"
+    artifact.write_text("smart")
+    league = PolicyLeague()
+    league.add_policy(
+        PolicyEntry(
+            policy_id="smart",
+            kind="heuristic_lobby_smart",
+            artifact_path=str(artifact),
+            artifact_sha256=file_sha256(artifact),
+        )
+    )
+
+    def rollout():
+        env = LeagueLobbyEnv(
+            league,
+            "smart",
+            seed=15,
+            device=torch.device("cpu"),
+            reward_mode="oracle_potential",
+            oracle_n_combats=8,
+        )
+        env.reset(seed=15)
+        shaping = []
+        for _ in range(30):
+            env.arena._activate(env.learner_seat)
+            action = smart_pick_action(env.arena.env)
+            _, _, terminated, truncated, info = env.step(action)
+            shaping.append(info["oracle_shaping"])
+            if terminated or truncated:
+                break
+        return shaping
+
+    first = rollout()
+    second = rollout()
+    assert first == second
+    assert all(np.isfinite(first))
+    assert any(abs(value) > 0 for value in first)

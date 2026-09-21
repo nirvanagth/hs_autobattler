@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from evaluate_lobby_models import load_model
 from hearthstone.engine.enums import BattleOutcome
+from hearthstone.engine.cpp_bridge import get_cpp_engine
 from hearthstone.env.lobby_env import PLACEMENT_REWARDS
 from hearthstone.env.smart_bot import smart_bot_turn
 from hearthstone.league import PolicyLeague
@@ -91,6 +93,10 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
         seed: int,
         device: torch.device,
         pfsp_exponent: float = 2.0,
+        reward_mode: str = "sparse",
+        oracle_n_combats: int = 64,
+        oracle_scale: float = 1.0,
+        oracle_gamma: float = 0.999,
     ) -> None:
         super().__init__()
         if learner_reference_id not in league.entries:
@@ -98,6 +104,19 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
         self.league = league
         self.learner_reference_id = learner_reference_id
         self.pfsp_exponent = pfsp_exponent
+        if reward_mode not in {"sparse", "oracle_potential"}:
+            raise ValueError(f"unsupported reward mode: {reward_mode}")
+        if reward_mode == "oracle_potential" and get_cpp_engine() is None:
+            raise RuntimeError("oracle_potential requires the C++ combat engine")
+        self.reward_mode = reward_mode
+        self.oracle_n_combats = oracle_n_combats
+        self.oracle_scale = oracle_scale
+        self.oracle_gamma = oracle_gamma
+        self._oracle_rng = random.Random(seed ^ 0xC311_71C)
+        self._oracle_seed = 0
+        self._oracle_opponent: list[tuple] | None = None
+        self._oracle_opponent_tier = 1
+        self._oracle_potential = 0.0
         self.seed_base = seed
         self.episode_index = 0
         self.arena = LobbyArena(max_tier=3, seed=seed)
@@ -126,6 +145,7 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
         del options
         episode_seed = self.seed_base + self.episode_index if seed is None else int(seed)
         self.episode_index += 1
+        self._oracle_rng.seed(episode_seed ^ 0xC311_71C)
         self.arena.reset(seed=episode_seed)
         for policy in self.policies.values():
             policy.begin_episode()
@@ -147,6 +167,9 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
             raise ValueError(f"sampled policies are not runnable: {missing}")
         self.decisions = 0
         self._play_opponents(before_learner=True)
+        if self.reward_mode == "oracle_potential":
+            self._prepare_oracle()
+            self._oracle_potential = self._evaluate_oracle()
         return self.arena.observation(self.learner_seat), self._info()
 
     def action_masks(self) -> np.ndarray:
@@ -175,6 +198,44 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
                 return -1.0, 0, -result.applied_damage / self.arena.game.damage_cap
             return 0.0, 1, 0.0
         return 0.0, 1, 0.0
+
+    def _prepare_oracle(self) -> None:
+        opponent_id = self.arena.game.next_opponent(self.learner_seat)
+        self._oracle_seed = self._oracle_rng.getrandbits(32)
+        if opponent_id is None:
+            self._oracle_opponent = None
+            return
+        if opponent_id in self.arena.game.active_player_ids:
+            opponent = self.arena.game.players[opponent_id]
+        else:
+            opponent = self.arena.game.ghost_snapshots.get(opponent_id)
+        if opponent is None or not opponent.board:
+            self._oracle_opponent = None
+            return
+        self._oracle_opponent = [
+            self.arena.env._unit_to_cpp(unit) for unit in opponent.board
+        ]
+        self._oracle_opponent_tier = opponent.tavern_tier
+
+    def _evaluate_oracle(self) -> float:
+        player = self.arena.game.players[self.learner_seat]
+        if not player.board or self._oracle_opponent is None:
+            return 0.0
+        engine = get_cpp_engine()
+        if engine is None:
+            return 0.0
+        results = engine.fast_combat_batch(
+            [self.arena.env._unit_to_cpp(unit) for unit in player.board],
+            self._oracle_opponent,
+            self._oracle_seed,
+            self.oracle_n_combats,
+            tavern_tier_0=player.tavern_tier,
+            tavern_tier_1=self._oracle_opponent_tier,
+        )
+        return sum(
+            1.0 if outcome == 2 else 0.5 if outcome == 1 else 0.0
+            for outcome, _damage in results
+        ) / len(results)
 
     def _info(self) -> dict[str, object]:
         return {
@@ -212,12 +273,27 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
             and not truncated
         ):
             self._play_opponents(before_learner=True)
+        oracle_shaping = 0.0
+        if self.reward_mode == "oracle_potential":
+            if terminated or truncated:
+                next_potential = 0.0
+            else:
+                if result.accepted and result.action_type == "END_TURN":
+                    self._prepare_oracle()
+                next_potential = self._evaluate_oracle()
+            oracle_shaping = self.oracle_scale * (
+                self.oracle_gamma * next_potential - self._oracle_potential
+            )
+            self._oracle_potential = next_potential
+            reward += oracle_shaping
         info = self._info()
         info.update(
             {
                 "combat_target_valid": combat_target_valid,
                 "combat_outcome": combat_outcome,
                 "combat_damage": combat_damage,
+                "oracle_shaping": oracle_shaping,
+                "oracle_potential": self._oracle_potential,
             }
         )
         return (

@@ -203,7 +203,6 @@ S1 progress:
 
 Next extension/execution target:
 
-- implement deterministic lobby oracle potential reward;
 - run the five-condition, three-seed M1 ablation against current main
   `round3_s217`;
 - compare centralized value learning and public-feature auxiliary learning to
@@ -211,7 +210,9 @@ Next extension/execution target:
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
-and normal public-policy checkpoint reload both passed. See
+and normal public-policy checkpoint reload both passed. Deterministic
+common-random-number oracle potential shaping is implemented separately from
+the actor input and passed a repeatability test plus 128-step smoke. See
 `docs/m1_central_critic.md`.
 
 Do not begin the eight-player environment phase until R2 results have been

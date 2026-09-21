@@ -21,6 +21,10 @@ Status: in progress
 - Every successfully completed recruit turn exposes a three-class combat
   outcome and signed applied damage divided by the 15-point damage cap.
 - Optional outcome and damage heads consume only public actor features.
+- Optional deterministic oracle shaping evaluates the learner against the
+  scheduled opponent's training-only current board. It reuses one Monte Carlo
+  seed throughout a recruit turn and applies a potential difference, so no
+  private feature is added to the deployed actor.
 - League PPO supports independent `--central-critic`, `--auxiliary-coef`, and
   `--damage-coef` switches. Older checkpoints load without the new heads, and
   resulting checkpoints retain enough architecture metadata for evaluation.
@@ -40,6 +44,13 @@ a35ea06cebfec3b6263cabd43d924325cc6c0ee0dd1aaf71174f923b4f31d7bd
 ```
 
 This smoke is not performance evidence.
+
+A separate 128-step centralized-critic plus 16-sample oracle smoke also passed.
+Checkpoint SHA-256:
+
+```text
+3f2d1a811a7fec7d30b3a3015c9433422dbc2b05c2c566f8619d23086582dd29
+```
 
 ## Planned matched ablation
 

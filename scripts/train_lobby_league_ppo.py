@@ -54,6 +54,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--central-critic", action="store_true")
     parser.add_argument("--auxiliary-coef", type=float, default=0.0)
     parser.add_argument("--damage-coef", type=float, default=0.25)
+    parser.add_argument(
+        "--reward-mode", choices=("sparse", "oracle_potential"), default="sparse"
+    )
+    parser.add_argument("--oracle-n-combats", type=int, default=64)
+    parser.add_argument("--oracle-scale", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", choices=("auto", "cpu", "mps"), default="auto")
     return parser.parse_args()
@@ -88,6 +93,10 @@ def main() -> None:
         seed=args.seed,
         device=device,
         pfsp_exponent=args.pfsp_exponent,
+        reward_mode=args.reward_mode,
+        oracle_n_combats=args.oracle_n_combats,
+        oracle_scale=args.oracle_scale,
+        oracle_gamma=args.gamma,
     )
     if parent.environment_contract != env.lobby_environment_contract:
         raise ValueError("parent policy contract does not match league environment")
@@ -334,6 +343,9 @@ def main() -> None:
         ),
         "auxiliary_coef": args.auxiliary_coef,
         "damage_coef": args.damage_coef,
+        "reward_mode": args.reward_mode,
+        "oracle_n_combats": args.oracle_n_combats,
+        "oracle_scale": args.oracle_scale,
     }
     saved_args = dict(model_args)
     saved_args.update(vars(args))
