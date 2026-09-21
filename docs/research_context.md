@@ -24,7 +24,7 @@ PYTHONPATH=src:cpp/build:. .venv/bin/python ...
 ## Current platform state
 
 - Python Tavern engine and optional C++ combat engine.
-- 1v1, 30-health environment; not yet full eight-player Battlegrounds.
+- Frozen 1v1 benchmark plus a restricted-pool, 30-health eight-player lobby.
 - 34-action masked policy.
 - Pointer actor with stable-v1 card vocabulary.
 - Episode-aware BC, categorical critic, conservative PPO, deterministic
@@ -166,16 +166,28 @@ by default until a self-play teacher uses opponent history. See
 Immediate implementation target:
 
 ```text
-population league + PFSP opponent sampling
+league-aware eight-player training against the archived PFSP population
 ```
+
+S1 progress:
+
+- immutable policy entries, artifact verification, and ratings are implemented;
+- aggregate Elo is order independent and PFSP rejects incompatible neural
+  environment contracts;
+- promotion is blocked unless candidate and incumbent each have 200 games
+  against at least three holdouts, the mean improves, and no holdout falls by
+  more than two score points;
+- `LobbyArena` and `scripts/evaluate_lobby_league.py` run multiple archived
+  neural policies and SmartBot together in one shared-pool lobby;
+- a two-game mixed-population smoke completed with full placements. It is not
+  performance evidence. See `docs/s1_policy_league.md`.
 
 Next extension/execution target:
 
-- define immutable policy entries and ratings for SmartBot, ES variants, BC,
-  DAgger, and historical neural checkpoints;
-- implement PFSP sampling and deterministic league manifests;
-- collect per-opponent outcomes and prevent promotion on one fixed opponent;
-- require three successive promoted policies to improve holdout league rating.
+- implement league-aware eight-player training;
+- freeze selection and disjoint holdout schedules;
+- archive and evaluate candidates without overwriting history;
+- require three successive gated promotions before completing S1.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

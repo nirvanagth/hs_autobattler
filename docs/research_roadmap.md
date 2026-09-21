@@ -133,6 +133,12 @@ placement 4.713 versus GRU 4.770, with paired intervals crossing zero. See
 Gate: three successive promoted policies improve holdout league rating without
 catastrophic regression against archived opponents.
 
+Progress: the immutable registry, order-independent aggregate Elo, contract-
+safe deterministic PFSP, multi-opponent promotion gate, per-seat action state,
+and shared-pool mixed-policy evaluator are implemented. A seven-policy local
+population passed a two-lobby execution smoke test. This is infrastructure,
+not a promotion result. See `docs/s1_policy_league.md`.
+
 ## Phase M — representation and planning
 
 ### M1. Centralized critic and auxiliary combat tasks — PENDING
