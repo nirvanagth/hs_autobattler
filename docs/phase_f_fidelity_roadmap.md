@@ -54,16 +54,14 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `28bcb3786805ce71b98652024703bca3293afa81f0b7fa397d8ca8f3f613e834`.
-- The audit found six inconsistencies. Active Tier-3 Waveling has Deathrattle
-  metadata without a death trigger; rotated Wheeled Crewmate has a no-op effect;
-  Heroic Underdog lacks Stealth targeting semantics; Gentle Djinni and
-  Indomitable Mount have mismatched Deathrattles; Deathly Striker has mismatched
-  metadata. They remain explicitly partial.
+  `71dfe38d776b116bbceb787767bae229d82e7239ef4c67950e67d59db0ea4ab7`.
+- The audit initially found six inconsistencies. Integration scenarios then
+  exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
+  listeners. The manifest now identifies ten partial definitions.
 - The Waveling mismatch is retained in legacy behavior-v5 so frozen results do
   not change silently. Behavior-v6 must fix or exclude it before admission.
-  Of 54 Tier-3 shop cards, 53 are handler-complete. This does not mean
-  scenario-verified: 211 entries remain conservatively
+  Of 54 Tier-3 shop cards, 51 are handler-complete. This does not mean
+  scenario-verified: 177 entries remain conservatively
   classified `implemented_unverified` until dedicated scenario IDs are indexed.
 
 - **F0-B verification/admission — COMPLETE.** The tracked
@@ -76,11 +74,16 @@ Progress:
 - **F0-C Tier-1 scenarios — COMPLETE.** Fourteen new behavior scenarios cover
   every previously unverified current Tier-1 shop minion. All 15 current Tier-1
   shop cards now pass verified admission. The index totals 52 verified minions
-  and two verified spells; the manifest reports 54 verified, 197 implemented-
-  unverified, and 6 partial entries.
+  and two verified spells.
 
-Next: add dedicated scenarios for current Tier-2 shop cards, then Tier-3, and
-resolve the six partial definitions under behavior-v6.
+- **F0-D Tier-2 scenarios — COMPLETE.** Twelve new scenarios plus six existing
+  dedicated suites cover all 18 current Tier-2 shop cards. Seventeen pass
+  verified admission. Ancestral Automaton remains partial because its handler
+  works for explicit summon events but legacy Tavern play never emits one. The
+  manifest now reports 70 verified, 177 implemented-unverified, and 10 partial.
+
+Next: add dedicated scenarios for remaining current Tier-3 shop cards, then
+resolve all partial definitions under behavior-v6.
 
 ## F1. Verified full-tier lobby — PENDING
 

@@ -36,6 +36,16 @@ SUPPORTED_GENERIC_TAGS = {
     Tags.IMMUNE,
 }
 
+# Legacy TavernManager emits MINION_PLAYED but not MINION_SUMMONED when a unit
+# is played from hand. These handlers work for generated summons but do not yet
+# implement the full live-game meaning of "summon".
+INCOMPLETE_PLAY_AS_SUMMON_EFFECTS = {
+    "OnFriendlySummonedTypeBuff",
+    "OnSummonedTypeBuffRandomOther",
+    "OtherSummonScalingAura",
+    "OnSummonAutomatonBuffAutomatons",
+}
+
 
 def _value(value: Any) -> Any:
     if isinstance(value, Enum):
@@ -170,6 +180,8 @@ def build_content_manifest(
                 and getattr(effect, "hp", 0) == 0
             ):
                 issues.append("declared_no_op_effect:BattlecryModifyMechanic")
+            if effect_name in INCOMPLETE_PLAY_AS_SUMMON_EFFECTS:
+                issues.append("missing_minion_summoned_event_on_play")
         for dependency in dependencies:
             target = SPELL_DB if dependency["kind"] == "spell" else CARD_DB
             if dependency["id"] not in target:

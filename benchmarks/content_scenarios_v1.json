@@ -46,6 +46,64 @@
     "124": [
       "tests/test_f0_tier1_scenarios.py::test_mini_myrmidon_copies_first_spellcraft_once_per_turn"
     ],
+    "202": [
+      "tests/test_effect_types.py::TestBattlecryAddSpell::test_battlecry_adds_spell"
+    ],
+    "205": [
+      "tests/test_f0_tier2_scenarios.py::test_mechagnome_interpreter_buffs_played_mech"
+    ],
+    "207": [
+      "tests/test_f0_tier2_scenarios.py::test_humming_bird_buffs_friendly_beasts_at_combat_start"
+    ],
+    "208": [
+      "tests/test_f0_tier2_scenarios.py::test_nerubian_deathswarmer_buffs_all_friendly_undead"
+    ],
+    "209": [
+      "tests/test_f0_tier2_scenarios.py::test_oozeling_gladiator_adds_two_slimy_shields"
+    ],
+    "212": [
+      "tests/test_f0_tier2_scenarios.py::test_sellemental_sell_adds_water_droplet"
+    ],
+    "214": [
+      "tests/test_f0_tier2_scenarios.py::test_tad_sell_draws_murloc_from_pool"
+    ],
+    "215": [
+      "tests/test_f0_tier2_scenarios.py::test_mind_muck_consumes_shop_for_friendly_demon"
+    ],
+    "219": [
+      "tests/test_new_cards.py::TestFireBaller::test_scaling_increments",
+      "tests/test_new_cards.py::TestFireBaller::test_sell_buffs_board"
+    ],
+    "220": [
+      "tests/test_new_cards.py::TestSnowBaller::test_sell_buffs_board_hp"
+    ],
+    "222": [
+      "tests/test_new_cards.py::TestSoulRewinder::test_does_not_fire_for_enemy_hero_damage",
+      "tests/test_new_cards.py::TestSoulRewinder::test_heals_hero_and_buffs_self"
+    ],
+    "223": [
+      "tests/test_new_cards.py::TestSurfingSylvar::test_eot_buffs_adjacent_once_without_golden",
+      "tests/test_new_cards.py::TestSurfingSylvar::test_eot_repeats_per_golden"
+    ],
+    "224": [
+      "tests/test_new_cards.py::TestPatientScout::test_scaling_increases_tier",
+      "tests/test_new_cards.py::TestPatientScout::test_sell_sets_discovery_request"
+    ],
+    "225": [
+      "tests/test_f0_tier2_scenarios.py::test_ancestral_automaton_handler_scales_when_summon_event_is_emitted"
+    ],
+    "226": [
+      "tests/test_f0_tier2_scenarios.py::test_metallic_hunter_deathrattle_adds_pointy_arrow"
+    ],
+    "227": [
+      "tests/test_f0_tier2_scenarios.py::test_thousandth_paper_drake_attack_updates_elemental_mechanic"
+    ],
+    "228": [
+      "tests/test_f0_tier2_scenarios.py::test_lava_lurker_buffs_itself_when_targeted_by_spell"
+    ],
+    "229": [
+      "tests/test_f0_tier2_scenarios.py::test_thaumaturgist_additional_buff_fires_every_third_spell"
+    ],
     "305": [
       "tests/test_new_cards.py::TestCadaverCaretaker::test_summons_three_skeletons"
     ],

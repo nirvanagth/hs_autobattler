@@ -154,7 +154,8 @@
       ],
       "test_reference_files": [
         "tests/test_effect_types.py",
-        "tests/test_f0_tier1_scenarios.py"
+        "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier2_scenarios.py"
       ],
       "tier": 1,
       "tribes": [
@@ -321,6 +322,7 @@
         "tests/test_effect_types.py",
         "tests/test_engine_core.py",
         "tests/test_entities.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_new_cards.py",
         "tests/test_pool.py"
       ],
@@ -556,6 +558,7 @@
         "tests/test_cpp_bridge.py",
         "tests/test_effect_types.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py"
       ],
@@ -821,6 +824,7 @@
       "test_reference_files": [
         "tests/test_event_system.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_golden_logic.py",
         "tests/test_integration.py",
         "tests/test_smart_bot_and_ghost_pool.py"
@@ -984,7 +988,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell"
       ],
@@ -1020,7 +1024,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_effect_types.py::TestBattlecryAddSpell::test_battlecry_adds_spell"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1096,7 +1102,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlyPlayType"
       ],
@@ -1115,7 +1121,9 @@
       ],
       "symbol": "MECHAGNOME_INTERPRETER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Mech"
@@ -1125,7 +1133,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_mechagnome_interpreter_buffs_played_mech"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1168,7 +1178,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffFriendlyType"
       ],
@@ -1187,7 +1197,9 @@
       ],
       "symbol": "HUMMING_BIRD",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Beast"
@@ -1197,11 +1209,13 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_humming_bird_buffs_friendly_beasts_at_combat_start"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffAllByType"
       ],
@@ -1220,7 +1234,9 @@
       ],
       "symbol": "NERUBIAN_DEATHSWARMER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Undead"
@@ -1230,11 +1246,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_nerubian_deathswarmer_buffs_all_friendly_undead"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell"
       ],
@@ -1259,7 +1277,9 @@
       ],
       "symbol": "OOZELING_GLADIATOR",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [],
       "trigger_count": 1,
@@ -1267,7 +1287,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_oozeling_gladiator_adds_two_slimy_shields"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1310,16 +1332,18 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "partial",
       "effect_types": [
         "OnSummonedTypeBuffRandomOther"
       ],
       "generated_dependencies": [],
-      "handler_complete": true,
+      "handler_complete": false,
       "has_multiplier": false,
       "id": "211",
       "is_token": false,
-      "issues": [],
+      "issues": [
+        "missing_minion_summoned_event_on_play"
+      ],
       "kind": "card",
       "name": "Saltscale Honcho",
       "rotated_out": true,
@@ -1345,7 +1369,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellAddUnit"
       ],
@@ -1370,7 +1394,9 @@
       ],
       "symbol": "SELLEMENTAL",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Elemental"
@@ -1380,7 +1406,9 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_sellemental_sell_adds_water_droplet"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1419,7 +1447,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellGetRandomUnitByType"
       ],
@@ -1439,6 +1467,7 @@
       "symbol": "TAD",
       "tags": [],
       "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 2,
@@ -1450,11 +1479,13 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_tad_sell_draws_murloc_from_pool"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "ConsumeShopUnitForRandomFriendly"
       ],
@@ -1473,7 +1504,9 @@
       ],
       "symbol": "MIND_MUCK",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Demon"
@@ -1483,7 +1516,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_mind_muck_consumes_shop_for_friendly_demon"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1590,7 +1625,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellBuffBoardScaling"
       ],
@@ -1621,11 +1656,14 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestFireBaller::test_scaling_increments",
+        "tests/test_new_cards.py::TestFireBaller::test_sell_buffs_board"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellBuffBoardScaling"
       ],
@@ -1656,7 +1694,9 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestSnowBaller::test_sell_buffs_board_hp"
+      ]
     },
     {
       "avenge_registered": false,
@@ -1695,7 +1735,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnHeroDamagedHealAndBuffSelf"
       ],
@@ -1726,11 +1766,14 @@
         "HERO_DAMAGED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestSoulRewinder::test_does_not_fire_for_enemy_hero_damage",
+        "tests/test_new_cards.py::TestSoulRewinder::test_heals_hero_and_buffs_self"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "EndOfTurnBuffAdjacentPerGolden"
       ],
@@ -1761,11 +1804,14 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestSurfingSylvar::test_eot_buffs_adjacent_once_without_golden",
+        "tests/test_new_cards.py::TestSurfingSylvar::test_eot_repeats_per_golden"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellDiscover"
       ],
@@ -1794,20 +1840,25 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestPatientScout::test_scaling_increases_tier",
+        "tests/test_new_cards.py::TestPatientScout::test_sell_sets_discovery_request"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "partial",
       "effect_types": [
         "OnSummonAutomatonBuffAutomatons"
       ],
       "generated_dependencies": [],
-      "handler_complete": true,
+      "handler_complete": false,
       "has_multiplier": false,
       "id": "225",
       "is_token": false,
-      "issues": [],
+      "issues": [
+        "missing_minion_summoned_event_on_play"
+      ],
       "kind": "card",
       "name": "Ancestral Automaton",
       "rotated_out": false,
@@ -1817,7 +1868,9 @@
       ],
       "symbol": "ANCESTRAL_AUTOMATON",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Mech"
@@ -1827,11 +1880,13 @@
         "MINION_SUMMONED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_ancestral_automaton_handler_scales_when_summon_event_is_emitted"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleAddSpell"
       ],
@@ -1856,7 +1911,9 @@
       ],
       "symbol": "METALLIC_HUNTER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Mech"
@@ -1866,11 +1923,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_metallic_hunter_deathrattle_adds_pointy_arrow"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSelfAttackModifyMechanic"
       ],
@@ -1889,7 +1948,9 @@
       ],
       "symbol": "THOUSANDTH_PAPER_DRAKE",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Dragon"
@@ -1899,11 +1960,13 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_thousandth_paper_drake_attack_updates_elemental_mechanic"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastOnSelfBuffSelf"
       ],
@@ -1922,7 +1985,9 @@
       ],
       "symbol": "LAVA_LURKER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Naga"
@@ -1932,11 +1997,13 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_lava_lurker_buffs_itself_when_targeted_by_spell"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastOnSelfBuffSelf",
         "OnSpellCastScalingBuffSelf"
@@ -1957,7 +2024,9 @@
       ],
       "symbol": "THAUMATURGIST",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Naga"
@@ -1967,7 +2036,9 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_thaumaturgist_additional_buff_fires_every_third_spell"
+      ]
     },
     {
       "avenge_registered": true,
@@ -2914,16 +2985,18 @@
     },
     {
       "avenge_registered": false,
-      "classification": "verified",
+      "classification": "partial",
       "effect_types": [
         "OnFriendlySummonedTypeBuff"
       ],
       "generated_dependencies": [],
-      "handler_complete": true,
+      "handler_complete": false,
       "has_multiplier": false,
       "id": "325",
       "is_token": false,
-      "issues": [],
+      "issues": [
+        "missing_minion_summoned_event_on_play"
+      ],
       "kind": "card",
       "name": "Deflect-o-Bot",
       "rotated_out": false,
@@ -5209,16 +5282,18 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "partial",
       "effect_types": [
         "OtherSummonScalingAura"
       ],
       "generated_dependencies": [],
-      "handler_complete": true,
+      "handler_complete": false,
       "has_multiplier": false,
       "id": "444",
       "is_token": false,
-      "issues": [],
+      "issues": [
+        "missing_minion_summoned_event_on_play"
+      ],
       "kind": "card",
       "name": "Glowing Cinder",
       "rotated_out": false,
@@ -7905,6 +7980,7 @@
         "tests/test_entities.py",
         "tests/test_event_system.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_integration.py",
         "tests/test_ml_components.py",
         "tests/test_pool.py",
@@ -8090,7 +8166,9 @@
       "supported_effect_types": [],
       "symbol": "WATER_DROPLET",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "tribes": [
         "Elemental"
@@ -8198,6 +8276,7 @@
         "tests/test_entities.py",
         "tests/test_event_system.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -8243,6 +8322,7 @@
       "symbol": "POINTY_ARROW",
       "test_reference_files": [
         "tests/test_engine_core.py",
+        "tests/test_f0_tier2_scenarios.py",
         "tests/test_integration.py"
       ],
       "tier": 1,
@@ -8322,7 +8402,9 @@
       "name": "Slimy Shield",
       "requires_target": true,
       "symbol": "SLIMY_SHIELD",
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier2_scenarios.py"
+      ],
       "tier": 2,
       "verified_scenarios": []
     },
@@ -8688,17 +8770,17 @@
   ],
   "summary": {
     "cards": 229,
-    "cards_with_test_references": 140,
+    "cards_with_test_references": 152,
     "classifications": {
-      "implemented_unverified": 197,
-      "partial": 6,
-      "verified": 54
+      "implemented_unverified": 177,
+      "partial": 10,
+      "verified": 70
     },
-    "handler_complete": 251,
-    "handler_incomplete": 6,
+    "handler_complete": 247,
+    "handler_incomplete": 10,
     "spells": 28,
-    "spells_with_test_references": 15,
+    "spells_with_test_references": 16,
     "tier3_shop_cards": 54,
-    "tier3_shop_handler_incomplete": 1
+    "tier3_shop_handler_incomplete": 3
   }
 }

@@ -58,14 +58,14 @@ def test_every_entry_has_an_explicit_supported_status() -> None:
     assert {entry["classification"] for entry in manifest["spells"]} <= allowed
 
 
-def test_current_tier3_shop_exposes_known_legacy_incomplete_card() -> None:
+def test_current_tier3_shop_exposes_known_legacy_incomplete_cards() -> None:
     manifest = audited_manifest()
     incomplete = [
         entry["symbol"]
         for entry in manifest["cards"]
         if entry["shop_eligible_tier3"] and not entry["handler_complete"]
     ]
-    assert incomplete == ["WAVELING"]
+    assert incomplete == ["ANCESTRAL_AUTOMATON", "DEFLECT_O_BOT", "WAVELING"]
 
 
 def test_declared_no_op_effect_is_reported() -> None:
@@ -97,3 +97,17 @@ def test_current_tier1_shop_passes_verified_admission() -> None:
     assert validate_content_admission(
         manifest, card_ids=tier_one, spell_ids=[]
     )["cards"] == 15
+
+
+def test_handler_complete_tier2_cards_pass_verified_admission() -> None:
+    manifest = audited_manifest()
+    tier_two = [
+        entry["id"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"]
+        and entry["tier"] == 2
+        and entry["handler_complete"]
+    ]
+    assert validate_content_admission(
+        manifest, card_ids=tier_two, spell_ids=[]
+    )["cards"] == 17

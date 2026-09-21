@@ -229,8 +229,14 @@ IDs are validated against the test AST. The admission API rejects unknown,
 partial, and merely referenced-but-unverified content.
 
 F0-C Tier-1 is complete. Fourteen new behavior scenarios bring all 15 current
-Tier-1 shop cards through verified admission. The current full manifest is 54
-verified / 197 implemented-unverified / 6 partial; next is current Tier-2.
+Tier-1 shop cards through verified admission.
+
+F0-D Tier-2 is complete. All 18 current Tier-2 shop cards have dedicated
+scenarios; 17 pass admission. Ancestral Automaton exposed a legacy event gap:
+playing a minion emits `MINION_PLAYED` but not `MINION_SUMMONED`. The same gap
+affects Deflect-o-Bot and other summon listeners. The manifest is now 70
+verified / 177 implemented-unverified / 10 partial. Fix this only under the new
+behavior-v6 contract.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
