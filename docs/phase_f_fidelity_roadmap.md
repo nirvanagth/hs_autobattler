@@ -54,17 +54,20 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `d5de898d71e1d0f0e95e141fa0276ad3ecd703f8d9296ff3cae5972daab55b25`.
-- The audit found six initial inconsistencies. An erroneous Deathrattle flag on
-  active Tier-3 Waveling was fixed and regression-tested. Five partial cards
-  remain: rotated Wheeled Crewmate, Heroic Underdog (Stealth semantics),
-  rotated Gentle Djinni, rotated Indomitable Mount, and Tier-6 Deathly Striker.
-- All 54 cards currently eligible for the Tier-3 shop are now handler-complete.
-  This does not mean scenario-verified: 252 entries remain conservatively
+  `bd3522293a9195941de7ac5f65ee7af5a7593a8dca425b01f73a193aa962cb6a`.
+- The audit found six inconsistencies. Active Tier-3 Waveling has Deathrattle
+  metadata without a death trigger; rotated Wheeled Crewmate has a no-op effect;
+  Heroic Underdog lacks Stealth targeting semantics; Gentle Djinni and
+  Indomitable Mount have mismatched Deathrattles; Deathly Striker has mismatched
+  metadata. They remain explicitly partial.
+- The Waveling mismatch is retained in legacy behavior-v5 so frozen results do
+  not change silently. Behavior-v6 must fix or exclude it before admission.
+  Of 54 Tier-3 shop cards, 53 are handler-complete. This does not mean
+  scenario-verified: 251 entries remain conservatively
   classified `implemented_unverified` until dedicated scenario IDs are indexed.
 
-Next: add the explicit scenario-verification index and active-pool admission
-validator; then resolve the five partial definitions before proposing Tier-6.
+Next: add the explicit scenario-verification index and behavior-v6 active-pool
+admission validator; then resolve all six partial definitions before Tier-6.
 
 ## F1. Verified full-tier lobby — PENDING
 

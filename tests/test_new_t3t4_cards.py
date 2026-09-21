@@ -7,7 +7,6 @@ from typing import Callable, Dict, List, Tuple
 import pytest
 
 from hearthstone.engine.card_def import (
-    ALL_CARDS,
     AVENGE_REGISTRY,
     TRIGGER_REGISTRY,
     GOLDEN_TRIGGER_REGISTRY,
@@ -540,16 +539,6 @@ class TestRefreshingAnomaly:
             empty_game.tavern.get_next_uid,
         )
         assert player.free_refreshes == 2
-
-
-class TestWaveling:
-    def test_refresh_trigger_is_not_mislabeled_deathrattle(self):
-        card = next(card for card in ALL_CARDS if card.card_id == CardIDs.WAVELING)
-        assert not card.deathrattle
-        assert all(
-            trigger.event_type != EventType.MINION_DIED
-            for trigger in TRIGGER_REGISTRY[CardIDs.WAVELING]
-        )
 
 
 # ===========================================================================

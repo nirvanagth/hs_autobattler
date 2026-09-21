@@ -3177,16 +3177,18 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "partial",
       "effect_types": [
         "OnTavernRefreshBuffRightmostShop"
       ],
       "generated_dependencies": [],
-      "handler_complete": true,
+      "handler_complete": false,
       "has_multiplier": false,
       "id": "335",
       "is_token": false,
-      "issues": [],
+      "issues": [
+        "deathrattle_metadata_without_trigger"
+      ],
       "kind": "card",
       "name": "Waveling",
       "rotated_out": false,
@@ -8539,14 +8541,14 @@
     "cards": 229,
     "cards_with_test_references": 134,
     "classifications": {
-      "implemented_unverified": 252,
-      "partial": 5
+      "implemented_unverified": 251,
+      "partial": 6
     },
-    "handler_complete": 252,
-    "handler_incomplete": 5,
+    "handler_complete": 251,
+    "handler_incomplete": 6,
     "spells": 28,
     "spells_with_test_references": 14,
     "tier3_shop_cards": 54,
-    "tier3_shop_handler_incomplete": 0
+    "tier3_shop_handler_incomplete": 1
   }
 }

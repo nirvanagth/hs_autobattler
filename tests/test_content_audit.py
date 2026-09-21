@@ -45,9 +45,14 @@ def test_every_entry_has_an_explicit_supported_status() -> None:
     assert {entry["classification"] for entry in manifest["spells"]} <= allowed
 
 
-def test_current_tier3_shop_has_no_handler_incomplete_cards() -> None:
+def test_current_tier3_shop_exposes_known_legacy_incomplete_card() -> None:
     manifest = build_content_manifest(test_root=ROOT / "tests")
-    assert manifest["summary"]["tier3_shop_handler_incomplete"] == 0
+    incomplete = [
+        entry["symbol"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"] and not entry["handler_complete"]
+    ]
+    assert incomplete == ["WAVELING"]
 
 
 def test_declared_no_op_effect_is_reported() -> None:

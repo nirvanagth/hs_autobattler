@@ -217,10 +217,11 @@ first-class hero/armor/hero-power subsystem. See
 
 F0-A is complete. `benchmarks/hsbg_content_audit_v1.json` deterministically
 covers all 229 minions and 28 spells. It found six inconsistencies; the only
-one in the current Tier-3 shop, Waveling's erroneous Deathrattle metadata, was
-fixed. Five partial higher-tier/rotated definitions remain. Current Tier-3 shop
-handler completeness is now 54/54, but nothing is called scenario-verified
-until an explicit verification index is added.
+one in the current Tier-3 shop is Waveling's erroneous Deathrattle metadata.
+It remains unchanged in legacy behavior-v5 to preserve frozen artifacts and
+must be fixed or excluded in behavior-v6. Current Tier-3 shop handler
+completeness is 53/54; nothing is called scenario-verified until an explicit
+verification index is added.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
