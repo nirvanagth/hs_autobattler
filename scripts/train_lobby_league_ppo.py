@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from evaluate_checkpoints import resolve_device
 from hearthstone.league import PolicyLeague, file_sha256
+from hearthstone.lobby_arena import CENTRAL_OBSERVATION_SIZE
 from lobby_league_runtime import LeagueLobbyEnv
 from lobby_model import LobbyPointerAgent
 from model import decode_value, encode_twohot
@@ -50,6 +51,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target-kl", type=float, default=0.03)
     parser.add_argument("--max-grad-norm", type=float, default=0.5)
     parser.add_argument("--pfsp-exponent", type=float, default=2.0)
+    parser.add_argument("--central-critic", action="store_true")
+    parser.add_argument("--auxiliary-coef", type=float, default=0.0)
+    parser.add_argument("--damage-coef", type=float, default=0.25)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", choices=("auto", "cpu", "mps"), default="auto")
     return parser.parse_args()
@@ -93,8 +97,22 @@ def main() -> None:
         n_heads=int(model_args["n_heads"]),
         n_layers=int(model_args["n_layers"]),
         use_memory=False,
+        central_value_dim=CENTRAL_OBSERVATION_SIZE if args.central_critic else None,
+        auxiliary_heads=args.auxiliary_coef > 0,
     ).to(device)
-    agent.load_state_dict(parent_checkpoint["model"])
+    incompatible = agent.load_state_dict(parent_checkpoint["model"], strict=False)
+    allowed_missing = {
+        "central_value_encoder.0.weight",
+        "central_value_encoder.0.bias",
+        "central_value_encoder.2.weight",
+        "central_value_encoder.2.bias",
+        "combat_outcome_head.weight",
+        "combat_outcome_head.bias",
+        "combat_damage_head.weight",
+        "combat_damage_head.bias",
+    }
+    if set(incompatible.missing_keys) - allowed_missing or incompatible.unexpected_keys:
+        raise ValueError(f"incompatible parent checkpoint: {incompatible}")
     teacher = copy.deepcopy(agent).eval()
     for parameter in teacher.parameters():
         parameter.requires_grad_(False)
@@ -108,6 +126,14 @@ def main() -> None:
     dones = torch.zeros(args.n_steps, device=device)
     values = torch.zeros(args.n_steps, device=device)
     masks = torch.zeros((args.n_steps, env.action_space.n), dtype=torch.bool, device=device)
+    central_observations = (
+        torch.zeros((args.n_steps, CENTRAL_OBSERVATION_SIZE), device=device)
+        if args.central_critic
+        else None
+    )
+    auxiliary_valid = torch.zeros(args.n_steps, dtype=torch.bool, device=device)
+    combat_outcomes = torch.zeros(args.n_steps, dtype=torch.long, device=device)
+    combat_damage = torch.zeros(args.n_steps, device=device)
 
     next_observation_np, _ = env.reset(seed=args.seed)
     next_observation = torch.as_tensor(
@@ -123,10 +149,23 @@ def main() -> None:
         agent.eval()
         for step in range(args.n_steps):
             observations[step] = next_observation
+            central_observation = None
+            if central_observations is not None:
+                central_observation = torch.as_tensor(
+                    env.central_observation(), dtype=torch.float32, device=device
+                )
+                central_observations[step] = central_observation
             mask = torch.as_tensor(env.action_masks(), dtype=torch.bool, device=device)
             masks[step] = mask
             with torch.no_grad():
-                logits, value_logits, _ = agent(next_observation.unsqueeze(0))
+                logits, value_logits, _ = agent(
+                    next_observation.unsqueeze(0),
+                    critic_obs=(
+                        central_observation.unsqueeze(0)
+                        if central_observation is not None
+                        else None
+                    ),
+                )
                 distribution = Categorical(logits=logits.masked_fill(~mask.unsqueeze(0), -1e8))
                 action = distribution.sample()
                 value = decode_value(value_logits, agent.base.bins)
@@ -139,6 +178,9 @@ def main() -> None:
             done = terminated or truncated
             rewards[step] = reward
             dones[step] = float(done)
+            auxiliary_valid[step] = bool(info["combat_target_valid"])
+            combat_outcomes[step] = int(info["combat_outcome"])
+            combat_damage[step] = float(info["combat_damage"])
             global_step += 1
             if done:
                 if info["placement"] is not None:
@@ -149,7 +191,16 @@ def main() -> None:
             )
 
         with torch.no_grad():
-            _, next_value_logits, _ = agent(next_observation.unsqueeze(0))
+            next_central_observation = (
+                torch.as_tensor(
+                    env.central_observation(), dtype=torch.float32, device=device
+                ).unsqueeze(0)
+                if args.central_critic
+                else None
+            )
+            _, next_value_logits, _ = agent(
+                next_observation.unsqueeze(0), critic_obs=next_central_observation
+            )
             next_value = decode_value(next_value_logits, agent.base.bins)
         advantages, returns = compute_gae(
             rewards.unsqueeze(1),
@@ -177,12 +228,26 @@ def main() -> None:
         )
         losses: list[float] = []
         approximate_kls: list[float] = []
+        auxiliary_losses: list[float] = []
         stop_early = False
         for _epoch in range(args.update_epochs):
             np.random.shuffle(indices)
             for start in range(0, args.n_steps, minibatch_size):
                 batch = indices[start : start + minibatch_size]
-                logits, value_logits, _ = agent(observations[batch])
+                batch_central = (
+                    central_observations[batch]
+                    if central_observations is not None
+                    else None
+                )
+                (
+                    logits,
+                    value_logits,
+                    _,
+                    outcome_logits,
+                    damage_prediction,
+                ) = agent.forward_with_aux(
+                    observations[batch], critic_obs=batch_central
+                )
                 masked_logits = logits.masked_fill(~masks[batch], -1e8)
                 distribution = Categorical(logits=masked_logits)
                 new_logprob = distribution.log_prob(actions[batch])
@@ -214,17 +279,30 @@ def main() -> None:
                     teacher_probs,
                     reduction="batchmean",
                 )
+                valid_aux = auxiliary_valid[batch]
+                if outcome_logits is not None and valid_aux.any():
+                    outcome_loss = F.cross_entropy(
+                        outcome_logits[valid_aux], combat_outcomes[batch][valid_aux]
+                    )
+                    damage_loss = F.smooth_l1_loss(
+                        damage_prediction[valid_aux], combat_damage[batch][valid_aux]
+                    )
+                    auxiliary_loss = outcome_loss + args.damage_coef * damage_loss
+                else:
+                    auxiliary_loss = torch.zeros((), device=device)
                 loss = (
                     policy_loss
                     + args.vf_coef * value_loss
                     - ent_coef * distribution.entropy().mean()
                     + bc_kl_coef * bc_kl
+                    + args.auxiliary_coef * auxiliary_loss
                 )
                 optimizer.zero_grad()
                 loss.backward()
                 nn.utils.clip_grad_norm_(agent.parameters(), args.max_grad_norm)
                 optimizer.step()
                 losses.append(float(loss.detach()))
+                auxiliary_losses.append(float(auxiliary_loss.detach()))
                 if approximate_kl > 1.5 * args.target_kl:
                     stop_early = True
                     break
@@ -234,6 +312,7 @@ def main() -> None:
         print(
             f"[update {update}/{total_updates}] step={global_step} "
             f"loss={np.mean(losses):.4f} kl={np.mean(approximate_kls):.4f} "
+            f"aux={np.mean(auxiliary_losses):.4f} "
             f"episodes={len(episode_placements)} "
             f"recent_place={np.mean(recent) if recent else float('nan'):.3f} "
             f"fps={global_step / (time.time() - started):.1f}",
@@ -249,9 +328,19 @@ def main() -> None:
         "pfsp_exponent": args.pfsp_exponent,
         "seed": args.seed,
         "timesteps": global_step,
+        "central_critic": args.central_critic,
+        "central_observation_size": (
+            CENTRAL_OBSERVATION_SIZE if args.central_critic else None
+        ),
+        "auxiliary_coef": args.auxiliary_coef,
+        "damage_coef": args.damage_coef,
     }
     saved_args = dict(model_args)
     saved_args.update(vars(args))
+    saved_args["central_value_dim"] = (
+        CENTRAL_OBSERVATION_SIZE if args.central_critic else None
+    )
+    saved_args["auxiliary_heads"] = args.auxiliary_coef > 0
     torch.save(
         {
             "model": agent.state_dict(),

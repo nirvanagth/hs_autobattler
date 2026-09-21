@@ -203,11 +203,16 @@ S1 progress:
 
 Next extension/execution target:
 
-- add a training-only centralized critic that can see full lobby state while
-  keeping the deployed actor restricted to public observations;
-- add combat outcome and expected-damage auxiliary heads;
-- run matched ablations against the current `round3_s217` main and the prior
-  oracle-reward approach.
+- implement deterministic lobby oracle potential reward;
+- run the five-condition, three-seed M1 ablation against current main
+  `round3_s217`;
+- compare centralized value learning and public-feature auxiliary learning to
+  oracle reward shaping on frozen selection and holdout schedules.
+
+M1 progress: the centralized critic and combat outcome/damage auxiliary heads
+are implemented with explicit actor-leakage tests. A 128-step training smoke
+and normal public-policy checkpoint reload both passed. See
+`docs/m1_central_critic.md`.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

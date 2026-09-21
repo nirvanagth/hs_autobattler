@@ -163,6 +163,12 @@ statistically clear placement gain. S1 is complete.
 - Combat outcome and expected-damage auxiliary heads.
 - Ablate auxiliary representation learning against oracle reward shaping.
 
+Progress: the 8,282-value privileged critic observation, centralized value
+encoder, public-feature combat outcome/damage heads, and league-PPO losses are
+implemented. Leakage tests and an end-to-end checkpoint reload smoke pass. The
+deterministic lobby oracle and matched ablation remain. See
+`docs/m1_central_critic.md`.
+
 ### M2. Search — PENDING
 
 - Deterministic Tavern snapshot/restore.

@@ -152,7 +152,10 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
     def action_masks(self) -> np.ndarray:
         return self.arena.action_mask(self.learner_seat)
 
-    def _combat_reward(self) -> float:
+    def central_observation(self) -> np.ndarray:
+        return self.arena.central_observation()
+
+    def _combat_signal(self) -> tuple[float, int, float]:
         for result in self.arena.game.last_combat_results:
             if result.player_id == self.learner_seat:
                 outcome = result.outcome
@@ -167,11 +170,11 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
             else:
                 continue
             if outcome == BattleOutcome.WIN:
-                return 1.0
+                return 1.0, 2, result.applied_damage / self.arena.game.damage_cap
             if outcome == BattleOutcome.LOSE:
-                return -1.0
-            return 0.0
-        return 0.0
+                return -1.0, 0, -result.applied_damage / self.arena.game.damage_cap
+            return 0.0, 1, 0.0
+        return 0.0, 1, 0.0
 
     def _info(self) -> dict[str, object]:
         return {
@@ -185,9 +188,14 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
         self.decisions += 1
         result = self.arena.apply_action(self.learner_seat, int(action))
         reward = -0.005 if result.accepted and result.action_type != "END_TURN" else 0.0
+        combat_target_valid = False
+        combat_outcome = 1
+        combat_damage = 0.0
         if result.accepted and result.action_type == "END_TURN":
             self._play_opponents(before_learner=False)
-            reward += self._combat_reward()
+            combat_reward, combat_outcome, combat_damage = self._combat_signal()
+            reward += combat_reward
+            combat_target_valid = True
 
         terminated = (
             self.learner_seat not in self.arena.game.active_player_ids
@@ -204,10 +212,18 @@ class LeagueLobbyEnv(gym.Env[np.ndarray, int]):
             and not truncated
         ):
             self._play_opponents(before_learner=True)
+        info = self._info()
+        info.update(
+            {
+                "combat_target_valid": combat_target_valid,
+                "combat_outcome": combat_outcome,
+                "combat_damage": combat_damage,
+            }
+        )
         return (
             self.arena.observation(self.learner_seat),
             float(reward),
             terminated,
             truncated,
-            self._info(),
+            info,
         )

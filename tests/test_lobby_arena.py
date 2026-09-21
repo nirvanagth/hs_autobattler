@@ -5,7 +5,7 @@ import torch
 
 from hearthstone.env.smart_bot import smart_bot_turn
 from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
-from hearthstone.lobby_arena import LobbyArena
+from hearthstone.lobby_arena import CENTRAL_OBSERVATION_SIZE, LobbyArena
 from scripts.lobby_league_runtime import LeagueLobbyEnv
 
 
@@ -27,6 +27,18 @@ def test_masked_end_turn_advances_only_after_all_players_ready() -> None:
     result = arena.apply_action(7, 0)
     assert result.accepted
     assert arena.game.turn_count == starting_turn + 1
+
+
+def test_central_observation_contains_hidden_shop_state() -> None:
+    arena = LobbyArena(seed=9)
+    public_before = arena.observation(0)
+    central_before = arena.central_observation()
+    hidden_store = arena.game.players[1].store[0]
+    assert hidden_store.unit is not None
+    hidden_store.unit.cur_atk += 7
+    assert np.array_equal(public_before, arena.observation(0))
+    assert not np.array_equal(central_before, arena.central_observation())
+    assert arena.central_observation().shape == (CENTRAL_OBSERVATION_SIZE,)
 
 
 def test_action_policy_can_finish_a_full_lobby() -> None:
@@ -62,8 +74,14 @@ def test_league_training_env_rotates_seat_and_finishes(tmp_path) -> None:
     assert observation.shape == env.observation_space.shape
     assert info["learner_seat"] == 3
     terminated = truncated = False
+    combat_targets = 0
     while not (terminated or truncated):
         action = int(np.flatnonzero(env.action_masks())[0])
         _, _, terminated, truncated, info = env.step(action)
+        if info["combat_target_valid"]:
+            combat_targets += 1
+            assert info["combat_outcome"] in (0, 1, 2)
+            assert -1.0 <= info["combat_damage"] <= 1.0
     assert info["placement"] in range(1, 9)
     assert env.learner_seat not in env.arena.game.active_player_ids
+    assert combat_targets > 0

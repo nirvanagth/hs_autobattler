@@ -8,7 +8,15 @@ from dataclasses import dataclass
 import numpy as np
 
 from hearthstone.engine.lobby import LobbyGame
-from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
+from hearthstone.env.hs_env import MAX_GOLD, MAX_HP, MAX_SPELL_DISCOUNT, MAX_TIER
+from hearthstone.env.lobby_env import (
+    LOBBY_OBSERVATION_SCHEMA,
+    BattlegroundsLobbyEnv,
+)
+
+
+CENTRAL_PLAYER_SIZE = LOBBY_OBSERVATION_SCHEMA.own_size + 2
+CENTRAL_OBSERVATION_SIZE = 2 + 8 * CENTRAL_PLAYER_SIZE
 
 
 @dataclass
@@ -90,6 +98,44 @@ class LobbyArena:
         mask = self.env.action_masks(player_idx=player_id).copy()
         self._store(player_id)
         return mask
+
+    def central_observation(self) -> np.ndarray:
+        """Return training-only perfect information for the centralized critic."""
+        schema = self.env.lobby_schema
+        observation = np.zeros(CENTRAL_OBSERVATION_SIZE, dtype=np.float32)
+        observation[0] = self.game.turn_count / 50.0
+        observation[1] = self.game.active_count / self.game.num_players
+        original_player = self.env.my_player_id
+        for player_id, player in enumerate(self.game.players):
+            self._activate(player_id)
+            offset = 2 + player_id * CENTRAL_PLAYER_SIZE
+            observation[offset + 0] = player.gold / MAX_GOLD
+            observation[offset + 1] = player.tavern_tier / MAX_TIER
+            observation[offset + 2] = max(0, player.health) / MAX_HP
+            observation[offset + 3] = player.up_cost / 10.0
+            observation[offset + 4] = player.spell_discount / MAX_SPELL_DISCOUNT
+            observation[offset + 5] = float(player.is_discovering)
+            observation[offset + 6] = float(self.env.is_targeting)
+            zone_offset = offset + schema.global_features
+            self.env._encode_zone_fast(player.board, observation, zone_offset, 7, "BOARD")
+            zone_offset += 7 * schema.entity_features
+            self.env._encode_zone_fast(player.hand, observation, zone_offset, 10, "HAND")
+            zone_offset += 10 * schema.entity_features
+            self.env._encode_zone_fast(player.store, observation, zone_offset, 7, "STORE")
+            zone_offset += 7 * schema.entity_features
+            discovery = player.discovery.options if player.is_discovering else []
+            self.env._encode_zone_fast(
+                discovery, observation, zone_offset, 3, "DISCOVER"
+            )
+            observation[offset + schema.own_size] = float(
+                player_id in self.game.active_player_ids
+            )
+            observation[offset + schema.own_size + 1] = float(
+                self.game.players_ready[player_id]
+            )
+            self._store(player_id)
+        self._activate(original_player)
+        return observation
 
     def apply_action(self, player_id: int, action: int) -> LobbyActionResult:
         if player_id not in self.game.active_player_ids:

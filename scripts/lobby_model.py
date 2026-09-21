@@ -27,10 +27,14 @@ class LobbyPointerAgent(nn.Module):
         n_heads: int = 4,
         n_layers: int = 4,
         use_memory: bool = False,
+        central_value_dim: int | None = None,
+        auxiliary_heads: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
         self.use_memory = use_memory
+        self.central_value_dim = central_value_dim
+        self.auxiliary_heads_enabled = auxiliary_heads
         self.schema = LOBBY_OBSERVATION_SCHEMA
         self.base = HSTransformerAgent(
             n_actions=34,
@@ -60,6 +64,18 @@ class LobbyPointerAgent(nn.Module):
             nn.Linear(d_model, d_model),
         )
         self.memory = nn.GRUCell(d_model, d_model) if use_memory else None
+        self.central_value_encoder = (
+            nn.Sequential(
+                nn.Linear(central_value_dim, 4 * d_model),
+                nn.SiLU(),
+                nn.Linear(4 * d_model, d_model),
+                nn.SiLU(),
+            )
+            if central_value_dim is not None
+            else None
+        )
+        self.combat_outcome_head = nn.Linear(d_model, 3) if auxiliary_heads else None
+        self.combat_damage_head = nn.Linear(d_model, 1) if auxiliary_heads else None
 
     def _encode_flat(
         self, obs: torch.Tensor
@@ -87,6 +103,7 @@ class LobbyPointerAgent(nn.Module):
         self,
         obs: torch.Tensor,
         hidden: torch.Tensor | None = None,
+        critic_obs: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
         features, own_tokens = self._encode_flat(obs)
         next_hidden = None
@@ -103,8 +120,58 @@ class LobbyPointerAgent(nn.Module):
             is_discovering=obs[:, 5] > 0.5,
             is_targeting=obs[:, 6] > 0.5,
         )
-        value_logits = self.base.critic(policy_features.detach())
+        critic_features = policy_features.detach()
+        if self.central_value_encoder is not None and critic_obs is not None:
+            if critic_obs.ndim != 2 or critic_obs.shape[1] != self.central_value_dim:
+                raise ValueError(
+                    f"expected central critic input [B, {self.central_value_dim}], "
+                    f"got {tuple(critic_obs.shape)}"
+                )
+            critic_features = self.central_value_encoder(critic_obs)
+        value_logits = self.base.critic(critic_features)
         return action_logits, value_logits, next_hidden
+
+    def forward_with_aux(
+        self,
+        obs: torch.Tensor,
+        hidden: torch.Tensor | None = None,
+        critic_obs: torch.Tensor | None = None,
+    ):
+        features, own_tokens = self._encode_flat(obs)
+        next_hidden = None
+        policy_features = features
+        if self.memory is not None:
+            if hidden is None:
+                hidden = torch.zeros_like(features)
+            next_hidden = self.memory(features, hidden)
+            policy_features = next_hidden
+        assert self.base.pointer_actor is not None
+        action_logits = self.base.pointer_actor(
+            policy_features,
+            own_tokens,
+            is_discovering=obs[:, 5] > 0.5,
+            is_targeting=obs[:, 6] > 0.5,
+        )
+        critic_features = policy_features.detach()
+        if self.central_value_encoder is not None and critic_obs is not None:
+            if critic_obs.ndim != 2 or critic_obs.shape[1] != self.central_value_dim:
+                raise ValueError(
+                    f"expected central critic input [B, {self.central_value_dim}], "
+                    f"got {tuple(critic_obs.shape)}"
+                )
+            critic_features = self.central_value_encoder(critic_obs)
+        value_logits = self.base.critic(critic_features)
+        outcome_logits = (
+            self.combat_outcome_head(policy_features)
+            if self.combat_outcome_head is not None
+            else None
+        )
+        damage = (
+            self.combat_damage_head(policy_features).squeeze(-1)
+            if self.combat_damage_head is not None
+            else None
+        )
+        return action_logits, value_logits, next_hidden, outcome_logits, damage
 
     def forward_sequence(
         self,

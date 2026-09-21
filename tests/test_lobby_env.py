@@ -8,6 +8,7 @@ import torch
 from hearthstone.engine.entities import Unit
 from hearthstone.engine.enums import CardIDs
 from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
+from hearthstone.lobby_arena import CENTRAL_OBSERVATION_SIZE
 from scripts.lobby_model import LobbyPointerAgent
 from scripts.lobby_bc_collect import smart_pick_action
 from scripts.evaluate_lobby_models import paired_comparison
@@ -114,6 +115,32 @@ def test_lobby_feedforward_model_shapes(lobby_env: BattlegroundsLobbyEnv) -> Non
     assert actions.shape == (1, 34)
     assert values.shape == (1, 255)
     assert hidden is None
+
+
+def test_central_critic_and_auxiliary_heads_do_not_change_actor_input(
+    lobby_env: BattlegroundsLobbyEnv,
+) -> None:
+    obs, _ = lobby_env.reset(seed=42)
+    model = LobbyPointerAgent(
+        num_card_ids=lobby_env.num_card_ids,
+        d_model=32,
+        n_heads=4,
+        n_layers=1,
+        central_value_dim=CENTRAL_OBSERVATION_SIZE,
+        auxiliary_heads=True,
+    ).eval()
+    public = torch.from_numpy(obs).unsqueeze(0)
+    zeros = torch.zeros(1, CENTRAL_OBSERVATION_SIZE)
+    ones = torch.ones(1, CENTRAL_OBSERVATION_SIZE)
+    with torch.no_grad():
+        logits_zero, values, _, outcomes, damage = model.forward_with_aux(
+            public, critic_obs=zeros
+        )
+        logits_one, _, _, _, _ = model.forward_with_aux(public, critic_obs=ones)
+    assert torch.equal(logits_zero, logits_one)
+    assert values.shape == (1, 255)
+    assert outcomes.shape == (1, 3)
+    assert damage.shape == (1,)
 
 
 def test_lobby_recurrent_sequence_matches_stepwise_execution(

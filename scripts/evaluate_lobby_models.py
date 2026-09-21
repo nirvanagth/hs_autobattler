@@ -41,6 +41,8 @@ def load_model(path: Path, device: torch.device):
         n_heads=int(args["n_heads"]),
         n_layers=int(args["n_layers"]),
         use_memory=bool(args["use_memory"]),
+        central_value_dim=args.get("central_value_dim"),
+        auxiliary_heads=bool(args.get("auxiliary_heads", False)),
     ).to(device)
     model.load_state_dict(checkpoint["model"])
     return model.eval(), contract
