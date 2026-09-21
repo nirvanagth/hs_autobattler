@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import random
 from dataclasses import dataclass
 
@@ -80,6 +81,20 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         )
         self._lobby_obs_buffer = np.zeros(
             self.lobby_schema.total_size, dtype=np.float32
+        )
+        self.lobby_environment_contract = {
+            "name": "hsbg_8p_tier3_research",
+            "behavior_version": 1,
+            "observation_schema_version": self.lobby_schema.version,
+            "action_schema_version": 1,
+            "observation_size": int(self.lobby_schema.total_size),
+            "action_count": int(self.action_space.n),
+            "num_players": int(self.game.num_players),
+            "max_tier": int(max_tier),
+            "base_engine_contract": self.environment_contract,
+        }
+        self.lobby_environment_contract_json = json.dumps(
+            self.lobby_environment_contract, sort_keys=True, separators=(",", ":")
         )
 
     def reset(

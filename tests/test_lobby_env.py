@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import numpy as np
+import torch
 
 from hearthstone.engine.entities import Unit
 from hearthstone.engine.enums import CardIDs
 from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
+from scripts.lobby_model import LobbyPointerAgent
 
 
 def test_lobby_observation_shape(lobby_env: BattlegroundsLobbyEnv) -> None:
@@ -78,3 +80,48 @@ def test_empty_agent_eventually_receives_placement(
     assert terminated
     assert not truncated
     assert info["placement"] in range(2, 9)
+
+
+def test_lobby_feedforward_model_shapes(lobby_env: BattlegroundsLobbyEnv) -> None:
+    obs, _ = lobby_env.reset(seed=42)
+    model = LobbyPointerAgent(
+        num_card_ids=lobby_env.num_card_ids,
+        d_model=64,
+        n_heads=4,
+        n_layers=2,
+        use_memory=False,
+    ).eval()
+    with torch.no_grad():
+        actions, values, hidden = model(torch.from_numpy(obs).unsqueeze(0))
+    assert actions.shape == (1, 34)
+    assert values.shape == (1, 255)
+    assert hidden is None
+
+
+def test_lobby_recurrent_sequence_matches_stepwise_execution(
+    lobby_env: BattlegroundsLobbyEnv,
+) -> None:
+    observations = []
+    obs, _ = lobby_env.reset(seed=5)
+    observations.append(obs.copy())
+    for _ in range(2):
+        obs, _, done, truncated, _ = lobby_env.step(0)
+        assert not done and not truncated
+        observations.append(obs.copy())
+    sequence = torch.from_numpy(np.stack(observations)).unsqueeze(0)
+    model = LobbyPointerAgent(
+        num_card_ids=lobby_env.num_card_ids,
+        d_model=64,
+        n_heads=4,
+        n_layers=2,
+        use_memory=True,
+    ).eval()
+    with torch.no_grad():
+        sequence_logits, _, sequence_hidden = model.forward_sequence(sequence)
+        hidden = None
+        step_logits = []
+        for step in range(sequence.shape[1]):
+            logits, _, hidden = model(sequence[:, step], hidden)
+            step_logits.append(logits)
+    assert torch.allclose(sequence_logits, torch.stack(step_logits, dim=1), atol=1e-5)
+    assert torch.allclose(sequence_hidden, hidden, atol=1e-5)
