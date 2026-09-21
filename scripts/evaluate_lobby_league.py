@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from evaluate_checkpoints import resolve_device
-from hearthstone.league import PolicyLeague
+from hearthstone.league import PolicyEntry, PolicyLeague, file_sha256
 from hearthstone.lobby_arena import LobbyArena
 from lobby_league_runtime import load_policies
 
@@ -28,6 +28,7 @@ def evaluate(
     episodes: int,
     seed_base: int,
     device: torch.device,
+    schedule: dict[str, object] | None = None,
 ) -> tuple[list[dict[str, object]], dict[str, Counter]]:
     policies = load_policies(league, device)
     if candidate_id not in policies:
@@ -36,14 +37,24 @@ def evaluate(
     records: list[dict[str, object]] = []
     outcomes: dict[str, Counter] = defaultdict(Counter)
 
+    scheduled_games = schedule["games"] if schedule is not None else None
     for episode in range(episodes):
-        seed = seed_base + episode
+        scheduled = scheduled_games[episode] if scheduled_games is not None else None
+        seed = int(scheduled["seed"]) if scheduled is not None else seed_base + episode
         arena.reset(seed=seed)
         for policy in policies.values():
             policy.begin_episode()
-        candidate_seat = episode % arena.game.num_players
-        opponents = league.sample_opponents(
-            candidate_id, arena.game.num_players - 1, seed=seed
+        candidate_seat = (
+            int(scheduled["candidate_seat"])
+            if scheduled is not None
+            else episode % arena.game.num_players
+        )
+        opponents = (
+            list(scheduled["opponents"])
+            if scheduled is not None
+            else league.sample_opponents(
+                candidate_id, arena.game.num_players - 1, seed=seed
+            )
         )
         lineup: list[str] = []
         opponent_iter = iter(opponents)
@@ -86,20 +97,42 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--league", required=True)
     parser.add_argument("--candidate", required=True)
+    parser.add_argument("--candidate-checkpoint")
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--seed-base", type=int, default=210_000)
     parser.add_argument("--device", choices=("auto", "cpu", "mps"), default="cpu")
     parser.add_argument("--out", required=True)
+    parser.add_argument("--schedule")
     parser.add_argument("--record", action="store_true")
     args = parser.parse_args()
-    league_path = Path(args.league)
+    league_path = Path(args.league).resolve()
     league = PolicyLeague.load(league_path)
+    base_league_sha256 = file_sha256(league_path)
+    if args.candidate_checkpoint:
+        checkpoint_path = Path(args.candidate_checkpoint).resolve()
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        league.add_policy(
+            PolicyEntry(
+                policy_id=args.candidate,
+                kind="neural_lobby_pointer",
+                artifact_path=str(checkpoint_path),
+                artifact_sha256=file_sha256(checkpoint_path),
+                environment_contract=checkpoint["lobby_environment_contract"],
+                metadata={"temporary_evaluation_entry": True},
+            )
+        )
+    schedule_path = Path(args.schedule).resolve() if args.schedule else None
+    schedule = json.loads(schedule_path.read_text()) if schedule_path else None
+    if schedule is not None and schedule["league_sha256"] != base_league_sha256:
+        raise ValueError("schedule was generated from a different league manifest")
+    episodes = len(schedule["games"]) if schedule is not None else args.episodes
     records, outcomes = evaluate(
         league,
         args.candidate,
-        episodes=args.episodes,
+        episodes=episodes,
         seed_base=args.seed_base,
         device=resolve_device(args.device),
+        schedule=schedule,
     )
     if args.record:
         for opponent_id, counts in outcomes.items():
@@ -114,8 +147,10 @@ def main() -> None:
     report = {
         "schema_version": 1,
         "candidate_id": args.candidate,
-        "episodes": args.episodes,
+        "episodes": episodes,
         "seed_base": args.seed_base,
+        "schedule": str(schedule_path) if schedule_path else None,
+        "schedule_sha256": file_sha256(schedule_path) if schedule_path else None,
         "mean_placement": float(np.mean(placements)),
         "top4_rate": float(np.mean(np.asarray(placements) <= 4)),
         "win_rate": float(np.mean(np.asarray(placements) == 1)),

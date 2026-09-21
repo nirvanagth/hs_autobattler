@@ -84,3 +84,8 @@ This smoke is an execution check, not a performance result. The next experiment
 is a fixed-budget, multi-seed training run followed by disjoint selection and
 holdout schedules. S1 stays open until three consecutive gated promotions
 succeed. Failed candidates and all per-opponent outcomes remain in the league.
+
+For paired evaluation, `scripts/make_lobby_league_schedule.py` freezes every
+seed, candidate seat, and seven-opponent lineup before any candidate is tested.
+`evaluate_lobby_league.py --schedule ...` verifies the source-league hash, so
+the parent and all candidates face exactly the same realized lobby contexts.

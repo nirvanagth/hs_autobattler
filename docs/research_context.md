@@ -184,6 +184,8 @@ S1 progress:
 - `LeagueLobbyEnv` and `scripts/train_lobby_league_ppo.py` connect that
   population to conservative feed-forward PPO; a 128-step end-to-end smoke
   completed successfully.
+- paired league evaluation freezes seed, learner seat, and all seven opponent
+  IDs in a hash-bound schedule shared by the parent and every candidate.
 
 Next extension/execution target:
 
