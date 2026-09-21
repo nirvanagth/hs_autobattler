@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_8p_tier3_v1",
+  "frozen_on": "2026-09-20",
+  "environment_contract": {
+    "name": "hsbg_8p_tier3_research",
+    "behavior_version": 5,
+    "observation_schema_version": 1,
+    "action_schema_version": 1,
+    "observation_size": 2958,
+    "action_count": 34,
+    "num_players": 8,
+    "max_tier": 3,
+    "base_engine_contract": {
+      "name": "hsbg_1v1_research",
+      "behavior_version": 5,
+      "observation_schema_version": 1,
+      "action_schema_version": 1,
+      "observation_size": 1036,
+      "entity_features": 38,
+      "action_count": 34,
+      "max_tier": 3,
+      "card_vocab_scheme": "stable_v1",
+      "card_vocab_hash": "3d23761f068035bdcf0ca5690275ba5334c34ad28478151666b8ef6a78c3cfd2",
+      "card_pool_digest": "58bf222f245ef7d5d8b1b9e4efeca855a74ea6a4b9b7c4689da3d032a4e75fae"
+    }
+  },
+  "dataset": {
+    "path": "artifacts/lobby_e2/bc_2000_v5.npz",
+    "sha256": "34ac273db379bf049a6992cd4886f33e745d1b78ce8c92ebc21ee43f5acf6b5c",
+    "episodes": 2000,
+    "decisions": 158699
+  },
+  "evaluation": {
+    "episodes": 200,
+    "seed_base": 170000,
+    "primary_metrics": [
+      "mean_placement",
+      "placement_utility",
+      "top4_rate",
+      "win_rate",
+      "paired_bootstrap"
+    ]
+  },
+  "lifecycle_gate": {
+    "games": 100000,
+    "seed_base": 100000,
+    "average_rounds": 24.31,
+    "status": "passed"
+  }
+}

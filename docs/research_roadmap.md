@@ -112,14 +112,19 @@ violations.
 Result: 100,000/100,000 SmartBot lobbies passed at 32.1 games/s with 24.31
 average rounds and near-uniform seat winners. See `docs/e1_lobby_core.md`.
 
-### E2. Public opponent information and memory — IN PROGRESS
+### E2. Public opponent information and memory — COMPLETE (NO GRU GAIN)
 
 - Last-seen boards, turns-since-seen, health/armor, and opponent identity.
 - Recurrent memory benchmark versus feed-forward policies.
 
+Result: public-information observations and next-opponent scheduling were
+implemented. Three matched seeds found no stable GRU benefit: feed-forward mean
+placement 4.713 versus GRU 4.770, with paired intervals crossing zero. See
+`docs/e2_memory_benchmark.md`.
+
 ## Phase S — population self-play
 
-### S1. Policy league — PENDING
+### S1. Policy league — IN PROGRESS
 
 - Historical checkpoints, ES variants, exploiters, PFSP sampling, and
   Elo/TrueSkill-style ratings.

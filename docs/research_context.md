@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **E2 Public opponent information and memory**.
+Roadmap item: **S1 Policy league**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -156,20 +156,26 @@ pairing uniqueness, complete placements, and bounded termination. Average game
 length was 24.31 rounds at 32.1 games/s; seat win shares were 12.27%–12.67%.
 See `docs/e1_lobby_core.md`.
 
+E2 is complete. `BattlegroundsLobbyEnv` exposes a 2,958-value no-leak public
+observation with scheduled opponent and stale last-seen boards. On 2,000 lobby
+episodes and three matched seeds, feed-forward mean placement was 4.713 and GRU
+was 4.770; pooled paired intervals crossed zero. Do not enable recurrent memory
+by default until a self-play teacher uses opponent history. See
+`docs/e2_memory_benchmark.md` and `benchmarks/hsbg_8p_tier3_v1.json`.
+
 Immediate implementation target:
 
 ```text
-eight-player public observation schema + recurrent policy benchmark
+population league + PFSP opponent sampling
 ```
 
 Next extension/execution target:
 
-- expose all players' health, tier, alive state, last opponent, last-seen board,
-  and turns-since-seen without leaking hidden current boards;
-- add an eight-player Gymnasium wrapper around `LobbyGame`;
-- benchmark feed-forward Pointer against Pointer+GRU on identical observation
-  histories and training budgets;
-- retain `hsbg_1v1_v1/v2/v3` as immutable regression manifests.
+- define immutable policy entries and ratings for SmartBot, ES variants, BC,
+  DAgger, and historical neural checkpoints;
+- implement PFSP sampling and deterministic league manifests;
+- collect per-opponent outcomes and prevent promotion on one fixed opponent;
+- require three successive promoted policies to improve holdout league rating.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.
