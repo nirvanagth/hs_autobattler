@@ -191,13 +191,17 @@ S1 progress:
   [+1.771, +2.304]. All six per-opponent score deltas were positive, with
   +0.245 worst case and +0.290 mean. It is now the league main. See
   `benchmarks/hsbg_league_s1_v1.json`.
+- S1 promotion round 2 passed: `round2_s142` improved holdout mean placement
+  from 2.712 to 1.933 on 240 new paired lobbies; improvement +0.779, 95% CI
+  [+0.546, +1.013]. Its worst of seven archived-opponent score deltas was
+  +0.092. It is now the league main.
 
 Next extension/execution target:
 
-- train the second-generation candidate from `pilot_s73` against the updated
+- train the third-generation candidate from `round2_s142` against the updated
   PFSP population;
 - repeat frozen selection and disjoint holdout evaluation;
-- require two more successive gated promotions before completing S1.
+- require one more gated promotion before completing S1.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

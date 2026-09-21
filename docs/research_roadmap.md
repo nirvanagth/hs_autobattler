@@ -144,6 +144,11 @@ improved paired mean placement by +2.033, 95% CI [+1.771, +2.304], on 240
 disjoint holdout lobbies. It improved against all six archived opponents and
 passed the gate. Two further consecutive promotions are required.
 
+Promotion 2/3: three more matched seeds selected `round2_s142`. On 240 new
+holdout lobbies it improved paired mean placement by +0.779, 95% CI [+0.546,
++1.013], and improved pairwise score against every one of seven archived
+opponents. One further consecutive promotion is required.
+
 ## Phase M — representation and planning
 
 ### M1. Centralized critic and auxiliary combat tasks — PENDING

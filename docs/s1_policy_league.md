@@ -107,3 +107,20 @@ the mean improvement was +0.290 and the worst was +0.245. Every opponent had
 The guarded promotion gate passed and `pilot_s73` became league main. This is
 the first of three successive promotions required to complete S1. Exact hashes
 and metrics are frozen in `benchmarks/hsbg_league_s1_v1.json`.
+
+## Promotion round 2
+
+Three further 32,768-step runs started from `pilot_s73`. The 40-lobby selection
+set chose seed 142: mean placement 2.025 versus 2.525 for the incumbent. The
+selection interval still crossed zero, so the choice itself was not treated as
+evidence.
+
+The disjoint 240-lobby holdout used a coverage-constrained PFSP schedule: every
+archived opponent occupied at least 200 seats, then remaining seats followed
+PFSP weights. `round2_s142` achieved mean placement 1.933, 95.8% Top-4, and
+45.8% wins versus 2.712, 82.9%, and 30.0% for `pilot_s73`. Paired placement
+improvement was +0.779, 95% CI [+0.546, +1.013]. Pairwise score improved against
+all seven holdouts; mean +0.112 and worst +0.092.
+
+The promotion gate passed and `round2_s142` became main. S1 is now at two of
+three required consecutive promotions.
