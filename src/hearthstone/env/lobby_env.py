@@ -36,7 +36,7 @@ class LobbyObservationSchema:
     store_slots: int = 7
     discover_slots: int = 3
     opponent_slots: int = 7
-    opponent_meta_features: int = 8
+    opponent_meta_features: int = 9
     opponent_board_slots: int = 7
     version: int = 1
 
@@ -87,7 +87,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         )
         self.lobby_environment_contract = {
             "name": "hsbg_8p_tier3_research",
-            "behavior_version": 4,
+            "behavior_version": 5,
             "observation_schema_version": self.lobby_schema.version,
             "action_schema_version": 1,
             "observation_size": int(self.lobby_schema.total_size),
@@ -288,6 +288,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
                 min(opponent.turns_since_seen or 0, 50) / 50.0
                 if opponent.last_seen_board is not None else 1.0
             )
+            buf[base + 8] = float(opponent.is_next_opponent)
             if opponent.last_seen_board is not None:
                 board_offset = base + schema.opponent_meta_features
                 for slot, unit in enumerate(opponent.last_seen_board.units[:7]):

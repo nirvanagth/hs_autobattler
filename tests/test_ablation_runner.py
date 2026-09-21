@@ -7,6 +7,9 @@ from scripts.run_matched_ppo_ablation import (
     build_train_command as build_ppo_train_command,
 )
 from scripts.evaluate_checkpoints import paired_bootstrap, wilson_interval
+from scripts.run_lobby_memory_ablation import (
+    build_train_command as build_lobby_train_command,
+)
 
 
 def test_train_command_pins_variant_seed_and_budget(tmp_path: Path) -> None:
@@ -79,3 +82,14 @@ def test_paired_bootstrap_uses_seed_and_seat_pairs() -> None:
     result = paired_bootstrap(left, right, seed=42, samples=1000)
     assert result["n"] == 2
     assert result["mean"] == 0.5
+
+
+def test_lobby_memory_ablation_switches_only_gru_flag(tmp_path: Path) -> None:
+    common = (
+        tmp_path / "data.npz",
+        tmp_path / "model.pt",
+    )
+    feedforward = build_lobby_train_command(*common, "ff", 17, 5, 8, 3e-4)
+    recurrent = build_lobby_train_command(*common, "gru", 17, 5, 8, 3e-4)
+    assert "--use-memory" not in feedforward
+    assert recurrent[-1] == "--use-memory"

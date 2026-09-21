@@ -10,11 +10,12 @@ from hearthstone.engine.enums import CardIDs
 from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
 from scripts.lobby_model import LobbyPointerAgent
 from scripts.lobby_bc_collect import smart_pick_action
+from scripts.evaluate_lobby_models import paired_comparison
 
 
 def test_lobby_observation_shape(lobby_env: BattlegroundsLobbyEnv) -> None:
     obs, _ = lobby_env.reset(seed=42)
-    assert obs.shape == (2951,)
+    assert obs.shape == (2958,)
     assert obs.shape == lobby_env.observation_space.shape
     assert np.isfinite(obs).all()
 
@@ -52,6 +53,22 @@ def test_last_seen_board_is_exposed_after_observation(
     board_offset = base + lobby_env.lobby_schema.opponent_meta_features
     assert obs[board_offset] == 1.0  # entity present
     assert obs[board_offset + 2] > 0.0  # stable card id
+
+
+def test_next_opponent_is_public_at_recruit_start(
+    lobby_env: BattlegroundsLobbyEnv,
+) -> None:
+    obs, _ = lobby_env.reset(seed=42)
+    next_opponent = lobby_env.game.next_opponent(0)
+    assert next_opponent is not None
+    states = lobby_env.game.public_opponent_states(0)
+    assert [state.player_id for state in states if state.is_next_opponent] == [next_opponent]
+    slot = next(index for index, state in enumerate(states) if state.player_id == next_opponent)
+    base = (
+        lobby_env.lobby_schema.own_size
+        + slot * lobby_env.lobby_schema.opponent_stride
+    )
+    assert obs[base + 8] == 1.0
 
 
 def test_end_turn_drives_all_bots_and_advances_round(
@@ -150,3 +167,18 @@ def test_smart_action_query_skips_upgrade_blocked_by_lobby_cap(
 
     assert action != 32
     assert lobby_env.action_masks()[action]
+
+
+def test_lobby_paired_comparison_uses_shared_seeds() -> None:
+    reference = [
+        {"seed": 1, "placement": 5, "placement_utility": -0.1, "top4": False, "win": False},
+        {"seed": 2, "placement": 3, "placement_utility": 0.3, "top4": True, "win": False},
+    ]
+    challenger = [
+        {"seed": 1, "placement": 2, "placement_utility": 0.6, "top4": True, "win": False},
+        {"seed": 2, "placement": 1, "placement_utility": 1.0, "top4": True, "win": True},
+    ]
+    result = paired_comparison(reference, challenger, samples=1000)
+    assert result["n"] == 2
+    assert result["placement_improvement"]["mean"] == 2.5
+    assert result["win_advantage"]["mean"] == 0.5

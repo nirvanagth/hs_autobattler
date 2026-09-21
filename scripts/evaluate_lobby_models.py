@@ -105,6 +105,41 @@ def summarize(records):
     }
 
 
+def paired_comparison(reference, challenger, seed: int = 42, samples: int = 10_000):
+    reference_map = {row["seed"]: row for row in reference}
+    challenger_map = {row["seed"]: row for row in challenger}
+    seeds = sorted(set(reference_map) & set(challenger_map))
+    metrics = {
+        "placement_improvement": np.asarray(
+            [reference_map[s]["placement"] - challenger_map[s]["placement"] for s in seeds],
+            dtype=np.float64,
+        ),
+        "utility_advantage": np.asarray(
+            [challenger_map[s]["placement_utility"] - reference_map[s]["placement_utility"] for s in seeds],
+            dtype=np.float64,
+        ),
+        "top4_advantage": np.asarray(
+            [float(challenger_map[s]["top4"]) - float(reference_map[s]["top4"]) for s in seeds],
+            dtype=np.float64,
+        ),
+        "win_advantage": np.asarray(
+            [float(challenger_map[s]["win"]) - float(reference_map[s]["win"]) for s in seeds],
+            dtype=np.float64,
+        ),
+    }
+    rng = np.random.default_rng(seed)
+    indices = rng.integers(0, len(seeds), size=(samples, len(seeds)))
+    result = {"n": len(seeds)}
+    for name, values in metrics.items():
+        means = values[indices].mean(axis=1)
+        result[name] = {
+            "mean": float(values.mean()),
+            "ci_low": float(np.quantile(means, 0.025)),
+            "ci_high": float(np.quantile(means, 0.975)),
+        }
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", action="append", required=True, help="LABEL=CHECKPOINT")
@@ -131,6 +166,16 @@ def main() -> None:
             f"top4={summary['top4_rate']:.3f} win={summary['win_rate']:.3f}",
             flush=True,
         )
+    labels = list(report["runs"])
+    comparisons = {}
+    for reference_index, reference in enumerate(labels):
+        for challenger in labels[reference_index + 1:]:
+            comparisons[f"{challenger}_minus_{reference}"] = paired_comparison(
+                report["runs"][reference]["episodes"],
+                report["runs"][challenger]["episodes"],
+                seed=args.seed_base,
+            )
+    report["paired_comparisons"] = comparisons
     output = Path(args.out)
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_suffix(".tmp")

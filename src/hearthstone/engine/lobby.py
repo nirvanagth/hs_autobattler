@@ -83,6 +83,7 @@ class PublicOpponentState:
     health: int
     tavern_tier: int
     alive: bool
+    is_next_opponent: bool
     last_seen_board: PublicBoardSnapshot | None
     turns_since_seen: int | None
 
@@ -147,6 +148,7 @@ class LobbyGame:
 
         for player in self.players:
             self.tavern.start_turn(player, self.turn_count)
+        self.current_pairings = self.create_pairings()
 
     @property
     def active_count(self) -> int:
@@ -248,6 +250,7 @@ class LobbyGame:
         if not 0 <= viewer_id < self.num_players:
             raise ValueError(f"invalid viewer id: {viewer_id}")
         states = []
+        next_opponent = self.next_opponent(viewer_id)
         for player in self.players:
             if player.uid == viewer_id:
                 continue
@@ -258,6 +261,7 @@ class LobbyGame:
                     health=player.health,
                     tavern_tier=player.tavern_tier,
                     alive=player.uid in self.active_player_ids,
+                    is_next_opponent=player.uid == next_opponent,
                     last_seen_board=snapshot,
                     turns_since_seen=(
                         self.turn_count - snapshot.seen_on_turn
@@ -266,6 +270,14 @@ class LobbyGame:
                 )
             )
         return states
+
+    def next_opponent(self, player_id: int) -> int | None:
+        for pairing in self.current_pairings:
+            if pairing.player_id == player_id:
+                return pairing.opponent_id
+            if not pairing.is_ghost and pairing.opponent_id == player_id:
+                return pairing.player_id
+        return None
 
     def _record_mutual_observation(self, first: Player, second: Player) -> None:
         self.last_seen_boards[first.uid][second.uid] = PublicBoardSnapshot.from_player(
@@ -289,7 +301,7 @@ class LobbyGame:
         if not self._all_active_ready():
             raise RuntimeError("cannot resolve combat before all active players are ready")
         active_before = self.active_count
-        pairings = self.create_pairings()
+        pairings = self.current_pairings
         pending_damage = {player_id: 0 for player_id in self.active_player_ids}
         results: list[LobbyCombatResult] = []
 
@@ -397,6 +409,7 @@ class LobbyGame:
         for player_id in sorted(self.active_player_ids):
             self.players_ready[player_id] = False
             self.tavern.start_turn(self.players[player_id], self.turn_count)
+        self.current_pairings = self.create_pairings()
         return results
 
     def _release_player_cards(self, player: Player) -> None:
