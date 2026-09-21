@@ -112,8 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-The recorded R/E/S/M roadmap is complete. The next research decision should be
-a new phase rather than more tuning of the current Tier-3 setup.
+Roadmap item: **F0 Executable content and fidelity audit**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -167,7 +166,7 @@ by default until a self-play teacher uses opponent history. See
 Immediate implementation target:
 
 ```text
-league-aware eight-player training against the archived PFSP population
+executable content manifest + mechanic coverage audit
 ```
 
 S1 progress:
@@ -204,11 +203,17 @@ S1 progress:
 
 Next extension/execution target:
 
-- expand environment fidelity and card/hero coverage, or train an explicit
-  counterfactual action-value/world model before revisiting search;
-- preserve `round3_s217` as the current promoted policy;
-- do not enable centralized critic, auxiliary heads, oracle shaping, or search
-  by default based on the current negative results.
+- generate the executable content manifest and effect-family coverage report;
+- classify all 229 minion definitions and 28 spells as verified, implemented-
+  unverified, partial, or unsupported;
+- make active-pool construction reject declared but unsupported mechanics;
+- add deterministic scenario fixtures before enabling Tier 4--6 content.
+
+Phase F decision: prioritize simulator fidelity and held-out configuration
+generalization over further model tuning. The eight-player benchmark currently
+activates only Tier 1--3 despite definitions spanning Tier 1--7, and there is no
+first-class hero/armor/hero-power subsystem. See
+`docs/phase_f_fidelity_roadmap.md`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
@@ -237,8 +242,9 @@ worsened mean placement by 0.725 (95% CI [-1.575, +0.100]) and increased CPU
 latency from 3.44 to 80.16 ms/decision. Deeper MCTS was not justified. See
 `docs/m2_search.md` and `benchmarks/hsbg_m2_depth1_v1.json`.
 
-Do not begin the eight-player environment phase until R2 results have been
-recorded and the benchmark freeze task R3 is complete.
+Do not begin F4 policy training until F0--F2 have produced a frozen, verified
+environment contract. Do not substitute simulator self-play for the external
+trace evidence required by F3.
 
 ## Update protocol
 

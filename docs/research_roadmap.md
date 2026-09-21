@@ -1,6 +1,6 @@
 # HS Autobattler research roadmap
 
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 ## Objective
 
@@ -189,6 +189,43 @@ planner were implemented. On 40 paired lobbies, search changed mean placement
 from 3.900 to 4.625 (delta -0.725, 95% CI [-1.575, +0.100]) while increasing
 inference latency from 3.44 to 80.16 ms/decision. The gate failed, so deeper
 MCTS was not implemented. See `docs/m2_search.md`.
+
+## Phase F — fidelity and generalization
+
+The next objective is external validity beyond the frozen Tier-3 simulator.
+See `docs/phase_f_fidelity_roadmap.md` for deliverables and gates.
+
+### F0. Executable content and fidelity audit — NEXT
+
+- Machine-readable mechanic/handler/test manifest for every card and spell.
+- Explicit verified/partial/unsupported classifications.
+- Benchmark construction rejects silent unsupported mechanics.
+
+Gate: every card in a proposed active pool is handler-complete and covered by
+deterministic scenario tests.
+
+### F1. Verified full-tier lobby — PENDING
+
+Gate: behavior-contract v6 plus 100,000 conservation-safe Tier-6 lobbies.
+
+### F2. Curated hero and armor system — PENDING
+
+Gate: 8--16 scenario-tested heroes and a validated matchup matrix.
+
+### F3. External trace conformance — PENDING, DATA-DEPENDENT
+
+Gate: 10,000+ real recruit transitions with at least 99.5% agreement on
+deterministic state fields.
+
+### F4. Content curriculum and policy transfer — PENDING
+
+Gate: improve full-tier holdouts without losing more than two score points on
+the frozen Tier-3 benchmark.
+
+### F5. Held-out content and patch generalization — PENDING
+
+Gate: multi-seed improvement across unseen card/hero/configuration splits with
+no catastrophic archived-configuration regression.
 
 ## Promotion ladder
 
