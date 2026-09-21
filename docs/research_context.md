@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **R3 Freeze the benchmark**.
+Roadmap item: **E1 Restricted-pool eight-player skeleton**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -143,19 +143,26 @@ R2-C is complete. Three-seed matched PPO results:
 Promote 5x DAgger + teacher-KL PPO. Oracle remains a negative-result ablation.
 See `docs/r2_ppo_ablation.md`.
 
+R3 is complete. Frozen benchmark `hsbg_1v1_v1` is tracked in
+`benchmarks/hsbg_1v1_v1.json`. Environment behavior v2, schemas, card-pool
+digest, opponents, dataset, and evaluation suite are immutable. New artifacts
+persist and validate this contract. `scripts/verify_research_platform.py`
+passed its complete smoke pipeline; the full suite passed 875 tests with 33
+skips. See `docs/r3_benchmark_freeze.md`.
+
 Immediate implementation target:
 
 ```text
-versioned environment contract + raw statistical evaluator
+restricted Tier-3 eight-player environment core
 ```
 
 Next extension/execution target:
 
-- add an explicit environment behavior version and card-pool snapshot digest;
-- persist those contracts in datasets and checkpoints and reject mismatches;
-- export raw per-episode evaluation records, Wilson intervals, and paired
-  bootstrap comparisons;
-- provide a one-command smoke verifier for a fresh checkout.
+- implement eight player lifecycle, shared pool, deterministic pairings,
+  ghosts, damage cap, elimination, and placement;
+- keep the first skeleton on a frozen Tier-3 ruleset;
+- add conservation and 100,000-game lifecycle stress tests;
+- preserve `hsbg_1v1_v1` unchanged as the regression benchmark.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

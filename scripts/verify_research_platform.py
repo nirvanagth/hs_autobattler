@@ -20,6 +20,19 @@ from hearthstone.env.es_bot import N_WEIGHTS
 from hearthstone.env.hs_env import HearthstoneEnv
 
 
+DEFAULT_BENCHMARK = ROOT / "benchmarks" / "hsbg_1v1_v1.json"
+
+
+def file_sha256(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def run(command: list[str], environment: dict[str, str]) -> None:
     print(f"[verify] {' '.join(command)}", flush=True)
     subprocess.run(command, cwd=ROOT, env=environment, check=True)
@@ -29,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--full-tests", action="store_true")
     parser.add_argument("--report", default=None)
+    parser.add_argument("--benchmark", default=str(DEFAULT_BENCHMARK))
     return parser.parse_args()
 
 
@@ -41,6 +55,21 @@ def main() -> None:
         )
     env = HearthstoneEnv(card_vocab_scheme="stable_v1")
     contract = env.environment_contract
+    benchmark_path = Path(args.benchmark).resolve()
+    benchmark = json.loads(benchmark_path.read_text())
+    if benchmark.get("environment_contract") != contract:
+        raise RuntimeError(
+            "runtime environment does not match frozen benchmark contract: "
+            f"runtime={contract}, frozen={benchmark.get('environment_contract')}"
+        )
+    smart_source = ROOT / benchmark["opponents"]["smartbot_source"]["path"]
+    expected_smart_hash = benchmark["opponents"]["smartbot_source"]["sha256"]
+    actual_smart_hash = file_sha256(smart_source)
+    if actual_smart_hash != expected_smart_hash:
+        raise RuntimeError(
+            "SmartBot source does not match frozen benchmark: "
+            f"runtime={actual_smart_hash}, frozen={expected_smart_hash}"
+        )
 
     process_environment = os.environ.copy()
     process_environment["PYTHONUNBUFFERED"] = "1"
@@ -143,6 +172,8 @@ def main() -> None:
         "status": "ok",
         "native_module": str(Path(native.__file__).resolve()),
         "environment_contract": contract,
+        "benchmark": str(benchmark_path),
+        "benchmark_name": benchmark["benchmark_name"],
         "full_tests": args.full_tests,
     }
     if args.report:

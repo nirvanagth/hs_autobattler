@@ -85,7 +85,7 @@ Progress:
   improve both opponent means over the 5x DAgger parent. Oracle consistently
   reduced ES performance versus matched KL. See `docs/r2_ppo_ablation.md`.
 
-### R3. Freeze the benchmark — IN PROGRESS
+### R3. Freeze the benchmark — COMPLETE
 
 - Assign an explicit environment behavior version and fixed card-pool snapshot.
 - Add raw-result export, Wilson intervals, paired bootstrap, and policy rating.
@@ -93,9 +93,14 @@ Progress:
 
 Gate: a fresh checkout can reproduce a smoke run and validate artifact hashes.
 
+Result: `benchmarks/hsbg_1v1_v1.json` freezes behavior v2, schemas, pool,
+opponents, dataset, and evaluation suite. New artifacts enforce the contract;
+evaluation stores raw episodes, Wilson intervals, and paired bootstraps; the
+one-command verifier passed. See `docs/r3_benchmark_freeze.md`.
+
 ## Phase E — full environment structure
 
-### E1. Restricted-pool eight-player skeleton — PENDING
+### E1. Restricted-pool eight-player skeleton — IN PROGRESS
 
 - Eight players, shared pool, pairings, ghosts, damage cap, elimination, and
   placement reward.
