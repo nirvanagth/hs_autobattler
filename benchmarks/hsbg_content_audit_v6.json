@@ -5567,7 +5567,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -5590,11 +5590,14 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestBrannBronzebeard::test_brann_doubles_battlecry",
+        "tests/test_new_cards.py::TestBrannBronzebeard::test_has_multiplier"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -5617,11 +5620,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestTitusRivendare::test_has_multiplier"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -5644,7 +5649,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestDrakkariEnchanter::test_has_multiplier"
+      ]
     },
     {
       "avenge_registered": false,
@@ -6103,7 +6110,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell",
         "DeathrattleAddSpell"
@@ -6148,7 +6155,10 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestFirescaleHoarder::test_bc_gives_shiny_ring",
+        "tests/test_new_cards.py::TestFirescaleHoarder::test_dr_gives_shiny_ring"
+      ]
     },
     {
       "avenge_registered": false,
@@ -6188,7 +6198,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleDestroyKiller"
       ],
@@ -6217,7 +6227,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestLeeroyTheReckless::test_kills_attacker_on_death"
+      ]
     },
     {
       "avenge_registered": true,
@@ -6400,7 +6412,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffSelfByHighestAllyAtk"
       ],
@@ -6431,7 +6443,10 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestCostumeEnthusiast::test_has_divine_shield",
+        "tests/test_new_cards.py::TestCostumeEnthusiast::test_soc_gains_highest_atk"
+      ]
     },
     {
       "avenge_registered": false,
@@ -6834,7 +6849,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleBuffAllFriendliesGlobal"
       ],
@@ -6865,7 +6880,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestGoldrinnTheGreatWolf::test_deathrattle_buffs_beasts"
+      ]
     },
     {
       "avenge_registered": false,
@@ -7416,7 +7433,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell",
         "DeathrattleAddSpell"
@@ -7459,7 +7476,10 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestNightmareParTeaGuest::test_bc_gives_tea_set",
+        "tests/test_new_cards.py::TestNightmareParTeaGuest::test_dr_gives_tea_set"
+      ]
     },
     {
       "avenge_registered": false,
@@ -7697,7 +7717,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryMakeGoldenFriendlyByTier"
       ],
@@ -7728,11 +7748,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestCaptainSanders::test_bc_makes_friendly_golden"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddRandomUnit",
         "DeathrattleAddSpell"
@@ -7770,7 +7792,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestHighkeeperRa::test_bc_gives_card_to_hand"
+      ]
     },
     {
       "avenge_registered": false,
@@ -7805,7 +7829,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryModifyMechanic",
         "DeathrattleModifyMechanic"
@@ -7837,11 +7861,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestSanguineChampion::test_bc_modifies_blood_gem"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatBuffSelfByHighestBoardAtk"
       ],
@@ -7870,7 +7896,9 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestPsychus::test_soc_sets_stats_to_highest"
+      ]
     },
     {
       "avenge_registered": false,
@@ -7938,7 +7966,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "EndOfTurnBuffAdjacent"
       ],
@@ -7969,7 +7997,9 @@
         "END_OF_TURN"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestFuturefin::test_eot_buffs_adjacent"
+      ]
     },
     {
       "avenge_registered": false,
@@ -8832,9 +8862,9 @@
     "cards": 229,
     "cards_with_test_references": 160,
     "classifications": {
-      "implemented_unverified": 162,
+      "implemented_unverified": 149,
       "partial": 6,
-      "verified": 89
+      "verified": 102
     },
     "handler_complete": 251,
     "handler_incomplete": 6,

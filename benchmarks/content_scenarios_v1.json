@@ -266,6 +266,49 @@
     ],
     "427": [
       "tests/test_new_t3t4_cards.py::TestTrenchFighter::test_adds_gem_confiscation_at_eot"
+    ],
+    "501": [
+      "tests/test_new_cards.py::TestBrannBronzebeard::test_brann_doubles_battlecry",
+      "tests/test_new_cards.py::TestBrannBronzebeard::test_has_multiplier"
+    ],
+    "502": [
+      "tests/test_new_cards.py::TestTitusRivendare::test_has_multiplier"
+    ],
+    "503": [
+      "tests/test_new_cards.py::TestDrakkariEnchanter::test_has_multiplier"
+    ],
+    "517": [
+      "tests/test_new_cards.py::TestFirescaleHoarder::test_bc_gives_shiny_ring",
+      "tests/test_new_cards.py::TestFirescaleHoarder::test_dr_gives_shiny_ring"
+    ],
+    "519": [
+      "tests/test_new_cards.py::TestLeeroyTheReckless::test_kills_attacker_on_death"
+    ],
+    "525": [
+      "tests/test_new_cards.py::TestCostumeEnthusiast::test_has_divine_shield",
+      "tests/test_new_cards.py::TestCostumeEnthusiast::test_soc_gains_highest_atk"
+    ],
+    "601": [
+      "tests/test_new_cards.py::TestGoldrinnTheGreatWolf::test_deathrattle_buffs_beasts"
+    ],
+    "618": [
+      "tests/test_new_cards.py::TestNightmareParTeaGuest::test_bc_gives_tea_set",
+      "tests/test_new_cards.py::TestNightmareParTeaGuest::test_dr_gives_tea_set"
+    ],
+    "701": [
+      "tests/test_new_cards.py::TestCaptainSanders::test_bc_makes_friendly_golden"
+    ],
+    "702": [
+      "tests/test_new_cards.py::TestHighkeeperRa::test_bc_gives_card_to_hand"
+    ],
+    "704": [
+      "tests/test_new_cards.py::TestSanguineChampion::test_bc_modifies_blood_gem"
+    ],
+    "705": [
+      "tests/test_new_cards.py::TestPsychus::test_soc_sets_stats_to_highest"
+    ],
+    "708": [
+      "tests/test_new_cards.py::TestFuturefin::test_eot_buffs_adjacent"
     ]
   },
   "spells": {

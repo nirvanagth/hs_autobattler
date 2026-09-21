@@ -60,12 +60,13 @@ def run_game(
     seed: int,
     max_rounds: int,
     *,
+    max_tier: int = 3,
     behavior_version: int = 5,
     content_profile: dict | None = None,
 ) -> tuple[int, int]:
     lobby = LobbyGame(
         seed=seed,
-        max_tier=3,
+        max_tier=max_tier,
         behavior_version=behavior_version,
         content_profile=content_profile,
     )
@@ -102,6 +103,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-rounds", type=int, default=200)
     parser.add_argument("--log-every", type=int, default=100)
     parser.add_argument("--behavior-version", type=int, default=5)
+    parser.add_argument("--max-tier", type=int, default=3)
     parser.add_argument("--content-profile")
     return parser.parse_args()
 
@@ -120,6 +122,7 @@ def main() -> None:
         rounds, winner = run_game(
             args.seed + index,
             args.max_rounds,
+            max_tier=args.max_tier,
             behavior_version=args.behavior_version,
             content_profile=content_profile,
         )

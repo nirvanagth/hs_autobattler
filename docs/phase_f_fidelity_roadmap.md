@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `a6e34ae00137975b764184279a9ece175824de030aa1ac247b53a8fdcbb5e5ff`.
+  `01df027f60d091d207a03952a845ab6723275e60bb800a91a7a2248c5ecd3bca`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -95,7 +95,7 @@ Progress:
   its frozen platform verifier remain unchanged. Integration tests show that
   Ancestral Automaton and Deflect-o-Bot now trigger through real Tavern play.
   The v6 audit (`benchmarks/hsbg_content_audit_v6.json`, SHA-256
-  `9c4374718c5f19c9feba9dd09ca23007998aa319dac2804b16e15b9a949ec849`)
+  `4ab369edc333f557a622f72aa8e99106b1f44dc25e1c9f4a678354ece491a00d`)
   admits 53/54 current shop minions; only Waveling remains partial.
 
 - **F0-G verified profile — COMPLETE.** Coin, Banana, Pointy Arrow, Fortify,
@@ -103,7 +103,7 @@ Progress:
   contains 53 shop minions, 4 verified Tier-4 triple-discovery minions, and 5
   Tavern spells; Waveling and every unverified Tier-4 card are explicitly
   excluded. Profile SHA-256:
-  `165aa11463f2bcd276a71e37928765dce2dc76b0eb5eca587dffa44ecc19d6a4`.
+  `a940771436d6e9029e6568842dc660993b9c01e846792ed757f47c6e24c9677a`.
   A 1,000-lobby smoke passed exact card conservation, pairing,
   placement, and termination checks at 25.8 games/s with 24.90 average rounds.
 
@@ -127,6 +127,20 @@ Gate:
 - per-seat win shares inside a preregistered tolerance;
 - old Tier-3 benchmark remains reproducible or receives an explicit versioned
   migration report.
+
+Progress:
+
+- Existing dedicated scenarios verified six active Tier-5, two Tier-6, and
+  five Tier-7 cards. The first strict full-tier vertical slice contains 65
+  Tier 1--6 shop minions, 5 Tier-7 discovery minions, and 5 Tavern spells.
+  Profile SHA-256:
+  `757a8005f2076302ea546be0d76540b44752a82ba4688f8e9dbf8f3023dc4a92`.
+- A 1,000-lobby max-tier-6 smoke passed conservation, pairing, complete
+  placement, and termination checks at 28.3 games/s with 21.26 average rounds.
+
+Next: run the 100,000-lobby lifecycle gate, then freeze the v6 environment and
+profile contracts. Broaden high-tier content only in separately verified
+batches.
 
 ## F2. Curated hero and armor system — PENDING
 
