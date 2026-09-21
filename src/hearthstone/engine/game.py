@@ -8,6 +8,7 @@ from .cpp_bridge import get_cpp_engine
 from .entities import Player
 from .enums import BattleOutcome
 from .event_system import EventManager
+from .heroes import HERO_DB, HERO_IDS, assign_hero
 from .pool import CardPool, SpellPool
 from .tavern import TavernManager
 
@@ -19,6 +20,7 @@ class Game:
         *,
         behavior_version: int = 5,
         content_profile: dict[str, Any] | None = None,
+        hero_ids: list[str] | None = None,
     ) -> None:
         self.max_tier = max_tier  # tavern tier cap (shops never offer above this)
         self.behavior_version = behavior_version
@@ -50,6 +52,17 @@ class Game:
             Player(uid=0, board=[], hand=[], health=30),
             Player(uid=1, board=[], hand=[], health=30),
         ]
+        if behavior_version >= 7 and hero_ids is None:
+            hero_ids = list(HERO_IDS[: len(self.players)])
+        if hero_ids is not None:
+            if behavior_version < 7:
+                raise ValueError("heroes require behavior_version >= 7")
+            if len(hero_ids) != len(self.players):
+                raise ValueError("hero count must match player count")
+            for player, hero_id in zip(self.players, hero_ids):
+                if hero_id not in HERO_DB:
+                    raise ValueError(f"unknown hero: {hero_id}")
+                assign_hero(player, hero_id)
 
         self.turn_count = 1
         self.game_over = False
@@ -91,6 +104,10 @@ class Game:
             success, info = self.tavern.upgrade_tavern(player)
         elif action_type == "FREEZE":
             success, info = self.tavern.toggle_freeze(player)
+        elif action_type == "HERO_POWER":
+            success, info = self.tavern.activate_hero_power(
+                player, kwargs.get("target_index", -1)
+            )
         elif action_type == "PLAY":
             # kwargs: hand_index, insert_index, target_index
             h_idx = kwargs.get("hand_index", -1)
@@ -128,11 +145,11 @@ class Game:
         damage_val = abs(damage)
 
         if result == BattleOutcome.WIN:
-            p1.health -= damage_val
+            p1.take_damage(damage_val)
             p0.lost_last_combat = False
             p1.lost_last_combat = True
         elif result == BattleOutcome.LOSE:
-            p0.health -= damage_val
+            p0.take_damage(damage_val)
             p0.lost_last_combat = True
             p1.lost_last_combat = False
         else:

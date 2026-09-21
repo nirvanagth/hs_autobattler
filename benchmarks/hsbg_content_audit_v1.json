@@ -121,6 +121,7 @@
         "tests/test_effect_types.py",
         "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_f0_tier1_scenarios.py",
+        "tests/test_heroes.py",
         "tests/test_integration.py"
       ],
       "tier": 1,
@@ -566,6 +567,7 @@
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_f0_tier2_scenarios.py",
         "tests/test_f0_tier3_scenarios.py",
+        "tests/test_heroes.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py"
       ],
@@ -8350,6 +8352,7 @@
         "tests/test_effect_types.py",
         "tests/test_event_system.py",
         "tests/test_f0_tier3_scenarios.py",
+        "tests/test_heroes.py",
         "tests/test_integration.py",
         "tests/test_new_cards.py",
         "tests/test_rl_env.py"

@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from hearthstone.engine.configs import CARD_DB
 from hearthstone.engine.entities import Unit
 from hearthstone.engine.lobby import LobbyGame
+from hearthstone.engine.heroes import HERO_IDS
 from hearthstone.env.smart_bot import smart_bot_turn
 
 
@@ -63,12 +64,14 @@ def run_game(
     max_tier: int = 3,
     behavior_version: int = 5,
     content_profile: dict | None = None,
+    hero_ids: list[str] | None = None,
 ) -> tuple[int, int]:
     lobby = LobbyGame(
         seed=seed,
         max_tier=max_tier,
         behavior_version=behavior_version,
         content_profile=content_profile,
+        hero_ids=hero_ids,
     )
     initial_inventory = card_inventory(lobby)
     rounds = 0
@@ -105,6 +108,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--behavior-version", type=int, default=5)
     parser.add_argument("--max-tier", type=int, default=3)
     parser.add_argument("--content-profile")
+    parser.add_argument("--heroes", nargs="+")
+    parser.add_argument("--rotate-heroes", action="store_true")
     return parser.parse_args()
 
 
@@ -113,21 +118,30 @@ def main() -> None:
     t0 = time.time()
     total_rounds = 0
     winners: Counter[int] = Counter()
+    hero_winners: Counter[str] = Counter()
     content_profile = (
         json.loads(Path(args.content_profile).read_text())
         if args.content_profile
         else None
     )
     for index in range(args.games):
+        hero_ids = args.heroes
+        if args.rotate_heroes:
+            base = hero_ids or list(HERO_IDS)
+            shift = index % len(base)
+            hero_ids = base[shift:] + base[:shift]
         rounds, winner = run_game(
             args.seed + index,
             args.max_rounds,
             max_tier=args.max_tier,
             behavior_version=args.behavior_version,
             content_profile=content_profile,
+            hero_ids=hero_ids,
         )
         total_rounds += rounds
         winners[winner] += 1
+        if hero_ids is not None:
+            hero_winners[hero_ids[winner]] += 1
         completed = index + 1
         if completed % args.log_every == 0 or completed == args.games:
             elapsed = time.time() - t0
@@ -138,6 +152,8 @@ def main() -> None:
                 flush=True,
             )
     print(f"[done] winners={dict(sorted(winners.items()))}")
+    if hero_winners:
+        print(f"[done] hero_winners={dict(sorted(hero_winners.items()))}")
 
 
 if __name__ == "__main__":

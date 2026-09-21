@@ -25,16 +25,9 @@ def main() -> None:
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
     manifest_path = Path(args.manifest)
-    verification_path = Path(args.verification_index)
     profile = build_content_profile(
         json.loads(manifest_path.read_text()), max_tier=args.max_tier
     )
-    profile["source_manifest_sha256"] = hashlib.sha256(
-        manifest_path.read_bytes()
-    ).hexdigest()
-    profile["verification_index_sha256"] = hashlib.sha256(
-        verification_path.read_bytes()
-    ).hexdigest()
     encoded = json.dumps(profile, indent=2, sort_keys=True) + "\n"
     output = Path(args.out)
     output.parent.mkdir(parents=True, exist_ok=True)

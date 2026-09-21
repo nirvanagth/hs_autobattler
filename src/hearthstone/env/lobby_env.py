@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import random
 from dataclasses import dataclass
 
@@ -14,6 +14,14 @@ from gymnasium import spaces
 from hearthstone.engine.configs import CARD_DB
 from hearthstone.engine.enums import BattleOutcome, Tags, UnitType
 from hearthstone.engine.lobby import LobbyGame, PublicUnitSnapshot
+from hearthstone.engine.heroes import (
+    HERO_DB,
+    HERO_IDS,
+    HERO_ID_TO_INDEX,
+    HeroPowerTarget,
+    hero_power_available,
+    hero_registry_sha256,
+)
 from hearthstone.env.card_vocab import STABLE_V1
 from hearthstone.env.hs_env import (
     MAX_ATK,
@@ -60,6 +68,11 @@ class LobbyObservationSchema:
 
 
 LOBBY_OBSERVATION_SCHEMA = LobbyObservationSchema()
+HERO_LOBBY_OBSERVATION_SCHEMA = LobbyObservationSchema(
+    global_features=12,
+    opponent_meta_features=12,
+    version=2,
+)
 PLACEMENT_REWARDS = {1: 1.0, 2: 0.6, 3: 0.3, 4: 0.1, 5: -0.1, 6: -0.3, 7: -0.6, 8: -1.0}
 
 
@@ -73,6 +86,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         seed: int = 0,
         behavior_version: int = 5,
         content_profile: dict[str, object] | None = None,
+        hero_ids: list[str] | None = None,
     ) -> None:
         super().__init__(
             max_tier=max_tier,
@@ -81,11 +95,13 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         )
         self._lobby_seed = seed
         self._content_profile = content_profile
+        self._hero_ids = list(hero_ids) if hero_ids is not None else None
         self.game = LobbyGame(
             max_tier=max_tier,
             seed=seed,
             behavior_version=behavior_version,
             content_profile=content_profile,
+            hero_ids=self._hero_ids,
         )
         self.my_player_id = 0
         self.enemy_id = 1
@@ -93,7 +109,14 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         # consume separate Gym steps, so the wrapper must not be stricter.
         self.max_actions_in_turn = 40
         self.max_steps_per_episode = 1000
-        self.lobby_schema = LOBBY_OBSERVATION_SCHEMA
+        self.lobby_schema = (
+            HERO_LOBBY_OBSERVATION_SCHEMA
+            if behavior_version >= 7
+            else LOBBY_OBSERVATION_SCHEMA
+        )
+        if behavior_version >= 7:
+            self.action_space = spaces.Discrete(35)
+            self._mask_buffer = np.zeros(35, dtype=np.bool_)
         self.observation_space = spaces.Box(
             low=0,
             high=MAX_CARDS_IN_GAME,
@@ -106,6 +129,8 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         lobby_name = (
             "hsbg_8p_tier3_research"
             if behavior_version == 5 and max_tier == 3 and content_profile is None
+            else "hsbg_8p_heroes_research"
+            if behavior_version >= 7
             else "hsbg_8p_fulltier_research"
             if max_tier == 6
             else f"hsbg_8p_verified_tier{max_tier}_research"
@@ -114,7 +139,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
             "name": lobby_name,
             "behavior_version": behavior_version,
             "observation_schema_version": self.lobby_schema.version,
-            "action_schema_version": 1,
+            "action_schema_version": 2 if behavior_version >= 7 else 1,
             "observation_size": int(self.lobby_schema.total_size),
             "action_count": int(self.action_space.n),
             "num_players": int(self.game.num_players),
@@ -128,6 +153,17 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
             self.lobby_environment_contract["content_profile_sha256"] = (
                 hashlib.sha256(canonical_profile).hexdigest()
             )
+        if behavior_version >= 7:
+            roster = self._hero_ids or list(HERO_IDS[: self.game.num_players])
+            canonical_roster = json.dumps(roster, separators=(",", ":")).encode()
+            self.lobby_environment_contract["hero_schema_version"] = 1
+            self.lobby_environment_contract["hero_registry_sha256"] = (
+                hero_registry_sha256()
+            )
+            self.lobby_environment_contract["hero_roster"] = roster
+            self.lobby_environment_contract["hero_roster_sha256"] = hashlib.sha256(
+                canonical_roster
+            ).hexdigest()
         self.lobby_environment_contract_json = json.dumps(
             self.lobby_environment_contract, sort_keys=True, separators=(",", ":")
         )
@@ -148,6 +184,7 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
             seed=episode_seed,
             behavior_version=self._behavior_version,
             content_profile=self._content_profile,
+            hero_ids=self._hero_ids,
         )
         self.steps_taken = 0
         self.actions_in_turn = 0
@@ -225,6 +262,26 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
                 else ("INVALID_DURING_DISCOVERY", {})
             )
         if self.is_targeting:
+            if self.pending_target_kind == "HERO_BOARD":
+                if 2 <= action <= 8:
+                    self.is_targeting = False
+                    self.pending_target_kind = None
+                    return "HERO_POWER", {"target_index": action - 2}
+                if action == 0:
+                    self.is_targeting = False
+                    self.pending_target_kind = None
+                    return "CANCEL_CAST", {}
+                return "INVALID_NEED_HERO_TARGET", {}
+            if self.pending_target_kind == "HERO_STORE":
+                if 9 <= action <= 15:
+                    self.is_targeting = False
+                    self.pending_target_kind = None
+                    return "HERO_POWER", {"target_index": action - 9}
+                if action == 0:
+                    self.is_targeting = False
+                    self.pending_target_kind = None
+                    return "CANCEL_CAST", {}
+                return "INVALID_NEED_HERO_TARGET", {}
             if 2 <= action <= 8:
                 hand_index = self.pending_spell_hand_index or 0
                 self.pending_spell_hand_index = None
@@ -250,6 +307,19 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         if action == 33:
             self.game.step(self.my_player_id, "FREEZE")
             return "END_TURN", {}
+        if action == 34 and self._behavior_version >= 7:
+            hero = HERO_DB.get(player.hero_id)
+            if hero is None:
+                return "INVALID_HERO_POWER", {}
+            if hero.target == HeroPowerTarget.FRIENDLY_BOARD:
+                self.is_targeting = True
+                self.pending_target_kind = "HERO_BOARD"
+                return "WAIT_FOR_TARGET", {}
+            if hero.target == HeroPowerTarget.FRIENDLY_STORE:
+                self.is_targeting = True
+                self.pending_target_kind = "HERO_STORE"
+                return "WAIT_FOR_TARGET", {}
+            return "HERO_POWER", {"target_index": -1}
         action_type, kwargs = self._decode_action_for_engine(action)
         if action_type == "PLAY":
             hand_index = kwargs["hand_index"]
@@ -278,8 +348,32 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
 
     def action_masks(self, player_idx: int | None = None) -> np.ndarray:
         masks = super().action_masks(player_idx)
+        player_id = self.my_player_id if player_idx is None else player_idx
+        player = self.game.players[player_id]
+        if self.is_targeting and self.pending_target_kind == "HERO_STORE":
+            masks[:] = False
+            for index, item in enumerate(player.store[:7]):
+                masks[9 + index] = item.unit is not None
+            return masks
+        if self.is_targeting and self.pending_target_kind == "HERO_BOARD":
+            masks[:] = False
+            hero = HERO_DB.get(player.hero_id)
+            for index in range(min(len(player.board), 7)):
+                masks[2 + index] = not (
+                    hero is not None
+                    and hero.power_kind == "MAKE_GOLDEN"
+                    and player.board[index].is_golden
+                )
+            return masks
         if self.is_targeting and self.pending_target_kind == "MAGNETIZE":
             masks[0] = True  # play the Magnetic card as a standalone minion
+        if (
+            self._behavior_version >= 7
+            and not self.is_targeting
+            and not player.is_discovering
+            and self.actions_in_turn < self.max_actions_in_turn
+        ):
+            masks[34] = hero_power_available(player)
         return masks
 
     def _play_lobby_bots(self) -> None:
@@ -299,6 +393,12 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         buf[4] = player.spell_discount / MAX_SPELL_DISCOUNT
         buf[5] = float(player.is_discovering)
         buf[6] = float(self.is_targeting)
+        if self._behavior_version >= 7:
+            buf[7] = player.armor / MAX_HP
+            buf[8] = HERO_ID_TO_INDEX.get(player.hero_id, 0) / max(1, len(HERO_IDS))
+            buf[9] = min(player.hero.power_cooldown, 10) / 10.0
+            buf[10] = min(player.hero.power_uses, 10) / 10.0
+            buf[11] = float(hero_power_available(player))
 
         offset = schema.global_features
         self._encode_zone_fast(player.board, buf, offset, 7, "BOARD")
@@ -326,6 +426,12 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
                 if opponent.last_seen_board is not None else 1.0
             )
             buf[base + 8] = float(opponent.is_next_opponent)
+            if self._behavior_version >= 7:
+                buf[base + 9] = (
+                    HERO_ID_TO_INDEX.get(opponent.hero_id, 0) / max(1, len(HERO_IDS))
+                )
+                buf[base + 10] = opponent.armor / MAX_HP
+                buf[base + 11] = min(opponent.hero_power_cooldown, 10) / 10.0
             if opponent.last_seen_board is not None:
                 board_offset = base + schema.opponent_meta_features
                 for slot, unit in enumerate(opponent.last_seen_board.units[:7]):

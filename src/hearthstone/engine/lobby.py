@@ -17,6 +17,7 @@ from .cpp_bridge import get_cpp_engine
 from .entities import Player, Unit
 from .enums import BattleOutcome
 from .event_system import EventManager
+from .heroes import HERO_DB, HERO_IDS, assign_hero
 from .pool import CardPool, SpellPool
 from .tavern import TavernManager
 
@@ -86,6 +87,9 @@ class PublicOpponentState:
     is_next_opponent: bool
     last_seen_board: PublicBoardSnapshot | None
     turns_since_seen: int | None
+    hero_id: str = "NONE"
+    armor: int = 0
+    hero_power_cooldown: int = 0
 
 
 class LobbyGame:
@@ -102,6 +106,7 @@ class LobbyGame:
         seed: int = 0,
         behavior_version: int = 5,
         content_profile: dict[str, Any] | None = None,
+        hero_ids: list[str] | None = None,
     ) -> None:
         if not 2 <= num_players <= 8:
             raise ValueError("num_players must be between 2 and 8")
@@ -144,6 +149,17 @@ class LobbyGame:
             Player(uid=index, board=[], hand=[], health=starting_health)
             for index in range(num_players)
         ]
+        if behavior_version >= 7 and hero_ids is None:
+            hero_ids = list(HERO_IDS[:num_players])
+        if hero_ids is not None:
+            if behavior_version < 7:
+                raise ValueError("heroes require behavior_version >= 7")
+            if len(hero_ids) != num_players:
+                raise ValueError("hero count must match player count")
+            for player, hero_id in zip(self.players, hero_ids):
+                if hero_id not in HERO_DB:
+                    raise ValueError(f"unknown hero: {hero_id}")
+                assign_hero(player, hero_id)
 
         self.turn_count = 1
         self.game_over = False
@@ -203,6 +219,10 @@ class LobbyGame:
             success, info = self.tavern.upgrade_tavern(player)
         elif action_type == "FREEZE":
             success, info = self.tavern.toggle_freeze(player)
+        elif action_type == "HERO_POWER":
+            success, info = self.tavern.activate_hero_power(
+                player, kwargs.get("target_index", -1)
+            )
         elif action_type == "PLAY":
             success, info = self.tavern.play_unit(
                 player,
@@ -285,6 +305,9 @@ class LobbyGame:
                         self.turn_count - snapshot.seen_on_turn
                         if snapshot is not None else None
                     ),
+                    hero_id=player.hero_id,
+                    armor=player.armor,
+                    hero_power_cooldown=player.hero.power_cooldown,
                 )
             )
         return states
@@ -388,7 +411,7 @@ class LobbyGame:
                 self.last_opponent[second.uid] = first.uid
 
         for player_id, damage in pending_damage.items():
-            self.players[player_id].health -= damage
+            self.players[player_id].take_damage(damage)
 
         eliminated = sorted(
             (

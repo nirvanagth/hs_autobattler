@@ -217,11 +217,16 @@ Result: the verified full-tier profile passed 100,000 lobbies at 29.1 games/s,
 21.38 average rounds, and 12.281%--12.698% seat win shares. See
 `docs/f1_fulltier_lobby.md` and `benchmarks/hsbg_8p_fulltier_v1.json`.
 
-### F2. Curated hero and armor system — NEXT
+### F2. Curated hero and armor system — COMPLETE
 
 Gate: 8--16 scenario-tested heroes and a validated matchup matrix.
 
-### F3. External trace conformance — PENDING, DATA-DEPENDENT
+Result: eight versioned reference heroes, armor-first damage, observation/action
+schema v2, and active/passive/target/cooldown/once mechanics are implemented.
+A 4,000-lobby rotating-seat matrix passed the balance gate. See
+`docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
+
+### F3. External trace conformance — NEXT, DATA-DEPENDENT
 
 Gate: 10,000+ real recruit transitions with at least 99.5% agreement on
 deterministic state fields.

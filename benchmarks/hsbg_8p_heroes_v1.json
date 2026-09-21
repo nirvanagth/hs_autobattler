@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_8p_heroes_v1",
+  "frozen_on": "2026-09-21",
+  "environment_contract": {
+    "name": "hsbg_8p_heroes_research",
+    "behavior_version": 7,
+    "observation_schema_version": 2,
+    "action_schema_version": 2,
+    "observation_size": 2984,
+    "action_count": 35,
+    "num_players": 8,
+    "max_tier": 6,
+    "content_profile_sha256": "7434b10a261a98cd1dae6b283186717943f2129e4d10e2f4a30af5c6c94238b6",
+    "hero_schema_version": 1,
+    "hero_registry_sha256": "d7e61cd93768c17ca072e8b01752eb45e30d146d876ea8603c58c0d663c5f4b8",
+    "hero_roster": [
+      "BULWARK",
+      "QUARTERMASTER",
+      "SCHOLAR",
+      "BLOOD_BROKER",
+      "INVESTOR",
+      "GILDER",
+      "TRAINER",
+      "SHOP_SMITH"
+    ],
+    "hero_roster_sha256": "29c8b7ea72a3368b11cdb3d32164613d6f78319a2cfc50325a739cf22f3f5466",
+    "base_engine_contract": {
+      "name": "hsbg_1v1_research",
+      "behavior_version": 7,
+      "observation_schema_version": 1,
+      "action_schema_version": 1,
+      "observation_size": 1036,
+      "entity_features": 38,
+      "action_count": 34,
+      "max_tier": 6,
+      "card_vocab_scheme": "stable_v1",
+      "card_vocab_hash": "3d23761f068035bdcf0ca5690275ba5334c34ad28478151666b8ef6a78c3cfd2",
+      "card_pool_digest": "58bf222f245ef7d5d8b1b9e4efeca855a74ea6a4b9b7c4689da3d032a4e75fae"
+    }
+  },
+  "artifacts": {
+    "hero_registry_path": "benchmarks/hero_registry_v1.json",
+    "hero_registry_file_sha256": "782f11cc5a5c7147b93344d75285a6c3a3b027a87aa9dac0a478797ca8d1e82e",
+    "content_profile_path": "benchmarks/hsbg_content_profile_v7_fulltier.json",
+    "content_profile_file_sha256": "670d64dc5ec6669c4ad5c9986d01e69cb0b7ae5b346ce33a5b4f86f031676f52",
+    "runtime_pool_sha256": "958081c23e1d49ae9d5a5ec7ff0c8092fc83020535692d2c7bc98603f6aa22ae",
+    "matrix_report_sha256": "fcc91c76d2b8c38146102769a16a685a7f801b53f0cfbc414720ac5a1783470d"
+  },
+  "matrix": {
+    "games": 4000,
+    "seed_base": 840000,
+    "appearances_per_hero": 4000,
+    "appearances_per_hero_per_seat": 500,
+    "min_mean_placement": 3.995,
+    "max_mean_placement": 4.904,
+    "min_win_rate": 0.11025,
+    "max_win_rate": 0.1455,
+    "min_top4_rate": 0.437,
+    "max_top4_rate": 0.58925,
+    "min_pairwise_score_rate": 0.39475,
+    "max_pairwise_score_rate": 0.60525,
+    "seat_winner_counts": {
+      "0": 510,
+      "1": 497,
+      "2": 493,
+      "3": 515,
+      "4": 503,
+      "5": 498,
+      "6": 489,
+      "7": 495
+    },
+    "status": "passed"
+  },
+  "gate": {
+    "max_mean_placement_spread": 1.0,
+    "max_win_rate_spread": 0.05,
+    "max_pairwise_deviation_from_half": 0.11
+  },
+  "matrix_execution_note": {
+    "profile_file_sha256_at_start": "13d3db1867c8fcff16474f50c6c200eb7ff273fb586b3944151216abf9e81f94",
+    "current_profile_changes_metadata_only": true,
+    "runtime_pool_digest_equal": true
+  }
+}

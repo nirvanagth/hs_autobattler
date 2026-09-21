@@ -375,6 +375,15 @@ class DiscoveryRequest:
 
 
 @dataclass
+class HeroState:
+    hero_id: str = "NONE"
+    armor: int = 0
+    power_cooldown: int = 0
+    power_uses: int = 0
+    power_used_this_turn: bool = False
+
+
+@dataclass
 class Player:
     uid: int
     board: List[Unit]
@@ -382,6 +391,7 @@ class Player:
     economy: EconomyState = field(default_factory=EconomyState)
     mechanics: MechanicState = field(default_factory=MechanicState)
     health: int = 30
+    hero: HeroState = field(default_factory=HeroState)
 
     discovery: DiscoveryState = field(default_factory=DiscoveryState)
     pending_discovery_request: Optional[DiscoveryRequest] = None
@@ -398,7 +408,29 @@ class Player:
             economy=replace(self.economy, store=self.economy.store.copy()),
             mechanics=replace(self.mechanics, modifiers=self.mechanics.modifiers.copy()),
             health=self.health,
+            hero=replace(self.hero),
         )
+
+    def take_damage(self, amount: int) -> tuple[int, int]:
+        """Apply damage to armor before health; return (armor, health) damage."""
+        amount = max(0, int(amount))
+        armor_damage = min(self.hero.armor, amount)
+        self.hero.armor -= armor_damage
+        health_damage = amount - armor_damage
+        self.health -= health_damage
+        return armor_damage, health_damage
+
+    @property
+    def armor(self) -> int:
+        return self.hero.armor
+
+    @armor.setter
+    def armor(self, value: int) -> None:
+        self.hero.armor = max(0, int(value))
+
+    @property
+    def hero_id(self) -> str:
+        return self.hero.hero_id
 
     @property
     def is_discovering(self) -> bool:

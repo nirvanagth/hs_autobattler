@@ -229,12 +229,13 @@ class EffectContext:
     def damage_hero(self, side: int, amount: int) -> None:
         player = self.players_by_uid.get(side)
         if player:
-            player.health -= amount
-            self.emit_event(Event(
-                event_type=EventType.HERO_DAMAGED,
-                source_pos=PosRef(side=side, zone=Zone.HERO, slot=0),
-                value=amount,
-            ))
+            _, health_damage = player.take_damage(amount)
+            if health_damage > 0:
+                self.emit_event(Event(
+                    event_type=EventType.HERO_DAMAGED,
+                    source_pos=PosRef(side=side, zone=Zone.HERO, slot=0),
+                    value=health_damage,
+                ))
 
     def heal_hero(self, side: int, amount: int) -> None:
         player = self.players_by_uid.get(side)

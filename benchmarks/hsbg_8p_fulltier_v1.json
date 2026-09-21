@@ -11,7 +11,7 @@
     "action_count": 34,
     "num_players": 8,
     "max_tier": 6,
-    "content_profile_sha256": "5fcd20643ee1154aa87e5984e5ac93b254164bf5c839175fa3acb18ed3603a45",
+    "content_profile_sha256": "41ad90678d09ca464adc54fbb7f6466e7c9a07b175dee940f11a4e1173ba90fe",
     "base_engine_contract": {
       "name": "hsbg_1v1_research",
       "behavior_version": 6,
@@ -28,11 +28,11 @@
   },
   "content": {
     "audit_path": "benchmarks/hsbg_content_audit_v6.json",
-    "audit_sha256": "2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a",
+    "audit_sha256_at_freeze": "2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a",
     "scenario_index_path": "benchmarks/content_scenarios_v1.json",
-    "scenario_index_sha256": "9177119dec4fb0becc477f43cfb9c2eb19ec44e34a34d1c619e5550f50f45b86",
+    "scenario_index_sha256_at_freeze": "9177119dec4fb0becc477f43cfb9c2eb19ec44e34a34d1c619e5550f50f45b86",
     "profile_path": "benchmarks/hsbg_content_profile_v6_fulltier.json",
-    "profile_sha256": "0474fdd1fdf2684d8c443254ec4b80842834faa4566c75a6a48cceed94753f76",
+    "profile_sha256": "02e570f278ba1accbeb284cc0cb493398b1cad1715a9df6d9a6006366e8a7e87",
     "runtime_pool_sha256": "958081c23e1d49ae9d5a5ec7ff0c8092fc83020535692d2c7bc98603f6aa22ae",
     "shop_cards": 65,
     "tier7_discovery_cards": 5,

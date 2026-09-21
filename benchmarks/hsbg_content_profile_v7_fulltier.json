@@ -1,5 +1,5 @@
 {
-  "behavior_version": 6,
+  "behavior_version": 7,
   "excluded_cards": [
     {
       "classification": "partial",
@@ -178,6 +178,182 @@
       "id": "450",
       "issues": [],
       "symbol": "ZESTY_SHAKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "512",
+      "issues": [],
+      "symbol": "NOMI_KITCHEN_NIGHTMARE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "513",
+      "issues": [],
+      "symbol": "BILE_SPITTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "514",
+      "issues": [],
+      "symbol": "RAZORFEN_VINEWEAVER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "527",
+      "issues": [],
+      "symbol": "COUSIN_ERRGL"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "528",
+      "issues": [],
+      "symbol": "DANCING_BARNSTORMER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "529",
+      "issues": [],
+      "symbol": "DUAL_WIELD_CORSAIR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "530",
+      "issues": [],
+      "symbol": "KANGORS_APPRENTICE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "531",
+      "issues": [],
+      "symbol": "SCRAP_SCRAPER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "532",
+      "issues": [],
+      "symbol": "VIGILANT_BRISTLEMANE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "533",
+      "issues": [],
+      "symbol": "VOID_PUP_TRAINER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "534",
+      "issues": [],
+      "symbol": "DARKCREST_STRATEGIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "535",
+      "issues": [],
+      "symbol": "GLOWSCALE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "536",
+      "issues": [],
+      "symbol": "SHOWY_CYCLIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "537",
+      "issues": [],
+      "symbol": "TRANQUIL_MEDITATIVE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "609",
+      "issues": [],
+      "symbol": "IGNITION_SPECIALIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "610",
+      "issues": [],
+      "symbol": "FAUNA_WHISPERER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "612",
+      "issues": [],
+      "symbol": "FIRE_FORGED_EVOKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "613",
+      "issues": [],
+      "symbol": "SANGUINE_REFINER"
+    },
+    {
+      "classification": "partial",
+      "id": "615",
+      "issues": [
+        "deathrattle_metadata_without_trigger"
+      ],
+      "symbol": "DEATHLY_STRIKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "620",
+      "issues": [],
+      "symbol": "PRIMITIVE_PAINTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "621",
+      "issues": [],
+      "symbol": "MOAT_CUSTODIAN"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "622",
+      "issues": [],
+      "symbol": "UNLEASHED_MANA_SURGE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "623",
+      "issues": [],
+      "symbol": "WARPWING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "624",
+      "issues": [],
+      "symbol": "GROUNDBREAKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "625",
+      "issues": [],
+      "symbol": "TORRENTIAL_RUINER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "703",
+      "issues": [],
+      "symbol": "THE_LAST_ONE_STANDING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "706",
+      "issues": [],
+      "symbol": "OBSIDIAN_RAVAGER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "707",
+      "issues": [],
+      "symbol": "STITCHED_SALVAGER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "709",
+      "issues": [],
+      "symbol": "SEA_WITCH_ZARJIRA"
     }
   ],
   "excluded_spells": [],
@@ -194,6 +370,8 @@
     "S008",
     "S009",
     "S010",
+    "S013",
+    "S015",
     "S999"
   ],
   "included_card_ids": [
@@ -254,6 +432,19 @@
     "416",
     "417",
     "427",
+    "501",
+    "502",
+    "503",
+    "517",
+    "519",
+    "525",
+    "601",
+    "618",
+    "701",
+    "702",
+    "704",
+    "705",
+    "708",
     "t001",
     "t002",
     "t007",
@@ -269,14 +460,17 @@
     "S008",
     "S009",
     "S010",
+    "S013",
+    "S015",
     "S999"
   ],
-  "max_tier": 3,
+  "max_tier": 6,
   "next_tier_discovery_card_ids": [
-    "403",
-    "416",
-    "417",
-    "427"
+    "701",
+    "702",
+    "704",
+    "705",
+    "708"
   ],
   "pool_spell_ids": [
     "S001",
@@ -339,6 +533,18 @@
     "343",
     "344",
     "345",
-    "346"
+    "346",
+    "403",
+    "416",
+    "417",
+    "427",
+    "501",
+    "502",
+    "503",
+    "517",
+    "519",
+    "525",
+    "601",
+    "618"
   ]
 }

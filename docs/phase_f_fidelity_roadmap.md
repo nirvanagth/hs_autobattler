@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `76f31850bf417cc1d70298ffe664ac344150236b2bb69f8cd4fe2e75f541756d`.
+  `e6e708e903a7b1a7a72a30962ee6a3e21c753535be65be9f40f3a8907afab662`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -95,7 +95,7 @@ Progress:
   its frozen platform verifier remain unchanged. Integration tests show that
   Ancestral Automaton and Deflect-o-Bot now trigger through real Tavern play.
   The v6 audit (`benchmarks/hsbg_content_audit_v6.json`, SHA-256
-  `2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a`)
+  `a0d5fe10a17b3d216ed103bc8b360a3b4192f4971323e49b07aa89e053e2657e`)
   admits 53/54 current shop minions; only Waveling remains partial.
 
 - **F0-G verified profile — COMPLETE.** Coin, Banana, Pointy Arrow, Fortify,
@@ -104,7 +104,7 @@ Progress:
   generated tokens, 5 Tavern-pool spells, and all verified generated spells;
   Waveling and every unverified Tier-4 card are explicitly
   excluded. Profile SHA-256:
-  `27d728e2ba17b5e3da46c544d1d1c435ac946ba2d080048e7587fbdb07a93bfb`.
+  `53c488fce380619a1740a3f47bd7e7ce961e4aa986b6c01f2e5227c11d458967`.
   A 1,000-lobby smoke passed exact card conservation, pairing,
   placement, and termination checks at 25.8 games/s with 24.90 average rounds.
 
@@ -136,7 +136,7 @@ Progress:
   Tier 1--6 shop minions, 5 Tier-7 discovery minions, 4 generated tokens, and
   12 unique pool/generated spells.
   Profile SHA-256:
-  `0474fdd1fdf2684d8c443254ec4b80842834faa4566c75a6a48cceed94753f76`.
+  `02e570f278ba1accbeb284cc0cb493398b1cad1715a9df6d9a6006366e8a7e87`.
 - A 1,000-lobby max-tier-6 smoke passed conservation, pairing, complete
   placement, and termination checks at 28.3 games/s with 21.26 average rounds.
 
@@ -145,7 +145,7 @@ rounds and seat win shares from 12.281% to 12.698%. The environment contract,
 content profile, effective runtime pool, and lifecycle result are frozen in
 `benchmarks/hsbg_8p_fulltier_v1.json`. See `docs/f1_fulltier_lobby.md`.
 
-## F2. Curated hero and armor system — NEXT
+## F2. Curated hero and armor system — COMPLETE
 
 Introduce hero identity, armor, passive/active hero powers, targets, cooldowns,
 and once-per-game state. Start with 8--16 heroes chosen to cover distinct
@@ -158,7 +158,15 @@ Gate:
 - seat-swapped mirror tests are symmetric when heroes are exchanged;
 - a full hero matchup matrix has no unexplained dominant or broken policy.
 
-## F3. External trace conformance — PENDING, DATA-DEPENDENT
+Result: eight research-reference heroes cover passive, economy, cooldown,
+once-per-game, board-target, and store-target mechanics. Behavior-v7 adds
+observation/action schema v2 (2,984×35) while preserving older contracts. A
+4,000-lobby rotating-seat matrix passed the declared balance tolerances: mean
+placement spread 0.909, win-rate spread 3.525 points, and extreme pairwise
+score 60.525% / 39.475%. See `docs/f2_hero_system.md` and
+`benchmarks/hsbg_8p_heroes_v1.json`.
+
+## F3. External trace conformance — NEXT, DATA-DEPENDENT
 
 Add a versioned importer for user-provided Power.log/replay traces. Separate
 parsing, state reconstruction, and simulator comparison so private data never

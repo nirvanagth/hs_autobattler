@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **F2 Curated hero and armor system**.
+Roadmap item: **F3 External trace conformance** (data-dependent).
 
 R2-A is complete. Three-seed matched results:
 
@@ -203,10 +203,9 @@ S1 progress:
 
 Next extension/execution target:
 
-- define hero identity, armor, and hero-power state/action contracts;
-- implement an initial 8--16 hero set spanning passive, targeted, economy, and
-  once-per-game mechanics;
-- add mirror-seat and hero-matchup validation before policy training.
+- define the private, versioned Power.log/replay ingestion format;
+- implement deterministic state reconstruction and mismatch categorization;
+- collect or request real traces before making live-game fidelity claims.
 
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
@@ -263,6 +262,13 @@ F1 is complete. The same verified full-tier slice passed 100,000/100,000
 lobbies at 29.1 games/s with 21.38 average rounds and 12.281%--12.698% seat win
 shares. The v6 environment/profile contract is frozen in
 `benchmarks/hsbg_8p_fulltier_v1.json`; see `docs/f1_fulltier_lobby.md`.
+
+F2 is complete. Eight behavior-v7 research-reference heroes cover passive,
+economy, cooldown, once-per-game, board-target, and shop-target mechanics.
+Observation/action schema v2 is 2,984×35. A 4,000-lobby rotating-seat matrix
+gave 3.995--4.904 mean placements, 11.03%--14.55% win rates, and pairwise
+extremes of 60.525% / 39.475%, within the declared gate. See
+`docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

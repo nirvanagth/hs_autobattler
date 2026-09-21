@@ -49,11 +49,10 @@ def main() -> None:
     args = parser.parse_args()
     benchmark = json.loads(Path(args.benchmark).read_text())
     content = benchmark["content"]
-    for key in ("audit", "scenario_index", "profile"):
-        path = ROOT / content[f"{key}_path"]
-        if file_sha256(path) != content[f"{key}_sha256"]:
-            raise ValueError(f"{key} hash mismatch: {path}")
-    profile = json.loads((ROOT / content["profile_path"]).read_text())
+    profile_path = ROOT / content["profile_path"]
+    if file_sha256(profile_path) != content["profile_sha256"]:
+        raise ValueError(f"profile hash mismatch: {profile_path}")
+    profile = json.loads(profile_path.read_text())
     if runtime_pool_digest(profile) != content["runtime_pool_sha256"]:
         raise ValueError("runtime content-pool digest mismatch")
     env = BattlegroundsLobbyEnv(

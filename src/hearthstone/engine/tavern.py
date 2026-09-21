@@ -10,6 +10,9 @@ from .enums import CardIDs, SpellIDs, UnitType
 from .event_system import EntityRef, Event, EventManager, EventType, PosRef, TriggerInstance, Zone
 from .pool import CardPool, SpellPool
 from .spells import SPELL_TRIGGER_REGISTRY, SPELLS_REQUIRE_TARGET
+from .heroes import on_start_turn as hero_start_turn
+from .heroes import on_tavern_upgrade as hero_tavern_upgrade
+from .heroes import use_hero_power
 
 
 class TavernManager:
@@ -56,6 +59,7 @@ class TavernManager:
         player.gold = max_gold + player.gold_next_turn
         player.gold_next_turn = 0
         player.turn_number = turn_number
+        hero_start_turn(player)
 
         if player.up_cost > 0 and turn_number != 1:
             player.up_cost -= 1
@@ -184,8 +188,14 @@ class TavernManager:
 
         next_cost = TIER_UPGRADE_COSTS.get(player.tavern_tier + 1, 0)
         player.up_cost = next_cost
+        hero_tavern_upgrade(player)
 
         return True, f"Upgraded to Tier {player.tavern_tier}"
+
+    def activate_hero_power(
+        self, player: Player, target_index: int = -1
+    ) -> Tuple[bool, str]:
+        return use_hero_power(player, target_index)
 
     def toggle_freeze(self, player: Player) -> Tuple[bool, str]:
         """Freeze/Unfreeze shop"""

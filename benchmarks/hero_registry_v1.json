@@ -1,0 +1,96 @@
+{
+  "heroes": {
+    "BLOOD_BROKER": {
+      "armor": 12,
+      "cooldown": 1,
+      "cost": 0,
+      "name": "Blood Broker",
+      "once_per_game": false,
+      "params": {
+        "coins": 1,
+        "damage": 1
+      },
+      "power_kind": "BLOOD_FOR_COIN",
+      "target": "none"
+    },
+    "BULWARK": {
+      "armor": 25,
+      "cooldown": 0,
+      "cost": 0,
+      "name": "Bulwark",
+      "once_per_game": false,
+      "params": {},
+      "power_kind": "PASSIVE_ARMOR",
+      "target": "none"
+    },
+    "GILDER": {
+      "armor": 7,
+      "cooldown": 0,
+      "cost": 0,
+      "name": "The Gilder",
+      "once_per_game": true,
+      "params": {},
+      "power_kind": "MAKE_GOLDEN",
+      "target": "friendly_board"
+    },
+    "INVESTOR": {
+      "armor": 3,
+      "cooldown": 2,
+      "cost": 1,
+      "name": "Patient Investor",
+      "once_per_game": false,
+      "params": {
+        "gold_next_turn": 2
+      },
+      "power_kind": "BANK_GOLD",
+      "target": "none"
+    },
+    "QUARTERMASTER": {
+      "armor": 16,
+      "cooldown": 0,
+      "cost": 0,
+      "name": "Quartermaster",
+      "once_per_game": false,
+      "params": {},
+      "power_kind": "PASSIVE_FREE_REFRESH",
+      "target": "none"
+    },
+    "SCHOLAR": {
+      "armor": 3,
+      "cooldown": 0,
+      "cost": 0,
+      "name": "Tavern Scholar",
+      "once_per_game": false,
+      "params": {},
+      "power_kind": "PASSIVE_UPGRADE_GOLD",
+      "target": "none"
+    },
+    "SHOP_SMITH": {
+      "armor": 10,
+      "cooldown": 1,
+      "cost": 1,
+      "name": "Shop Smith",
+      "once_per_game": false,
+      "params": {
+        "atk": 2,
+        "hp": 2
+      },
+      "power_kind": "BUFF_STORE",
+      "target": "friendly_store"
+    },
+    "TRAINER": {
+      "armor": 0,
+      "cooldown": 0,
+      "cost": 1,
+      "name": "Battle Trainer",
+      "once_per_game": false,
+      "params": {
+        "atk": 1,
+        "hp": 1
+      },
+      "power_kind": "BUFF_BOARD",
+      "target": "friendly_board"
+    }
+  },
+  "schema_version": 1
+}

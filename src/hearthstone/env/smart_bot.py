@@ -13,6 +13,11 @@ from hearthstone.engine.configs import CARD_DB, TIER_UPGRADE_COSTS
 from hearthstone.engine.entities import Player, Unit
 from hearthstone.engine.enums import CardIDs, SpellIDs, UnitType
 from hearthstone.engine.spells import SPELLS_REQUIRE_TARGET
+from hearthstone.engine.heroes import (
+    HERO_DB,
+    HeroPowerTarget,
+    hero_power_available,
+)
 
 if TYPE_CHECKING:
     from hearthstone.engine.game import Game
@@ -141,6 +146,39 @@ def smart_bot_turn(game: Game, p_idx: int) -> None:
         actions_taken += 1
         if actions_taken > max_actions:
             break
+
+        # --- Hero power ---
+        if hero_power_available(player):
+            hero = HERO_DB[player.hero_id]
+            target_index = -1
+            if hero.target == HeroPowerTarget.FRIENDLY_BOARD:
+                candidates = [
+                    index
+                    for index, unit in enumerate(player.board)
+                    if not (hero.power_kind == "MAKE_GOLDEN" and unit.is_golden)
+                ]
+                target_index = max(
+                    candidates,
+                    key=lambda index: player.board[index].cur_atk
+                    + player.board[index].cur_hp,
+                    default=-1,
+                )
+            elif hero.target == HeroPowerTarget.FRIENDLY_STORE:
+                target_index = max(
+                    (
+                        index
+                        for index, item in enumerate(player.store)
+                        if item.unit is not None
+                    ),
+                    key=lambda index: player.store[index].unit.cur_atk
+                    + player.store[index].unit.cur_hp,
+                    default=-1,
+                )
+            success, _, _ = game.step(
+                p_idx, "HERO_POWER", target_index=target_index
+            )
+            if success:
+                continue
 
         # --- Discovery ---
         if player.is_discovering and player.discovery.options:
