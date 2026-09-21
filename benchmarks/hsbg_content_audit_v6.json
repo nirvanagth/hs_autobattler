@@ -71,6 +71,7 @@
         "DIVINE_SHIELD"
       ],
       "test_reference_files": [
+        "tests/test_behavior_v6.py",
         "tests/test_card_def.py"
       ],
       "tier": 1,
@@ -118,6 +119,7 @@
       "test_reference_files": [
         "tests/test_behavior_v6.py",
         "tests/test_effect_types.py",
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py"
       ],
@@ -560,6 +562,7 @@
       "test_reference_files": [
         "tests/test_cpp_bridge.py",
         "tests/test_effect_types.py",
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_f0_tier1_scenarios.py",
         "tests/test_f0_tier2_scenarios.py",
         "tests/test_f0_tier3_scenarios.py",
@@ -8036,7 +8039,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -8072,11 +8075,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_cord_puller_deathrattle_summons_microbot"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -8106,7 +8111,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_harmless_bonehead_deathrattle_summons_two_skeletons"
+      ]
     },
     {
       "avenge_registered": false,
@@ -8230,7 +8237,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -8255,11 +8262,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier2_scenarios.py::test_sellemental_sell_adds_water_droplet"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -8284,7 +8293,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_cards.py::TestHandlessForsaken::test_summons_hand_token_with_reborn"
+      ]
     },
     {
       "avenge_registered": false,
@@ -8480,7 +8491,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8493,13 +8504,16 @@
       "requires_target": true,
       "symbol": "SLIMY_SHIELD",
       "test_reference_files": [
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_f0_tier2_scenarios.py"
       ],
       "tier": 2,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_slimy_shield_buffs_and_grants_taunt"
+      ]
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_ALL_FRIENDLY",
       "handler_complete": true,
@@ -8512,13 +8526,16 @@
       "requires_target": false,
       "symbol": "BLOOD_GEM_BARRAGE",
       "test_reference_files": [
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_new_t3t4_cards.py"
       ],
       "tier": 3,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+      ]
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8531,10 +8548,13 @@
       "requires_target": true,
       "symbol": "GEM_CONFISCATION",
       "test_reference_files": [
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_new_t3t4_cards.py"
       ],
       "tier": 4,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_gem_confiscation_buffs_target"
+      ]
     },
     {
       "classification": "implemented_unverified",
@@ -8573,7 +8593,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_ALL_FRIENDLY",
       "handler_complete": true,
@@ -8586,10 +8606,13 @@
       "requires_target": false,
       "symbol": "SHINY_RING",
       "test_reference_files": [
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 5,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+      ]
     },
     {
       "classification": "implemented_unverified",
@@ -8611,7 +8634,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_ALL_BY_TYPE",
       "handler_complete": true,
@@ -8624,10 +8647,13 @@
       "requires_target": false,
       "symbol": "MISPLACED_TEA_SET",
       "test_reference_files": [
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 6,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+      ]
     },
     {
       "classification": "implemented_unverified",
@@ -8836,7 +8862,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "DISCOVER_TIER_UP",
       "handler_complete": true,
@@ -8849,22 +8875,26 @@
       "requires_target": false,
       "symbol": "TRIPLET_REWARD",
       "test_reference_files": [
+        "tests/test_behavior_v6.py",
         "tests/test_coverage_gaps.py",
         "tests/test_engine_core.py",
         "tests/test_entities.py",
+        "tests/test_f0_generated_spell_scenarios.py",
         "tests/test_golden_logic.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_generated_spell_scenarios.py::test_triplet_reward_starts_exact_tier_discovery"
+      ]
     }
   ],
   "summary": {
     "cards": 229,
     "cards_with_test_references": 160,
     "classifications": {
-      "implemented_unverified": 149,
+      "implemented_unverified": 139,
       "partial": 6,
-      "verified": 102
+      "verified": 112
     },
     "handler_complete": 251,
     "handler_incomplete": 6,

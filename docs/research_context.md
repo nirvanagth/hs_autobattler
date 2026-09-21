@@ -250,11 +250,13 @@ audit admits 53/54 current shop minions, with only Waveling still partial.
 
 F0-G completes the F0 gate. All five current Tavern-pool spells have explicit
 scenarios. `benchmarks/hsbg_content_profile_v6_tier3.json` admits only verified
-content: 53 shop minions, 4 Tier-4 discovery minions, and 5 spells. A 1,000-game
-v6 profile smoke passed conservation and lifecycle checks at 25.8 games/s.
+content and its generated dependency closure: 53 shop minions, 4 Tier-4
+discovery minions, 4 tokens, and 10 unique spells. A 1,000-game v6 profile
+smoke passed conservation and lifecycle checks at 25.8 games/s.
 
 F1 has started with a narrow verified full-tier slice: 65 Tier 1--6 shop
-minions, 5 Tier-7 discovery minions, and 5 spells. A 1,000-lobby smoke passed
+minions, 5 Tier-7 discovery minions, 4 generated tokens, and 12 unique spells.
+A 1,000-lobby smoke passed
 at 28.3 games/s with 21.26 average rounds. Next run the 100,000-lobby gate and
 freeze the behavior-v6 benchmark before widening content further.
 

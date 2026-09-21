@@ -371,10 +371,28 @@ def build_content_profile(
         if entry["tier"] == max_tier + 1
         and entry["classification"] == "verified"
     ]
-    included_cards = shop_cards + discovery_cards
-    included_spells = [
+    base_card_ids = shop_cards + discovery_cards
+    card_by_id = {entry["id"]: entry for entry in manifest["cards"]}
+    generated_cards = sorted(
+        {
+            dependency["id"]
+            for content_id in base_card_ids
+            for dependency in card_by_id[content_id]["generated_dependencies"]
+            if dependency["kind"] == "card"
+        }
+    )
+    generated_spells = {
+        dependency["id"]
+        for content_id in base_card_ids
+        for dependency in card_by_id[content_id]["generated_dependencies"]
+        if dependency["kind"] == "spell"
+    }
+    generated_spells.add(str(SpellIDs.TRIPLET_REWARD.value))
+    pool_spells = [
         entry["id"] for entry in spells if entry["classification"] == "verified"
     ]
+    included_cards = base_card_ids + generated_cards
+    included_spells = pool_spells + sorted(generated_spells - set(pool_spells))
     validate_content_admission(
         manifest,
         card_ids=included_cards,
@@ -386,7 +404,10 @@ def build_content_profile(
         "max_tier": max_tier,
         "shop_card_ids": shop_cards,
         "next_tier_discovery_card_ids": discovery_cards,
+        "generated_card_ids": generated_cards,
         "included_card_ids": included_cards,
+        "pool_spell_ids": pool_spells,
+        "generated_spell_ids": sorted(generated_spells),
         "included_spell_ids": included_spells,
         "excluded_cards": [
             {

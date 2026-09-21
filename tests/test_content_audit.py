@@ -157,8 +157,11 @@ def test_v6_tier3_profile_admits_all_verified_shop_content() -> None:
     profile = build_content_profile(audited_manifest(6), max_tier=3)
     assert len(profile["shop_card_ids"]) == 53
     assert len(profile["next_tier_discovery_card_ids"]) == 4
-    assert len(profile["included_card_ids"]) == 57
-    assert len(profile["included_spell_ids"]) == 5
+    assert len(profile["generated_card_ids"]) == 4
+    assert len(profile["included_card_ids"]) == 61
+    assert len(profile["pool_spell_ids"]) == 5
+    assert len(profile["generated_spell_ids"]) == 7
+    assert len(profile["included_spell_ids"]) == 10
     assert "WAVELING" in [entry["symbol"] for entry in profile["excluded_cards"]]
     assert not profile["excluded_spells"]
 
@@ -167,7 +170,7 @@ def test_v6_fulltier_profile_has_verified_content_at_every_tier() -> None:
     profile = build_content_profile(audited_manifest(6), max_tier=6)
     assert len(profile["shop_card_ids"]) == 65
     assert len(profile["next_tier_discovery_card_ids"]) == 5
-    assert len(profile["included_spell_ids"]) == 5
+    assert len(profile["included_spell_ids"]) == 12
     by_id = {entry["id"]: entry for entry in audited_manifest(6)["cards"]}
     included_tiers = {by_id[content_id]["tier"] for content_id in profile["shop_card_ids"]}
     assert included_tiers == {1, 2, 3, 4, 5, 6}

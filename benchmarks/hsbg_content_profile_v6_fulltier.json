@@ -357,6 +357,23 @@
     }
   ],
   "excluded_spells": [],
+  "generated_card_ids": [
+    "t001",
+    "t002",
+    "t007",
+    "t008"
+  ],
+  "generated_spell_ids": [
+    "S001",
+    "S003",
+    "S004",
+    "S008",
+    "S009",
+    "S010",
+    "S013",
+    "S015",
+    "S999"
+  ],
   "included_card_ids": [
     "102",
     "103",
@@ -427,14 +444,25 @@
     "702",
     "704",
     "705",
-    "708"
+    "708",
+    "t001",
+    "t002",
+    "t007",
+    "t008"
   ],
   "included_spell_ids": [
     "S001",
     "S002",
     "S004",
     "S005",
-    "S006"
+    "S006",
+    "S003",
+    "S008",
+    "S009",
+    "S010",
+    "S013",
+    "S015",
+    "S999"
   ],
   "max_tier": 6,
   "next_tier_discovery_card_ids": [
@@ -443,6 +471,13 @@
     "704",
     "705",
     "708"
+  ],
+  "pool_spell_ids": [
+    "S001",
+    "S002",
+    "S004",
+    "S005",
+    "S006"
   ],
   "schema_version": 1,
   "shop_card_ids": [
@@ -512,6 +547,6 @@
     "601",
     "618"
   ],
-  "source_manifest_sha256": "4ab369edc333f557a622f72aa8e99106b1f44dc25e1c9f4a678354ece491a00d",
-  "verification_index_sha256": "a775d3315ca42fd8b085fe8223a880aca5989804d7c769b496499ac75b13fa5b"
+  "source_manifest_sha256": "2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a",
+  "verification_index_sha256": "9177119dec4fb0becc477f43cfb9c2eb19ec44e34a34d1c619e5550f50f45b86"
 }

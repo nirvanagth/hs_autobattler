@@ -4,6 +4,18 @@
     "102": [
       "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
     ],
+    "t001": [
+      "tests/test_f0_tier1_scenarios.py::test_cord_puller_deathrattle_summons_microbot"
+    ],
+    "t002": [
+      "tests/test_f0_tier1_scenarios.py::test_harmless_bonehead_deathrattle_summons_two_skeletons"
+    ],
+    "t007": [
+      "tests/test_f0_tier2_scenarios.py::test_sellemental_sell_adds_water_droplet"
+    ],
+    "t008": [
+      "tests/test_new_cards.py::TestHandlessForsaken::test_summons_hand_token_with_reborn"
+    ],
     "303": [
       "tests/test_f0_tier3_scenarios.py::test_annoy_o_module_has_magnetic_taunt_divine_shield"
     ],
@@ -325,12 +337,30 @@
     "S006": [
       "tests/test_coverage_gaps.py::TestAppleSpell::test_apple_buffs_store_units"
     ],
+    "S008": [
+      "tests/test_f0_generated_spell_scenarios.py::test_slimy_shield_buffs_and_grants_taunt"
+    ],
+    "S009": [
+      "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+    ],
+    "S010": [
+      "tests/test_f0_generated_spell_scenarios.py::test_gem_confiscation_buffs_target"
+    ],
+    "S013": [
+      "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+    ],
+    "S015": [
+      "tests/test_f0_generated_spell_scenarios.py::test_generated_board_buff_spells"
+    ],
     "S004": [
       "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
     ],
     "S005": [
       "tests/test_integration.py::TestSpellCasting::test_fortify_grants_taunt",
       "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+    ],
+    "S999": [
+      "tests/test_f0_generated_spell_scenarios.py::test_triplet_reward_starts_exact_tier_discovery"
     ]
   }
 }

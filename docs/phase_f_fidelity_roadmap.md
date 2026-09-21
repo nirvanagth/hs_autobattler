@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `01df027f60d091d207a03952a845ab6723275e60bb800a91a7a2248c5ecd3bca`.
+  `76f31850bf417cc1d70298ffe664ac344150236b2bb69f8cd4fe2e75f541756d`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -95,15 +95,16 @@ Progress:
   its frozen platform verifier remain unchanged. Integration tests show that
   Ancestral Automaton and Deflect-o-Bot now trigger through real Tavern play.
   The v6 audit (`benchmarks/hsbg_content_audit_v6.json`, SHA-256
-  `4ab369edc333f557a622f72aa8e99106b1f44dc25e1c9f4a678354ece491a00d`)
+  `2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a`)
   admits 53/54 current shop minions; only Waveling remains partial.
 
 - **F0-G verified profile — COMPLETE.** Coin, Banana, Pointy Arrow, Fortify,
   and Apple now have explicit spell scenarios. The strict v6 Tier-3 profile
-  contains 53 shop minions, 4 verified Tier-4 triple-discovery minions, and 5
-  Tavern spells; Waveling and every unverified Tier-4 card are explicitly
+  contains 53 shop minions, 4 verified Tier-4 triple-discovery minions, 4
+  generated tokens, 5 Tavern-pool spells, and all verified generated spells;
+  Waveling and every unverified Tier-4 card are explicitly
   excluded. Profile SHA-256:
-  `a940771436d6e9029e6568842dc660993b9c01e846792ed757f47c6e24c9677a`.
+  `27d728e2ba17b5e3da46c544d1d1c435ac946ba2d080048e7587fbdb07a93bfb`.
   A 1,000-lobby smoke passed exact card conservation, pairing,
   placement, and termination checks at 25.8 games/s with 24.90 average rounds.
 
@@ -132,9 +133,10 @@ Progress:
 
 - Existing dedicated scenarios verified six active Tier-5, two Tier-6, and
   five Tier-7 cards. The first strict full-tier vertical slice contains 65
-  Tier 1--6 shop minions, 5 Tier-7 discovery minions, and 5 Tavern spells.
+  Tier 1--6 shop minions, 5 Tier-7 discovery minions, 4 generated tokens, and
+  12 unique pool/generated spells.
   Profile SHA-256:
-  `757a8005f2076302ea546be0d76540b44752a82ba4688f8e9dbf8f3023dc4a92`.
+  `0474fdd1fdf2684d8c443254ec4b80842834faa4566c75a6a48cceed94753f76`.
 - A 1,000-lobby max-tier-6 smoke passed conservation, pairing, complete
   placement, and termination checks at 28.3 games/s with 21.26 average rounds.
 
