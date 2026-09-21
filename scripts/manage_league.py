@@ -39,6 +39,8 @@ def main() -> None:
     record.add_argument("--wins", type=int, required=True)
     record.add_argument("--losses", type=int, required=True)
     record.add_argument("--draws", type=int, default=0)
+    import_report = subparsers.add_parser("import-lobby-report")
+    import_report.add_argument("--report", required=True)
     sample = subparsers.add_parser("sample")
     sample.add_argument("--learner", required=True)
     sample.add_argument("--count", type=int, default=8)
@@ -86,6 +88,10 @@ def main() -> None:
                 draws=args.draws,
             )
             league.save(path)
+        elif args.command == "import-lobby-report":
+            imported = league.import_lobby_report(Path(args.report))
+            league.save(path)
+            print(json.dumps({"imported": imported, "report": args.report}))
         elif args.command == "sample":
             print(json.dumps(league.sample_opponents(args.learner, args.count, seed=args.seed)))
         elif args.command == "bootstrap":

@@ -89,3 +89,21 @@ For paired evaluation, `scripts/make_lobby_league_schedule.py` freezes every
 seed, candidate seat, and seven-opponent lineup before any candidate is tested.
 `evaluate_lobby_league.py --schedule ...` verifies the source-league hash, so
 the parent and all candidates face exactly the same realized lobby contexts.
+
+## Promotion round 1
+
+Three 32,768-step pilot runs started from `ff_s42`. On the common 40-lobby
+selection schedule, mean placements were 2.75, 2.35, and 2.20 for seeds 17,
+42, and 73, versus 4.65 for the parent. Seed 73 was selected before opening the
+holdout schedule.
+
+On 240 disjoint holdout lobbies, `pilot_s73` achieved mean placement 2.804,
+82.9% Top-4, and 30.0% wins. The parent achieved 4.838, 46.3%, and 7.9%.
+Paired placement improvement was +2.033 with a 95% bootstrap interval of
+[+1.771, +2.304]. Pairwise score improved against all six archived opponents;
+the mean improvement was +0.290 and the worst was +0.245. Every opponent had
+273--297 comparisons for each policy.
+
+The guarded promotion gate passed and `pilot_s73` became league main. This is
+the first of three successive promotions required to complete S1. Exact hashes
+and metrics are frozen in `benchmarks/hsbg_league_s1_v1.json`.

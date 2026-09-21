@@ -1,5 +1,6 @@
 """Policy league registry, rating, and PFSP tests."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -158,3 +159,28 @@ def test_save_load_and_artifact_verification(tmp_path: Path) -> None:
     artifact.write_bytes(b"changed")
     with pytest.raises(ValueError, match="hash mismatch"):
         PolicyLeague.load(path)
+
+
+def test_lobby_report_import_is_idempotent(tmp_path: Path) -> None:
+    league = PolicyLeague()
+    for policy_id in ("candidate", "opponent"):
+        artifact = tmp_path / policy_id
+        artifact.write_text(policy_id)
+        league.add_policy(entry(policy_id, artifact))
+    report = tmp_path / "report.json"
+    report.write_text(
+        json.dumps(
+            {
+                "candidate_id": "candidate",
+                "episodes": 2,
+                "schedule_sha256": "schedule",
+                "opponent_outcomes": {
+                    "opponent": {"wins": 3, "losses": 1}
+                },
+            }
+        )
+    )
+    assert league.import_lobby_report(report)
+    assert not league.import_lobby_report(report)
+    assert league.matchups["candidate"]["opponent"].games == 4
+    assert len(league.result_imports) == 1

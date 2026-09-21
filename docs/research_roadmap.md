@@ -139,6 +139,11 @@ and shared-pool mixed-policy evaluator are implemented. A seven-policy local
 population passed a two-lobby execution smoke test. This is infrastructure,
 not a promotion result. See `docs/s1_policy_league.md`.
 
+Promotion 1/3: a three-seed 32,768-step pilot selected `pilot_s73`, which then
+improved paired mean placement by +2.033, 95% CI [+1.771, +2.304], on 240
+disjoint holdout lobbies. It improved against all six archived opponents and
+passed the gate. Two further consecutive promotions are required.
+
 ## Phase M — representation and planning
 
 ### M1. Centralized critic and auxiliary combat tasks — PENDING

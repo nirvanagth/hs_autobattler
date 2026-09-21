@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_league_s1_v1",
+  "frozen_on": "2026-09-20",
+  "parent_policy": {
+    "id": "ff_s42",
+    "sha256": "9d489b98e1c3dd0b1aa6f675fcad16f03934d031a8dce65a6c0988b89807bf81"
+  },
+  "pilot_training": {
+    "timesteps_per_seed": 32768,
+    "seeds": [17, 42, 73],
+    "candidate_sha256": {
+      "17": "e16907872f83b83c1e22d6d2bec961cce5fc0146ec4c0e88a8309ff47696fa9e",
+      "42": "0c92b0ad92ea5fdbb292c7ef5fb4303749000fe0cbdcbf9e42a2c78484502ba5",
+      "73": "30f8fd546f6aa42db17437199b78e6854fcf2bee7295c9df84bce871bcffe63e"
+    }
+  },
+  "selection": {
+    "episodes": 40,
+    "seed_base": 230000,
+    "schedule_sha256": "98940f80a7ee06e11201ec4dce333d8e827171363cfe0c55eb3962b46907a15b",
+    "comparison_sha256": "7ddbd444352079e70861467129d88f4dad7473aec10efedb05f004d4c28c4a90",
+    "selected_seed": 73
+  },
+  "holdout": {
+    "episodes": 240,
+    "seed_base": 240000,
+    "schedule_sha256": "a5dfb6cbdc554da569d4221a8c445cc841217ccf35ff4c564a117990ed4a7195",
+    "parent_report_sha256": "2fb907cca24093f195efc57fdbd9415ad33da831100ef56ccb53a312833deb01",
+    "candidate_report_sha256": "e52deba5752e1debc6cc9eeb680500208bda6bed2fa34a8b79d0488187b324fc",
+    "comparison_sha256": "1fc6ab159562350258a1b929882dee078ddbeab02db9b22f28689f39e2f533fa"
+  },
+  "round_1_result": {
+    "parent_mean_placement": 4.8375,
+    "candidate_mean_placement": 2.8041666666666667,
+    "paired_placement_improvement": 2.033333333333333,
+    "paired_95_ci": [1.7708333333333333, 2.3041666666666667],
+    "parent_top4_rate": 0.4625,
+    "candidate_top4_rate": 0.8291666666666667,
+    "parent_win_rate": 0.07916666666666666,
+    "candidate_win_rate": 0.3,
+    "mean_pairwise_score_improvement": 0.29035132256763463,
+    "worst_holdout_improvement": 0.24542124542124544,
+    "promoted_policy_id": "pilot_s73"
+  }
+}

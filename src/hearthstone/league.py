@@ -73,6 +73,7 @@ class PolicyLeague:
         self.matchups: dict[str, dict[str, MatchupStats]] = {}
         self.main_policy_id: str | None = None
         self.promotion_history: list[dict[str, Any]] = []
+        self.result_imports: list[dict[str, Any]] = []
 
     def add_policy(self, entry: PolicyEntry, *, verify_artifact: bool = True) -> None:
         if entry.policy_id in self.entries:
@@ -162,6 +163,38 @@ class PolicyLeague:
         delta = self.k_factor * math.sqrt(games) * (actual - expected)
         self.ratings[first] += delta
         self.ratings[second] -= delta
+
+    def import_lobby_report(self, path: Path) -> bool:
+        """Import one raw lobby report once and return whether it was new."""
+        digest = file_sha256(path)
+        if any(item["sha256"] == digest for item in self.result_imports):
+            return False
+        report = json.loads(path.read_text())
+        policy_id = report["candidate_id"]
+        if policy_id not in self.entries:
+            raise KeyError(f"report candidate is not registered: {policy_id}")
+        outcomes = report.get("opponent_outcomes", {})
+        if not outcomes:
+            raise ValueError("report has no opponent outcomes")
+        for opponent_id in sorted(outcomes):
+            counts = outcomes[opponent_id]
+            self.record_series(
+                policy_id,
+                opponent_id,
+                wins=int(counts.get("wins", 0)),
+                losses=int(counts.get("losses", 0)),
+                draws=int(counts.get("draws", 0)),
+            )
+        self.result_imports.append(
+            {
+                "path": str(path.resolve()),
+                "sha256": digest,
+                "candidate_id": policy_id,
+                "schedule_sha256": report.get("schedule_sha256"),
+                "episodes": int(report["episodes"]),
+            }
+        )
+        return True
 
     def sample_opponents(
         self,
@@ -324,6 +357,7 @@ class PolicyLeague:
             },
             "main_policy_id": self.main_policy_id,
             "promotion_history": self.promotion_history,
+            "result_imports": self.result_imports,
         }
 
     @classmethod
@@ -346,6 +380,7 @@ class PolicyLeague:
         }
         league.main_policy_id = payload.get("main_policy_id")
         league.promotion_history = list(payload.get("promotion_history", []))
+        league.result_imports = list(payload.get("result_imports", []))
         return league
 
     def save(self, path: Path) -> None:

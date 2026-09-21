@@ -186,13 +186,18 @@ S1 progress:
   completed successfully.
 - paired league evaluation freezes seed, learner seat, and all seven opponent
   IDs in a hash-bound schedule shared by the parent and every candidate.
+- S1 promotion round 1 passed: `pilot_s73` improved holdout mean placement from
+  4.838 to 2.804 over 240 paired lobbies; paired improvement +2.033, 95% CI
+  [+1.771, +2.304]. All six per-opponent score deltas were positive, with
+  +0.245 worst case and +0.290 mean. It is now the league main. See
+  `benchmarks/hsbg_league_s1_v1.json`.
 
 Next extension/execution target:
 
-- run the fixed-budget multi-seed league PPO experiment;
-- freeze selection and disjoint holdout evaluation schedules;
-- archive and evaluate candidates without overwriting history;
-- require three successive gated promotions before completing S1.
+- train the second-generation candidate from `pilot_s73` against the updated
+  PFSP population;
+- repeat frozen selection and disjoint holdout evaluation;
+- require two more successive gated promotions before completing S1.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.
