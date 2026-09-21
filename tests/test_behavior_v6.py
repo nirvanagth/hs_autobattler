@@ -1,8 +1,15 @@
 """Versioned behavior-v6 event semantics without mutating frozen v5."""
 
+import json
+from pathlib import Path
+
 from hearthstone.engine.entities import HandCard, Unit
 from hearthstone.engine.enums import CardIDs
 from hearthstone.engine.game import Game
+from hearthstone.engine.lobby import LobbyGame
+
+
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def play_second_automaton(behavior_version: int):
@@ -50,3 +57,28 @@ def test_v6_play_triggers_deflect_o_bot_for_mech() -> None:
     assert game.step(0, "PLAY", hand_index=0)[0]
     assert deflect.cur_atk == before + 2
     assert deflect.has_divine_shield
+
+
+def test_v6_lobby_profile_excludes_unverified_content() -> None:
+    profile = json.loads(
+        (ROOT / "benchmarks/hsbg_content_profile_v6_tier3.json").read_text()
+    )
+    lobby = LobbyGame(
+        max_tier=3,
+        behavior_version=6,
+        content_profile=profile,
+        seed=31,
+    )
+    allowed_cards = set(profile["included_card_ids"])
+    allowed_spells = set(profile["included_spell_ids"])
+    assert {
+        str(getattr(card_id, "value", card_id))
+        for tier in lobby.pool.tiers.values()
+        for card_id in tier
+    } <= allowed_cards
+    assert {
+        str(getattr(spell_id, "value", spell_id))
+        for tier in lobby.spell_pool.tiers.values()
+        for spell_id in tier
+    } <= allowed_spells
+    assert "335" not in allowed_cards  # Waveling remains partial.

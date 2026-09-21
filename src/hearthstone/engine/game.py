@@ -13,12 +13,30 @@ from .tavern import TavernManager
 
 
 class Game:
-    def __init__(self, max_tier: int = 6, *, behavior_version: int = 5) -> None:
+    def __init__(
+        self,
+        max_tier: int = 6,
+        *,
+        behavior_version: int = 5,
+        content_profile: dict[str, Any] | None = None,
+    ) -> None:
         self.max_tier = max_tier  # tavern tier cap (shops never offer above this)
         self.behavior_version = behavior_version
+        if content_profile is not None:
+            if int(content_profile["behavior_version"]) != behavior_version:
+                raise ValueError("content profile behavior version mismatch")
+            if int(content_profile["max_tier"]) != max_tier:
+                raise ValueError("content profile max tier mismatch")
         # Pool always includes tier 7 for triple-reward discovery (never in shops).
-        self.pool = CardPool(max_tier=7)
-        self.spell_pool = SpellPool()
+        self.content_profile = content_profile
+        card_ids = (
+            set(content_profile["included_card_ids"]) if content_profile else None
+        )
+        spell_ids = (
+            set(content_profile["included_spell_ids"]) if content_profile else None
+        )
+        self.pool = CardPool(max_tier=7, included_card_ids=card_ids)
+        self.spell_pool = SpellPool(included_spell_ids=spell_ids)
         self.event_manager = EventManager(TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY)
         self.tavern = TavernManager(
             self.pool,

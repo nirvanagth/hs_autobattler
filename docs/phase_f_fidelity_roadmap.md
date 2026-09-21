@@ -25,7 +25,7 @@ as a stat-only body when its mechanic is absent, which is more dangerous than
 excluding it: training can exploit silent simulator errors. Content enters the
 active pool only after its mechanics and invariants are declared and tested.
 
-## F0. Executable content and fidelity audit — NEXT
+## F0. Executable content and fidelity audit — COMPLETE
 
 Deliverables:
 
@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `59d6c085f313f8fa44ba75b2c5a6353a50eb5b021dd705edd45e400790e63913`.
+  `a6e34ae00137975b764184279a9ece175824de030aa1ac247b53a8fdcbb5e5ff`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -95,13 +95,23 @@ Progress:
   its frozen platform verifier remain unchanged. Integration tests show that
   Ancestral Automaton and Deflect-o-Bot now trigger through real Tavern play.
   The v6 audit (`benchmarks/hsbg_content_audit_v6.json`, SHA-256
-  `d8ddee603cdd9c55955f40f7fc25ac2281746f2e0849935598730bc564d93071`)
+  `9c4374718c5f19c9feba9dd09ca23007998aa319dac2804b16e15b9a949ec849`)
   admits 53/54 current shop minions; only Waveling remains partial.
 
-Next: verify the five Tier 1--3 Tavern-pool spells and create a v6 profile that
-explicitly excludes Waveling, then run lifecycle stress tests.
+- **F0-G verified profile — COMPLETE.** Coin, Banana, Pointy Arrow, Fortify,
+  and Apple now have explicit spell scenarios. The strict v6 Tier-3 profile
+  contains 53 shop minions, 4 verified Tier-4 triple-discovery minions, and 5
+  Tavern spells; Waveling and every unverified Tier-4 card are explicitly
+  excluded. Profile SHA-256:
+  `165aa11463f2bcd276a71e37928765dce2dc76b0eb5eca587dffa44ecc19d6a4`.
+  A 1,000-lobby smoke passed exact card conservation, pairing,
+  placement, and termination checks at 25.8 games/s with 24.90 average rounds.
 
-## F1. Verified full-tier lobby — PENDING
+F0 gate result: every item admitted by the v6 profile is handler-complete and
+scenario-verified; runtime pools cannot draw excluded content. Proceed to F1 by
+expanding the verified profile through Tier 6, then run the 100,000-lobby gate.
+
+## F1. Verified full-tier lobby — NEXT
 
 Build a Tier-6 vertical slice from verified content only. Add or validate shop
 odds, tier upgrades, triple discoveries, Tier-7 generation, Tavern spells,

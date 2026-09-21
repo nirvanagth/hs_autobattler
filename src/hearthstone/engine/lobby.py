@@ -101,6 +101,7 @@ class LobbyGame:
         damage_cap_active_threshold: int = 4,
         seed: int = 0,
         behavior_version: int = 5,
+        content_profile: dict[str, Any] | None = None,
     ) -> None:
         if not 2 <= num_players <= 8:
             raise ValueError("num_players must be between 2 and 8")
@@ -112,13 +113,25 @@ class LobbyGame:
         self.damage_cap_active_threshold = damage_cap_active_threshold
         self.seed = seed
         self.behavior_version = behavior_version
+        if content_profile is not None:
+            if int(content_profile["behavior_version"]) != behavior_version:
+                raise ValueError("content profile behavior version mismatch")
+            if int(content_profile["max_tier"]) != max_tier:
+                raise ValueError("content profile max tier mismatch")
+        self.content_profile = content_profile
         random.seed(seed)
         self._pair_rng = random.Random(seed ^ 0x8A77_10BB)
 
         # Shops are restricted by ``max_tier``; the pool retains higher tiers
         # so triple discoveries remain representable during later extensions.
-        self.pool = CardPool(max_tier=7)
-        self.spell_pool = SpellPool()
+        card_ids = (
+            set(content_profile["included_card_ids"]) if content_profile else None
+        )
+        spell_ids = (
+            set(content_profile["included_spell_ids"]) if content_profile else None
+        )
+        self.pool = CardPool(max_tier=7, included_card_ids=card_ids)
+        self.spell_pool = SpellPool(included_spell_ids=spell_ids)
         self.event_manager = EventManager(TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY)
         self.tavern = TavernManager(
             self.pool,

@@ -343,3 +343,69 @@ def validate_content_admission(
     if failures:
         raise ValueError("content admission failed: " + "; ".join(failures))
     return {"accepted": accepted, "cards": len(card_ids), "spells": len(spell_ids)}
+
+
+def build_content_profile(
+    manifest: dict[str, Any], *, max_tier: int
+) -> dict[str, Any]:
+    cards = [
+        entry
+        for entry in manifest["cards"]
+        if not entry["is_token"]
+        and not entry["rotated_out"]
+        and entry["tier"] <= min(7, max_tier + 1)
+    ]
+    spells = [
+        entry
+        for entry in manifest["spells"]
+        if entry["in_pool"] and entry["tier"] <= max_tier
+    ]
+    shop_cards = [
+        entry["id"]
+        for entry in cards
+        if entry["tier"] <= max_tier and entry["classification"] == "verified"
+    ]
+    discovery_cards = [
+        entry["id"]
+        for entry in cards
+        if entry["tier"] == max_tier + 1
+        and entry["classification"] == "verified"
+    ]
+    included_cards = shop_cards + discovery_cards
+    included_spells = [
+        entry["id"] for entry in spells if entry["classification"] == "verified"
+    ]
+    validate_content_admission(
+        manifest,
+        card_ids=included_cards,
+        spell_ids=included_spells,
+    )
+    return {
+        "schema_version": 1,
+        "behavior_version": manifest["behavior_version"],
+        "max_tier": max_tier,
+        "shop_card_ids": shop_cards,
+        "next_tier_discovery_card_ids": discovery_cards,
+        "included_card_ids": included_cards,
+        "included_spell_ids": included_spells,
+        "excluded_cards": [
+            {
+                "id": entry["id"],
+                "symbol": entry["symbol"],
+                "classification": entry["classification"],
+                "issues": entry["issues"],
+            }
+            for entry in cards
+            if entry["classification"] != "verified"
+        ],
+        "excluded_spells": [
+            {
+                "id": entry["id"],
+                "symbol": entry["symbol"],
+                "classification": entry["classification"],
+                "issues": entry["issues"],
+            }
+            for entry in spells
+            if entry["classification"] != "verified"
+        ],
+    }

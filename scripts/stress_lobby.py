@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from collections import Counter
@@ -55,8 +56,19 @@ def verify_pairings(lobby: LobbyGame) -> None:
             seen.add(pairing.opponent_id)
 
 
-def run_game(seed: int, max_rounds: int) -> tuple[int, int]:
-    lobby = LobbyGame(seed=seed, max_tier=3)
+def run_game(
+    seed: int,
+    max_rounds: int,
+    *,
+    behavior_version: int = 5,
+    content_profile: dict | None = None,
+) -> tuple[int, int]:
+    lobby = LobbyGame(
+        seed=seed,
+        max_tier=3,
+        behavior_version=behavior_version,
+        content_profile=content_profile,
+    )
     initial_inventory = card_inventory(lobby)
     rounds = 0
     while not lobby.game_over and rounds < max_rounds:
@@ -89,6 +101,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=100_000)
     parser.add_argument("--max-rounds", type=int, default=200)
     parser.add_argument("--log-every", type=int, default=100)
+    parser.add_argument("--behavior-version", type=int, default=5)
+    parser.add_argument("--content-profile")
     return parser.parse_args()
 
 
@@ -97,8 +111,18 @@ def main() -> None:
     t0 = time.time()
     total_rounds = 0
     winners: Counter[int] = Counter()
+    content_profile = (
+        json.loads(Path(args.content_profile).read_text())
+        if args.content_profile
+        else None
+    )
     for index in range(args.games):
-        rounds, winner = run_game(args.seed + index, args.max_rounds)
+        rounds, winner = run_game(
+            args.seed + index,
+            args.max_rounds,
+            behavior_version=args.behavior_version,
+            content_profile=content_profile,
+        )
         total_rounds += rounds
         winners[winner] += 1
         completed = index + 1

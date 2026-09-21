@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **F0 Executable content and fidelity audit**.
+Roadmap item: **F1 Verified full-tier lobby**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -203,11 +203,10 @@ S1 progress:
 
 Next extension/execution target:
 
-- generate the executable content manifest and effect-family coverage report;
-- classify all 229 minion definitions and 28 spells as verified, implemented-
-  unverified, partial, or unsupported;
-- make active-pool construction reject declared but unsupported mechanics;
-- add deterministic scenario fixtures before enabling Tier 4--6 content.
+- expand scenario verification and the strict profile through Tier 6;
+- validate Tier-4--6 upgrades, discoveries, shops, and pool provenance;
+- run the 100,000-lobby full-tier lifecycle gate;
+- freeze behavior-v6 as `hsbg_8p_fulltier_v1` only after those checks pass.
 
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
@@ -248,6 +247,11 @@ F0-F behavior-v6 summon semantics is complete. V6 emits `MINION_SUMMONED` on
 normal play and repairs the real integration path for Ancestral Automaton and
 Deflect-o-Bot; v5 defaults and its frozen verifier remain unchanged. The v6
 audit admits 53/54 current shop minions, with only Waveling still partial.
+
+F0-G completes the F0 gate. All five current Tavern-pool spells have explicit
+scenarios. `benchmarks/hsbg_content_profile_v6_tier3.json` admits only verified
+content: 53 shop minions, 4 Tier-4 discovery minions, and 5 spells. A 1,000-game
+v6 profile smoke passed conservation and lifecycle checks at 25.8 games/s.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

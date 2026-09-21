@@ -8285,7 +8285,7 @@
   "schema_version": 1,
   "spells": [
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 1,
       "effect": "GAIN_GOLD",
       "handler_complete": true,
@@ -8306,10 +8306,12 @@
         "tests/test_rl_env.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_integration.py::TestSpellCasting::test_coin_gives_gold"
+      ]
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 3,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8332,7 +8334,9 @@
         "tests/test_rl_env.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+      ]
     },
     {
       "classification": "verified",
@@ -8359,7 +8363,7 @@
       ]
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 1,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8377,10 +8381,12 @@
         "tests/test_integration.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+      ]
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 1,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8396,7 +8402,10 @@
         "tests/test_integration.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_integration.py::TestSpellCasting::test_fortify_grants_taunt",
+        "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+      ]
     },
     {
       "classification": "verified",
@@ -8823,9 +8832,9 @@
     "cards": 229,
     "cards_with_test_references": 160,
     "classifications": {
-      "implemented_unverified": 166,
+      "implemented_unverified": 162,
       "partial": 6,
-      "verified": 85
+      "verified": 89
     },
     "handler_complete": 251,
     "handler_incomplete": 6,

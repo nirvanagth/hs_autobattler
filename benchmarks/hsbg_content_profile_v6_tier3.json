@@ -1,0 +1,315 @@
+{
+  "behavior_version": 6,
+  "excluded_cards": [
+    {
+      "classification": "partial",
+      "id": "335",
+      "issues": [
+        "deathrattle_metadata_without_trigger"
+      ],
+      "symbol": "WAVELING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "401",
+      "issues": [],
+      "symbol": "ACCORD_O_TRON"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "402",
+      "issues": [],
+      "symbol": "BLADE_COLLECTOR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "404",
+      "issues": [],
+      "symbol": "DEVOUT_HELLCALLER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "405",
+      "issues": [],
+      "symbol": "EN_DJINN_BLAZER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "406",
+      "issues": [],
+      "symbol": "FRIENDLY_GEIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "407",
+      "issues": [],
+      "symbol": "GEOMAGUS_ROOGUG"
+    },
+    {
+      "classification": "partial",
+      "id": "409",
+      "issues": [
+        "unsupported_tags:STEALTH"
+      ],
+      "symbol": "HEROIC_UNDERDOG"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "410",
+      "issues": [],
+      "symbol": "HUMON_GOZZ"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "415",
+      "issues": [],
+      "symbol": "PROSTHETIC_HAND"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "419",
+      "issues": [],
+      "symbol": "SIN_DOREI_STRAIGHT_SHOT"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "420",
+      "issues": [],
+      "symbol": "SLY_RAPTOR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "423",
+      "issues": [],
+      "symbol": "TAVERN_TEMPEST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "428",
+      "issues": [],
+      "symbol": "GUNPOWDER_COURIER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "429",
+      "issues": [],
+      "symbol": "BREAM_COUNTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "435",
+      "issues": [],
+      "symbol": "TORTOLLAN_BLUE_SHELL"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "437",
+      "issues": [],
+      "symbol": "FLAMING_ENFORCER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "439",
+      "issues": [],
+      "symbol": "PERSISTENT_POET"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "440",
+      "issues": [],
+      "symbol": "AUTO_ASSEMBLER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "441",
+      "issues": [],
+      "symbol": "CAPTAIN_COOKIE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "442",
+      "issues": [],
+      "symbol": "CLUNKER_JUNKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "443",
+      "issues": [],
+      "symbol": "DEEPWATER_CHIEFTAIN"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "444",
+      "issues": [],
+      "symbol": "GLOWING_CINDER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "445",
+      "issues": [],
+      "symbol": "MOTLEY_PHALANX"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "446",
+      "issues": [],
+      "symbol": "ABYSSAL_BRUISER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "447",
+      "issues": [],
+      "symbol": "CAGEY_CONJURER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "448",
+      "issues": [],
+      "symbol": "RIMESCALE_PRIESTESS"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "449",
+      "issues": [],
+      "symbol": "SEAFLOOR_RECRUITER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "450",
+      "issues": [],
+      "symbol": "ZESTY_SHAKER"
+    }
+  ],
+  "excluded_spells": [],
+  "included_card_ids": [
+    "102",
+    "103",
+    "104",
+    "106",
+    "107",
+    "111",
+    "113",
+    "114",
+    "115",
+    "116",
+    "119",
+    "121",
+    "122",
+    "123",
+    "124",
+    "202",
+    "205",
+    "207",
+    "208",
+    "209",
+    "212",
+    "214",
+    "215",
+    "219",
+    "220",
+    "222",
+    "223",
+    "224",
+    "225",
+    "226",
+    "227",
+    "228",
+    "229",
+    "303",
+    "304",
+    "305",
+    "307",
+    "309",
+    "317",
+    "324",
+    "325",
+    "328",
+    "333",
+    "337",
+    "338",
+    "339",
+    "340",
+    "341",
+    "342",
+    "343",
+    "344",
+    "345",
+    "346",
+    "403",
+    "416",
+    "417",
+    "427"
+  ],
+  "included_spell_ids": [
+    "S001",
+    "S002",
+    "S004",
+    "S005",
+    "S006"
+  ],
+  "max_tier": 3,
+  "next_tier_discovery_card_ids": [
+    "403",
+    "416",
+    "417",
+    "427"
+  ],
+  "schema_version": 1,
+  "shop_card_ids": [
+    "102",
+    "103",
+    "104",
+    "106",
+    "107",
+    "111",
+    "113",
+    "114",
+    "115",
+    "116",
+    "119",
+    "121",
+    "122",
+    "123",
+    "124",
+    "202",
+    "205",
+    "207",
+    "208",
+    "209",
+    "212",
+    "214",
+    "215",
+    "219",
+    "220",
+    "222",
+    "223",
+    "224",
+    "225",
+    "226",
+    "227",
+    "228",
+    "229",
+    "303",
+    "304",
+    "305",
+    "307",
+    "309",
+    "317",
+    "324",
+    "325",
+    "328",
+    "333",
+    "337",
+    "338",
+    "339",
+    "340",
+    "341",
+    "342",
+    "343",
+    "344",
+    "345",
+    "346"
+  ],
+  "source_manifest_sha256": "9c4374718c5f19c9feba9dd09ca23007998aa319dac2804b16e15b9a949ec849",
+  "verification_index_sha256": "f4dbfb47da2c3ad4ddb8855665e60ae26bdeb2951ee21ef5408c81addfac99e5"
+}

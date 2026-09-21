@@ -6,6 +6,7 @@ import pytest
 
 from hearthstone.engine.content_audit import (
     build_content_manifest,
+    build_content_profile,
     content_manifest_json,
     load_verification_index,
     validate_content_admission,
@@ -150,3 +151,13 @@ def test_v6_resolves_play_as_summon_gaps_and_admits_53_shop_cards() -> None:
         if entry["shop_eligible_tier3"] and not entry["handler_complete"]
     ]
     assert rejected == ["WAVELING"]
+
+
+def test_v6_tier3_profile_admits_all_verified_shop_content() -> None:
+    profile = build_content_profile(audited_manifest(6), max_tier=3)
+    assert len(profile["shop_card_ids"]) == 53
+    assert len(profile["next_tier_discovery_card_ids"]) == 4
+    assert len(profile["included_card_ids"]) == 57
+    assert len(profile["included_spell_ids"]) == 5
+    assert "WAVELING" in [entry["symbol"] for entry in profile["excluded_cards"]]
+    assert not profile["excluded_spells"]

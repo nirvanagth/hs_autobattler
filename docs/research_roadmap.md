@@ -195,7 +195,7 @@ MCTS was not implemented. See `docs/m2_search.md`.
 The next objective is external validity beyond the frozen Tier-3 simulator.
 See `docs/phase_f_fidelity_roadmap.md` for deliverables and gates.
 
-### F0. Executable content and fidelity audit — NEXT
+### F0. Executable content and fidelity audit — COMPLETE
 
 - Machine-readable mechanic/handler/test manifest for every card and spell.
 - Explicit verified/partial/unsupported classifications.
@@ -204,7 +204,12 @@ See `docs/phase_f_fidelity_roadmap.md` for deliverables and gates.
 Gate: every card in a proposed active pool is handler-complete and covered by
 deterministic scenario tests.
 
-### F1. Verified full-tier lobby — PENDING
+Result: all 257 configured entries are audited. A strict behavior-v6 Tier-3
+profile admits 53 shop minions, 4 next-tier discovery minions, and 5 Tavern
+spells; every admitted item is scenario-verified and every exclusion is
+explicit. A 1,000-lobby conservation smoke passed.
+
+### F1. Verified full-tier lobby — NEXT
 
 Gate: behavior-contract v6 plus 100,000 conservation-safe Tier-6 lobbies.
 

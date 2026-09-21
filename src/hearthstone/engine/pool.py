@@ -15,9 +15,14 @@ class CardPool:
     # Pool always includes tier 7: those minions are never sold in shops
     # (tavern caps at 6) but ARE discoverable from triple rewards,
     # mirroring live Battlegrounds.
-    def __init__(self, max_tier: int = 7) -> None:
+    def __init__(
+        self, max_tier: int = 7, *, included_card_ids: set[str] | None = None
+    ) -> None:
         # Структура: {1: ['101', '101'...], 2: ['201', ...]}
         self.max_tier = max_tier
+        self.included_card_ids = (
+            frozenset(included_card_ids) if included_card_ids is not None else None
+        )
         self.tiers: Dict[int, List[str]] = {}
         self._initialize_pool()
 
@@ -28,6 +33,11 @@ class CardPool:
                 self.tiers[t] = []
 
         for card_id, data in CARD_DB.items():
+            if (
+                self.included_card_ids is not None
+                and str(getattr(card_id, "value", card_id)) not in self.included_card_ids
+            ):
+                continue
             if data.get("is_token", False):
                 continue
             if card_id in ROTATED_OUT:
@@ -63,6 +73,11 @@ class CardPool:
     def return_cards(self, card_ids: List[str]) -> None:
         """Возвращает карты обратно в пул (при продаже или реролле)"""
         for cid in card_ids:
+            if (
+                self.included_card_ids is not None
+                and str(getattr(cid, "value", cid)) not in self.included_card_ids
+            ):
+                continue
             if cid in CARD_DB:
                 if CARD_DB[cid].get("is_token", False):
                     continue
@@ -114,12 +129,21 @@ class CardPool:
 
 
 class SpellPool:
-    def __init__(self) -> None:
+    def __init__(self, *, included_spell_ids: set[str] | None = None) -> None:
+        self.included_spell_ids = (
+            frozenset(included_spell_ids) if included_spell_ids is not None else None
+        )
         self.tiers: Dict[int, List[str]] = {}
         self._initialize_pool()
 
     def _initialize_pool(self) -> None:
         for spell_id, data in SPELL_DB.items():
+            if (
+                self.included_spell_ids is not None
+                and str(getattr(spell_id, "value", spell_id))
+                not in self.included_spell_ids
+            ):
+                continue
             if not data.get("pool", True):
                 continue
             tier = data["tier"]

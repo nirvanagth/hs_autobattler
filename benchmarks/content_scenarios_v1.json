@@ -269,12 +269,25 @@
     ]
   },
   "spells": {
+    "S001": [
+      "tests/test_integration.py::TestSpellCasting::test_coin_gives_gold"
+    ],
+    "S002": [
+      "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+    ],
     "S003": [
       "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_default",
       "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_with_mechanic_buff"
     ],
     "S006": [
       "tests/test_coverage_gaps.py::TestAppleSpell::test_apple_buffs_store_units"
+    ],
+    "S004": [
+      "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
+    ],
+    "S005": [
+      "tests/test_integration.py::TestSpellCasting::test_fortify_grants_taunt",
+      "tests/test_integration.py::TestSpellCasting::test_targeted_buff_spells"
     ]
   }
 }
