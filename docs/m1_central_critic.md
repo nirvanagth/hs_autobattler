@@ -1,7 +1,7 @@
 # M1 centralized critic and combat auxiliaries
 
 Date: 2026-09-21
-Status: in progress
+Status: complete; hypotheses not supported
 
 ## Hypotheses
 
