@@ -1,7 +1,7 @@
 # S1 policy league
 
-Date: 2026-09-20
-Status: in progress
+Date: 2026-09-21
+Status: complete
 
 ## Research question
 
@@ -124,3 +124,22 @@ all seven holdouts; mean +0.112 and worst +0.092.
 
 The promotion gate passed and `round2_s142` became main. S1 is now at two of
 three required consecutive promotions.
+
+## Promotion round 3
+
+Three 32,768-step runs started from `round2_s142`. Seed 217 led the 40-lobby
+selection set on the primary mean-placement metric (+0.35 versus the incumbent)
+and was evaluated on a new 240-lobby holdout. Every one of eight archived
+opponents occupied at least 200 seats.
+
+`round3_s217` achieved mean placement 1.917, 96.7% Top-4, and 42.1% wins versus
+2.071, 95.0%, and 41.7% for the incumbent. Paired placement improvement was
++0.154 with 95% CI [-0.008, +0.321], so this last placement gain is marginal,
+not statistically established. The preregistered league gate nevertheless
+passed: mean pairwise score improved +0.0218 and the worst archived-opponent
+change was -0.0100, within the -0.020 regression limit.
+
+This is the third consecutive gated promotion, completing S1. The result also
+shows diminishing returns and a likely ceiling in the current Tier-3 content
+and policy architecture. The next phase should test representation learning,
+not continue indefinite same-configuration PPO generations.

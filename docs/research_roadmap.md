@@ -124,7 +124,7 @@ placement 4.713 versus GRU 4.770, with paired intervals crossing zero. See
 
 ## Phase S — population self-play
 
-### S1. Policy league — IN PROGRESS
+### S1. Policy league — COMPLETE
 
 - Historical checkpoints, ES variants, exploiters, PFSP sampling, and
   Elo/TrueSkill-style ratings.
@@ -149,9 +149,15 @@ holdout lobbies it improved paired mean placement by +0.779, 95% CI [+0.546,
 +1.013], and improved pairwise score against every one of seven archived
 opponents. One further consecutive promotion is required.
 
+Promotion 3/3: `round3_s217` passed the predeclared gate on another 240-lobby
+holdout. Mean pairwise score improved +0.0218 and worst-opponent regression was
+-0.0100. Mean placement improved +0.154, but its 95% CI [-0.008, +0.321]
+crossed zero; this final step is therefore a gate pass, not evidence of a
+statistically clear placement gain. S1 is complete.
+
 ## Phase M — representation and planning
 
-### M1. Centralized critic and auxiliary combat tasks — PENDING
+### M1. Centralized critic and auxiliary combat tasks — IN PROGRESS
 
 - Public-information actor, privileged training-only critic.
 - Combat outcome and expected-damage auxiliary heads.

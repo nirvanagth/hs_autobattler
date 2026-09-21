@@ -56,6 +56,14 @@ def main() -> None:
     promote.add_argument("--min-mean-improvement", type=float, default=0.0)
     promote.add_argument("--max-regression", type=float, default=0.02)
     promote.add_argument("--evidence", default="{}")
+    promote_reports = subparsers.add_parser("promote-reports")
+    promote_reports.add_argument("--candidate-report", required=True)
+    promote_reports.add_argument("--incumbent-report", required=True)
+    promote_reports.add_argument("--min-games", type=int, default=200)
+    promote_reports.add_argument("--min-opponents", type=int, default=3)
+    promote_reports.add_argument("--min-mean-improvement", type=float, default=0.0)
+    promote_reports.add_argument("--max-regression", type=float, default=0.02)
+    promote_reports.add_argument("--evidence", default="{}")
     subparsers.add_parser("status")
     args = parser.parse_args()
     path = Path(args.league)
@@ -101,6 +109,17 @@ def main() -> None:
             league.promote(
                 args.id,
                 args.holdout,
+                json.loads(args.evidence),
+                min_games=args.min_games,
+                min_opponents=args.min_opponents,
+                min_mean_improvement=args.min_mean_improvement,
+                max_regression=args.max_regression,
+            )
+            league.save(path)
+        elif args.command == "promote-reports":
+            league.promote_from_reports(
+                Path(args.candidate_report),
+                Path(args.incumbent_report),
                 json.loads(args.evidence),
                 min_games=args.min_games,
                 min_opponents=args.min_opponents,

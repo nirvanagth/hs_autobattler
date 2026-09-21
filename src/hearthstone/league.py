@@ -318,6 +318,133 @@ class PolicyLeague:
             reasons=tuple(reasons),
         )
 
+    def evaluate_report_promotion(
+        self,
+        candidate_report_path: Path,
+        incumbent_report_path: Path,
+        *,
+        min_games: int = 200,
+        min_opponents: int = 3,
+        min_mean_improvement: float = 0.0,
+        max_regression: float = 0.02,
+    ) -> PromotionDecision:
+        """Evaluate only one matched holdout batch, never cumulative history."""
+        candidate_report = json.loads(candidate_report_path.read_text())
+        incumbent_report = json.loads(incumbent_report_path.read_text())
+        candidate_id = candidate_report["candidate_id"]
+        incumbent_id = incumbent_report["candidate_id"]
+        if self.main_policy_id != incumbent_id:
+            raise ValueError(
+                f"incumbent report is for {incumbent_id}, main is {self.main_policy_id}"
+            )
+        if candidate_id not in self.entries:
+            raise KeyError(candidate_id)
+        candidate_schedule = candidate_report.get("schedule_sha256")
+        incumbent_schedule = incumbent_report.get("schedule_sha256")
+        if not candidate_schedule or candidate_schedule != incumbent_schedule:
+            raise ValueError("promotion reports must share one frozen schedule")
+
+        candidate_outcomes = candidate_report.get("opponent_outcomes", {})
+        incumbent_outcomes = incumbent_report.get("opponent_outcomes", {})
+        holdout_ids = tuple(sorted(set(candidate_outcomes) & set(incumbent_outcomes)))
+        reasons: list[str] = []
+        comparisons: list[dict[str, Any]] = []
+        if len(holdout_ids) < min_opponents:
+            reasons.append(
+                f"need at least {min_opponents} independent holdouts; got {len(holdout_ids)}"
+            )
+        for opponent_id in holdout_ids:
+            candidate_counts = candidate_outcomes[opponent_id]
+            incumbent_counts = incumbent_outcomes[opponent_id]
+            candidate_games = sum(
+                int(candidate_counts.get(key, 0)) for key in ("wins", "losses", "draws")
+            )
+            incumbent_games = sum(
+                int(incumbent_counts.get(key, 0)) for key in ("wins", "losses", "draws")
+            )
+            candidate_score = (
+                int(candidate_counts.get("wins", 0))
+                + 0.5 * int(candidate_counts.get("draws", 0))
+            ) / candidate_games
+            incumbent_score = (
+                int(incumbent_counts.get("wins", 0))
+                + 0.5 * int(incumbent_counts.get("draws", 0))
+            ) / incumbent_games
+            improvement = candidate_score - incumbent_score
+            comparisons.append(
+                {
+                    "opponent_id": opponent_id,
+                    "candidate_games": candidate_games,
+                    "incumbent_games": incumbent_games,
+                    "candidate_score_rate": candidate_score,
+                    "incumbent_score_rate": incumbent_score,
+                    "improvement": improvement,
+                }
+            )
+            if candidate_games < min_games or incumbent_games < min_games:
+                reasons.append(
+                    f"{opponent_id} needs {min_games} games for both policies; "
+                    f"got candidate={candidate_games}, incumbent={incumbent_games}"
+                )
+        missing = sorted(set(candidate_outcomes) ^ set(incumbent_outcomes))
+        if missing:
+            reasons.append(f"reports have different holdouts: {missing}")
+        improvements = [row["improvement"] for row in comparisons]
+        mean_improvement = (
+            float(sum(improvements) / len(improvements)) if improvements else None
+        )
+        worst_improvement = min(improvements) if improvements else None
+        if mean_improvement is None or mean_improvement <= min_mean_improvement:
+            reasons.append(
+                f"mean improvement must exceed {min_mean_improvement:.4f}; "
+                f"got {mean_improvement}"
+            )
+        if worst_improvement is None or worst_improvement < -max_regression:
+            reasons.append(
+                f"worst holdout regression must be >= {-max_regression:.4f}; "
+                f"got {worst_improvement}"
+            )
+        return PromotionDecision(
+            eligible=not reasons,
+            candidate_id=candidate_id,
+            incumbent_id=incumbent_id,
+            holdout_ids=holdout_ids,
+            min_games=min_games,
+            min_opponents=min_opponents,
+            min_mean_improvement=min_mean_improvement,
+            max_regression=max_regression,
+            mean_improvement=mean_improvement,
+            worst_improvement=worst_improvement,
+            comparisons=tuple(comparisons),
+            reasons=tuple(reasons),
+        )
+
+    def promote_from_reports(
+        self,
+        candidate_report_path: Path,
+        incumbent_report_path: Path,
+        evidence: dict[str, Any],
+        **gate_kwargs: Any,
+    ) -> PromotionDecision:
+        decision = self.evaluate_report_promotion(
+            candidate_report_path, incumbent_report_path, **gate_kwargs
+        )
+        if not decision.eligible:
+            raise ValueError("promotion gate failed: " + "; ".join(decision.reasons))
+        self.import_lobby_report(incumbent_report_path)
+        self.import_lobby_report(candidate_report_path)
+        self._set_main(
+            decision.candidate_id,
+            {
+                "bootstrap": False,
+                "gate": decision.metadata(),
+                "candidate_report_sha256": file_sha256(candidate_report_path),
+                "incumbent_report_sha256": file_sha256(incumbent_report_path),
+                **evidence,
+            },
+        )
+        return decision
+
     def promote(
         self,
         policy_id: str,

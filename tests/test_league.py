@@ -184,3 +184,37 @@ def test_lobby_report_import_is_idempotent(tmp_path: Path) -> None:
     assert not league.import_lobby_report(report)
     assert league.matchups["candidate"]["opponent"].games == 4
     assert len(league.result_imports) == 1
+
+
+def test_report_promotion_uses_only_matched_batch(tmp_path: Path) -> None:
+    league = PolicyLeague()
+    policy_ids = ("incumbent", "candidate", "h1", "h2", "h3")
+    for policy_id in policy_ids:
+        artifact = tmp_path / policy_id
+        artifact.write_text(policy_id)
+        league.add_policy(entry(policy_id, artifact))
+    league.bootstrap_main("incumbent", {})
+
+    def write_report(policy_id, wins, name):
+        report_path = tmp_path / name
+        report_path.write_text(
+            json.dumps(
+                {
+                    "candidate_id": policy_id,
+                    "episodes": 200,
+                    "schedule_sha256": "matched",
+                    "opponent_outcomes": {
+                        holdout: {"wins": wins, "losses": 200 - wins}
+                        for holdout in ("h1", "h2", "h3")
+                    },
+                }
+            )
+        )
+        return report_path
+
+    incumbent = write_report("incumbent", 100, "incumbent.json")
+    candidate = write_report("candidate", 110, "candidate.json")
+    decision = league.promote_from_reports(candidate, incumbent, {})
+    assert decision.eligible
+    assert decision.mean_improvement == pytest.approx(0.05)
+    assert league.main_policy_id == "candidate"

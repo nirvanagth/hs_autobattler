@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **S1 Policy league**.
+Roadmap item: **M1 Centralized critic and auxiliary combat tasks**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -195,13 +195,19 @@ S1 progress:
   from 2.712 to 1.933 on 240 new paired lobbies; improvement +0.779, 95% CI
   [+0.546, +1.013]. Its worst of seven archived-opponent score deltas was
   +0.092. It is now the league main.
+- S1 promotion round 3 passed the predeclared league gate: `round3_s217`
+  improved mean pairwise score by +0.0218 with a worst holdout change of
+  -0.0100. Mean placement improved from 2.071 to 1.917, but the paired 95% CI
+  [-0.008, +0.321] crossed zero. Treat this as a guarded promotion and evidence
+  of diminishing returns, not as a statistically clear placement gain.
 
 Next extension/execution target:
 
-- train the third-generation candidate from `round2_s142` against the updated
-  PFSP population;
-- repeat frozen selection and disjoint holdout evaluation;
-- require one more gated promotion before completing S1.
+- add a training-only centralized critic that can see full lobby state while
+  keeping the deployed actor restricted to public observations;
+- add combat outcome and expected-damage auxiliary heads;
+- run matched ablations against the current `round3_s217` main and the prior
+  oracle-reward approach.
 
 Do not begin the eight-player environment phase until R2 results have been
 recorded and the benchmark freeze task R3 is complete.

@@ -2,6 +2,7 @@
   "schema_version": 1,
   "benchmark_name": "hsbg_league_s1_v1",
   "frozen_on": "2026-09-20",
+  "final_league_sha256": "7ebe3b804a749d0ab24ce88eb2fd3ec7efe7d24ad77c2282f99d230a304e4476",
   "parent_policy": {
     "id": "ff_s42",
     "sha256": "9d489b98e1c3dd0b1aa6f675fcad16f03934d031a8dce65a6c0988b89807bf81"
@@ -69,5 +70,33 @@
     "mean_pairwise_score_improvement": 0.1122961867446896,
     "worst_holdout_improvement": 0.09160725670897818,
     "promoted_policy_id": "round2_s142"
+  },
+  "round_3": {
+    "parent_policy_id": "round2_s142",
+    "timesteps_per_seed": 32768,
+    "seeds": [217, 242, 273],
+    "candidate_sha256": {
+      "217": "4b7f5ec504b47e6bd9a18cdeb4bd2c2a3255e9913b7c3b2fa733a030a1d193b3",
+      "242": "c978488d4e73f7151d0c442d56263d097bb348ec6ebde2cb17cff88be4811139",
+      "273": "3af4a94ba8b1dc1b82fc4aae061c496514b175e32cdade797c438b5c6b21c524"
+    },
+    "selection_schedule_sha256": "9ddc570fb71f3d60a383051f5a55f96c5b1a7e6a505a807fa8606ea7c42b7746",
+    "selected_seed": 217,
+    "holdout_schedule_sha256": "c2234f6947f620aeaa8fcd748af923f8a585cc13b10c7f72d535a6c3dc909222",
+    "parent_report_sha256": "2fdbd38db0ca9cfab653c4acd90be8c970f8d051b8c183ddb51717a3a511ffe2",
+    "candidate_report_sha256": "25a8e791c3d8ae60f3f1c058f59e9103a24d0d3f7eeff58d4dd4c28feb05257f",
+    "comparison_sha256": "65090d9e6f2676043c4c680b99040a62e3187a875084b332de742fea02fb63ee",
+    "parent_mean_placement": 2.0708333333333333,
+    "candidate_mean_placement": 1.9166666666666667,
+    "paired_placement_improvement": 0.15416666666666667,
+    "paired_95_ci": [-0.008333333333333333, 0.32083333333333336],
+    "parent_top4_rate": 0.95,
+    "candidate_top4_rate": 0.9666666666666667,
+    "parent_win_rate": 0.4166666666666667,
+    "candidate_win_rate": 0.42083333333333334,
+    "mean_pairwise_score_improvement": 0.02178710598271029,
+    "worst_holdout_improvement": -0.00995024875621886,
+    "promoted_policy_id": "round3_s217",
+    "interpretation": "passed preregistered league gate; placement CI overlaps zero"
   }
 }
