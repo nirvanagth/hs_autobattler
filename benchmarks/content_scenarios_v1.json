@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "cards": {
+    "102": [
+      "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
+    ],
+    "321": [
+      "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_buffs_undead_on_board_on_death",
+      "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_does_not_buff_non_undead"
+    ],
+    "324": [
+      "tests/test_new_t3t4_cards.py::TestBriarbackDrummer::test_adds_barrage_spell"
+    ],
+    "332": [
+      "tests/test_new_t3t4_cards.py::TestTheGladIator::test_enemy_spell_does_not_buff",
+      "tests/test_new_t3t4_cards.py::TestTheGladIator::test_gains_atk_on_spell_cast"
+    ],
+    "417": [
+      "tests/test_new_t3t4_cards.py::TestRefreshingAnomaly::test_grants_two_free_refreshes"
+    ]
+  },
+  "spells": {
+    "S003": [
+      "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_default",
+      "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_with_mechanic_buff"
+    ],
+    "S006": [
+      "tests/test_coverage_gaps.py::TestAppleSpell::test_apple_buffs_store_units"
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import ast
 import json
 import re
 from collections import Counter, defaultdict
@@ -19,6 +20,7 @@ from .spells import EFFECT_FACTORIES, SPELLS_REQUIRE_TARGET, SPELL_TRIGGER_REGIS
 
 
 CONTENT_AUDIT_SCHEMA_VERSION = 1
+VERIFICATION_INDEX_SCHEMA_VERSION = 1
 
 # Properties alone do not implement Stealth targeting semantics in combat.
 SUPPORTED_GENERIC_TAGS = {
@@ -59,6 +61,48 @@ def scan_test_references(test_root: Path) -> dict[tuple[str, str], list[str]]:
         for symbol in re.findall(r"SpellIDs\.([A-Z][A-Z0-9_]*)", source):
             references[("spell", symbol)].add(relative)
     return {key: sorted(paths) for key, paths in references.items()}
+
+
+def _collected_test_nodes(path: Path, relative: str) -> set[str]:
+    tree = ast.parse(path.read_text(), filename=str(path))
+    nodes = set()
+    for item in tree.body:
+        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name.startswith(
+            "test_"
+        ):
+            nodes.add(f"{relative}::{item.name}")
+        if isinstance(item, ast.ClassDef):
+            for child in item.body:
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith(
+                    "test_"
+                ):
+                    nodes.add(f"{relative}::{item.name}::{child.name}")
+    return nodes
+
+
+def load_verification_index(
+    path: Path, *, test_root: Path
+) -> dict[tuple[str, str], list[str]]:
+    payload = json.loads(path.read_text())
+    if payload.get("schema_version") != VERIFICATION_INDEX_SCHEMA_VERSION:
+        raise ValueError("unsupported content verification index schema")
+    known_ids = {"card": set(CARD_DB), "spell": set(SPELL_DB)}
+    available_nodes = set()
+    for test_path in sorted(test_root.glob("test_*.py")):
+        relative = test_path.relative_to(test_root.parent).as_posix()
+        available_nodes.update(_collected_test_nodes(test_path, relative))
+    result = {}
+    for plural, kind in (("cards", "card"), ("spells", "spell")):
+        for content_id, nodes in payload.get(plural, {}).items():
+            if content_id not in known_ids[kind]:
+                raise ValueError(f"unknown verified {kind}: {content_id}")
+            if not nodes:
+                raise ValueError(f"verified {kind} has no scenario tests: {content_id}")
+            missing = sorted(set(nodes) - available_nodes)
+            if missing:
+                raise ValueError(f"missing scenario test nodes for {content_id}: {missing}")
+            result[(kind, content_id)] = sorted(set(nodes))
+    return result
 
 
 def _recognized_effect_classes() -> set[str]:
@@ -249,3 +293,36 @@ def build_content_manifest(
 
 def content_manifest_json(manifest: dict[str, Any]) -> str:
     return json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+
+
+def validate_content_admission(
+    manifest: dict[str, Any],
+    *,
+    card_ids: list[str],
+    spell_ids: list[str],
+    require_verified: bool = True,
+) -> dict[str, int]:
+    entries = {
+        (entry["kind"], entry["id"]): entry
+        for entry in manifest["cards"] + manifest["spells"]
+    }
+    failures = []
+    accepted = 0
+    for kind, content_ids in (("card", card_ids), ("spell", spell_ids)):
+        for content_id in content_ids:
+            entry = entries.get((kind, content_id))
+            if entry is None:
+                failures.append(f"unknown_{kind}:{content_id}")
+                continue
+            if not entry["handler_complete"]:
+                failures.append(
+                    f"incomplete_{kind}:{content_id}:{','.join(entry['issues'])}"
+                )
+                continue
+            if require_verified and entry["classification"] != "verified":
+                failures.append(f"unverified_{kind}:{content_id}")
+                continue
+            accepted += 1
+    if failures:
+        raise ValueError("content admission failed: " + "; ".join(failures))
+    return {"accepted": accepted, "cards": len(card_ids), "spells": len(spell_ids)}

@@ -10,15 +10,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from hearthstone.engine.content_audit import build_content_manifest, content_manifest_json
+from hearthstone.engine.content_audit import (
+    build_content_manifest,
+    content_manifest_json,
+    load_verification_index,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tests", default=str(ROOT / "tests"))
+    parser.add_argument(
+        "--verification-index",
+        default=str(ROOT / "benchmarks/content_scenarios_v1.json"),
+    )
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
-    manifest = build_content_manifest(test_root=Path(args.tests))
+    test_root = Path(args.tests)
+    verified = load_verification_index(
+        Path(args.verification_index), test_root=test_root
+    )
+    manifest = build_content_manifest(
+        test_root=test_root, verified_scenarios=verified
+    )
     encoded = content_manifest_json(manifest)
     output = Path(args.out)
     output.parent.mkdir(parents=True, exist_ok=True)

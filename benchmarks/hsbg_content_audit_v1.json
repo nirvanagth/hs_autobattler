@@ -48,7 +48,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryMakeGolden"
       ],
@@ -81,7 +81,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
+      ]
     },
     {
       "avenge_registered": false,
@@ -2670,7 +2672,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleBuffFriendlyTypeGlobal"
       ],
@@ -2701,7 +2703,10 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_buffs_undead_on_board_on_death",
+        "tests/test_new_t3t4_cards.py::TestAnubarakNerubianKing::test_does_not_buff_non_undead"
+      ]
     },
     {
       "avenge_registered": false,
@@ -2779,7 +2784,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell"
       ],
@@ -2816,7 +2821,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestBriarbackDrummer::test_adds_barrage_spell"
+      ]
     },
     {
       "avenge_registered": false,
@@ -3071,7 +3078,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastBuffSelf"
       ],
@@ -3102,7 +3109,10 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestTheGladIator::test_enemy_spell_does_not_buff",
+        "tests/test_new_t3t4_cards.py::TestTheGladIator::test_gains_atk_on_spell_cast"
+      ]
     },
     {
       "avenge_registered": false,
@@ -4138,7 +4148,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryGainFreeRefreshes"
       ],
@@ -4169,7 +4179,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_new_t3t4_cards.py::TestRefreshingAnomaly::test_grants_two_free_refreshes"
+      ]
     },
     {
       "avenge_registered": false,
@@ -8064,7 +8076,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 0,
       "effect": "BUFF_MINION",
       "handler_complete": true,
@@ -8081,7 +8093,10 @@
         "tests/test_new_cards.py"
       ],
       "tier": 0,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_default",
+        "tests/test_coverage_gaps.py::TestBloodGemSpell::test_blood_gem_with_mechanic_buff"
+      ]
     },
     {
       "classification": "implemented_unverified",
@@ -8123,7 +8138,7 @@
       "verified_scenarios": []
     },
     {
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "cost": 1,
       "effect": "BUFF_TAVERN",
       "handler_complete": true,
@@ -8139,7 +8154,9 @@
         "tests/test_coverage_gaps.py"
       ],
       "tier": 1,
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_coverage_gaps.py::TestAppleSpell::test_apple_buffs_store_units"
+      ]
     },
     {
       "classification": "implemented_unverified",
@@ -8541,8 +8558,9 @@
     "cards": 229,
     "cards_with_test_references": 134,
     "classifications": {
-      "implemented_unverified": 251,
-      "partial": 6
+      "implemented_unverified": 244,
+      "partial": 6,
+      "verified": 7
     },
     "handler_complete": 251,
     "handler_incomplete": 6,

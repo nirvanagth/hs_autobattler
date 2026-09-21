@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `bd3522293a9195941de7ac5f65ee7af5a7593a8dca425b01f73a193aa962cb6a`.
+  `2bacc45b66535f0e2bf4c8bb2e4334eef06f3658d7832440d0e75f0626519c6c`.
 - The audit found six inconsistencies. Active Tier-3 Waveling has Deathrattle
   metadata without a death trigger; rotated Wheeled Crewmate has a no-op effect;
   Heroic Underdog lacks Stealth targeting semantics; Gentle Djinni and
@@ -66,8 +66,16 @@ Progress:
   scenario-verified: 251 entries remain conservatively
   classified `implemented_unverified` until dedicated scenario IDs are indexed.
 
-Next: add the explicit scenario-verification index and behavior-v6 active-pool
-admission validator; then resolve all six partial definitions before Tier-6.
+- **F0-B verification/admission — COMPLETE.** The tracked
+  `benchmarks/content_scenarios_v1.json` maps content IDs to exact pytest node
+  IDs; loading fails on unknown content or missing test nodes. The first five
+  minions and two spells are now explicitly verified. The admission API rejects
+  both handler-incomplete content and handler-complete content lacking scenario
+  verification. The manifest currently reports 7 verified, 244 implemented-
+  unverified, and 6 partial entries.
+
+Next: resolve the six partial definitions under behavior-v6 and expand scenario
+coverage by mechanic family, starting with the Tier 1--4 reachable set.
 
 ## F1. Verified full-tier lobby — PENDING
 
