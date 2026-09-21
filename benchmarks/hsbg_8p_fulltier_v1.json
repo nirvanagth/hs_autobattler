@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "benchmark_name": "hsbg_8p_fulltier_v1",
+  "frozen_on": "2026-09-21",
+  "environment_contract": {
+    "name": "hsbg_8p_fulltier_research",
+    "behavior_version": 6,
+    "observation_schema_version": 1,
+    "action_schema_version": 1,
+    "observation_size": 2958,
+    "action_count": 34,
+    "num_players": 8,
+    "max_tier": 6,
+    "content_profile_sha256": "5fcd20643ee1154aa87e5984e5ac93b254164bf5c839175fa3acb18ed3603a45",
+    "base_engine_contract": {
+      "name": "hsbg_1v1_research",
+      "behavior_version": 6,
+      "observation_schema_version": 1,
+      "action_schema_version": 1,
+      "observation_size": 1036,
+      "entity_features": 38,
+      "action_count": 34,
+      "max_tier": 6,
+      "card_vocab_scheme": "stable_v1",
+      "card_vocab_hash": "3d23761f068035bdcf0ca5690275ba5334c34ad28478151666b8ef6a78c3cfd2",
+      "card_pool_digest": "58bf222f245ef7d5d8b1b9e4efeca855a74ea6a4b9b7c4689da3d032a4e75fae"
+    }
+  },
+  "content": {
+    "audit_path": "benchmarks/hsbg_content_audit_v6.json",
+    "audit_sha256": "2f52d20837aa54ad101c193c5e5e49de7b86c0c5072f82a60a0815f592dcff8a",
+    "scenario_index_path": "benchmarks/content_scenarios_v1.json",
+    "scenario_index_sha256": "9177119dec4fb0becc477f43cfb9c2eb19ec44e34a34d1c619e5550f50f45b86",
+    "profile_path": "benchmarks/hsbg_content_profile_v6_fulltier.json",
+    "profile_sha256": "0474fdd1fdf2684d8c443254ec4b80842834faa4566c75a6a48cceed94753f76",
+    "runtime_pool_sha256": "958081c23e1d49ae9d5a5ec7ff0c8092fc83020535692d2c7bc98603f6aa22ae",
+    "shop_cards": 65,
+    "tier7_discovery_cards": 5,
+    "generated_tokens": 4,
+    "unique_pool_and_generated_spells": 12
+  },
+  "lifecycle_gate": {
+    "games": 100000,
+    "seed_base": 700000,
+    "max_rounds": 200,
+    "average_rounds": 21.38,
+    "games_per_second": 29.1,
+    "winner_counts": {
+      "0": 12684,
+      "1": 12557,
+      "2": 12428,
+      "3": 12294,
+      "4": 12494,
+      "5": 12698,
+      "6": 12281,
+      "7": 12564
+    },
+    "min_seat_win_rate": 0.12281,
+    "max_seat_win_rate": 0.12698,
+    "status": "passed"
+  },
+  "gate_execution_note": {
+    "profile_sha256_at_start": "757a8005f2076302ea546be0d76540b44752a82ba4688f8e9dbf8f3023dc4a92",
+    "current_profile_adds_only_generated_dependency_metadata": true,
+    "runtime_pool_digest_equal": true
+  }
+}

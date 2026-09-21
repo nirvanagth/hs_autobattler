@@ -104,6 +104,20 @@ def test_v6_lobby_environment_contract_hashes_content_profile() -> None:
     assert len(first.lobby_environment_contract["content_profile_sha256"]) == 64
 
 
+def test_v6_fulltier_contract_has_distinct_name_and_tier() -> None:
+    profile = json.loads(
+        (ROOT / "benchmarks/hsbg_content_profile_v6_fulltier.json").read_text()
+    )
+    env = BattlegroundsLobbyEnv(
+        max_tier=6,
+        behavior_version=6,
+        content_profile=profile,
+    )
+    assert env.lobby_environment_contract["name"] == "hsbg_8p_fulltier_research"
+    assert env.lobby_environment_contract["max_tier"] == 6
+    assert env.environment_contract["behavior_version"] == 6
+
+
 def test_v6_fulltier_profile_supports_tier7_triple_discovery() -> None:
     profile = json.loads(
         (ROOT / "benchmarks/hsbg_content_profile_v6_fulltier.json").read_text()

@@ -112,7 +112,7 @@ F0 gate result: every item admitted by the v6 profile is handler-complete and
 scenario-verified; runtime pools cannot draw excluded content. Proceed to F1 by
 expanding the verified profile through Tier 6, then run the 100,000-lobby gate.
 
-## F1. Verified full-tier lobby — NEXT
+## F1. Verified full-tier lobby — COMPLETE
 
 Build a Tier-6 vertical slice from verified content only. Add or validate shop
 odds, tier upgrades, triple discoveries, Tier-7 generation, Tavern spells,
@@ -140,11 +140,12 @@ Progress:
 - A 1,000-lobby max-tier-6 smoke passed conservation, pairing, complete
   placement, and termination checks at 28.3 games/s with 21.26 average rounds.
 
-Next: run the 100,000-lobby lifecycle gate, then freeze the v6 environment and
-profile contracts. Broaden high-tier content only in separately verified
-batches.
+Result: 100,000/100,000 lobbies passed at 29.1 games/s with 21.38 average
+rounds and seat win shares from 12.281% to 12.698%. The environment contract,
+content profile, effective runtime pool, and lifecycle result are frozen in
+`benchmarks/hsbg_8p_fulltier_v1.json`. See `docs/f1_fulltier_lobby.md`.
 
-## F2. Curated hero and armor system — PENDING
+## F2. Curated hero and armor system — NEXT
 
 Introduce hero identity, armor, passive/active hero powers, targets, cooldowns,
 and once-per-game state. Start with 8--16 heroes chosen to cover distinct

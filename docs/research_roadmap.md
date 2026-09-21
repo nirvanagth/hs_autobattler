@@ -209,11 +209,15 @@ profile admits 53 shop minions, 4 next-tier discovery minions, and 5 Tavern
 spells; every admitted item is scenario-verified and every exclusion is
 explicit. A 1,000-lobby conservation smoke passed.
 
-### F1. Verified full-tier lobby — NEXT
+### F1. Verified full-tier lobby — COMPLETE
 
 Gate: behavior-contract v6 plus 100,000 conservation-safe Tier-6 lobbies.
 
-### F2. Curated hero and armor system — PENDING
+Result: the verified full-tier profile passed 100,000 lobbies at 29.1 games/s,
+21.38 average rounds, and 12.281%--12.698% seat win shares. See
+`docs/f1_fulltier_lobby.md` and `benchmarks/hsbg_8p_fulltier_v1.json`.
+
+### F2. Curated hero and armor system — NEXT
 
 Gate: 8--16 scenario-tested heroes and a validated matchup matrix.
 

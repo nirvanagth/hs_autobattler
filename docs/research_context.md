@@ -112,7 +112,7 @@ recovery mechanism as a positive claim.
 
 ## Current task
 
-Roadmap item: **F1 Verified full-tier lobby**.
+Roadmap item: **F2 Curated hero and armor system**.
 
 R2-A is complete. Three-seed matched results:
 
@@ -203,10 +203,10 @@ S1 progress:
 
 Next extension/execution target:
 
-- expand scenario verification and the strict profile through Tier 6;
-- validate Tier-4--6 upgrades, discoveries, shops, and pool provenance;
-- run the 100,000-lobby full-tier lifecycle gate;
-- freeze behavior-v6 as `hsbg_8p_fulltier_v1` only after those checks pass.
+- define hero identity, armor, and hero-power state/action contracts;
+- implement an initial 8--16 hero set spanning passive, targeted, economy, and
+  once-per-game mechanics;
+- add mirror-seat and hero-matchup validation before policy training.
 
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
@@ -257,8 +257,12 @@ smoke passed conservation and lifecycle checks at 25.8 games/s.
 F1 has started with a narrow verified full-tier slice: 65 Tier 1--6 shop
 minions, 5 Tier-7 discovery minions, 4 generated tokens, and 12 unique spells.
 A 1,000-lobby smoke passed
-at 28.3 games/s with 21.26 average rounds. Next run the 100,000-lobby gate and
-freeze the behavior-v6 benchmark before widening content further.
+at 28.3 games/s with 21.26 average rounds.
+
+F1 is complete. The same verified full-tier slice passed 100,000/100,000
+lobbies at 29.1 games/s with 21.38 average rounds and 12.281%--12.698% seat win
+shares. The v6 environment/profile contract is frozen in
+`benchmarks/hsbg_8p_fulltier_v1.json`; see `docs/f1_fulltier_lobby.md`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

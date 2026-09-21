@@ -103,8 +103,15 @@ class BattlegroundsLobbyEnv(HearthstoneEnv):
         self._lobby_obs_buffer = np.zeros(
             self.lobby_schema.total_size, dtype=np.float32
         )
+        lobby_name = (
+            "hsbg_8p_tier3_research"
+            if behavior_version == 5 and max_tier == 3 and content_profile is None
+            else "hsbg_8p_fulltier_research"
+            if max_tier == 6
+            else f"hsbg_8p_verified_tier{max_tier}_research"
+        )
         self.lobby_environment_contract = {
-            "name": "hsbg_8p_tier3_research",
+            "name": lobby_name,
             "behavior_version": behavior_version,
             "observation_schema_version": self.lobby_schema.version,
             "action_schema_version": 1,
