@@ -48,6 +48,24 @@ Gate:
 
 Stop rule: do not start large-scale training during F0.
 
+Progress:
+
+- **F0-A inventory — COMPLETE.** The deterministic audit covers all 229
+  minions and 28 spells, including effect classes, trigger events, generated
+  dependencies, tags, rotation/shop eligibility, and test references. The
+  tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
+  `d5de898d71e1d0f0e95e141fa0276ad3ecd703f8d9296ff3cae5972daab55b25`.
+- The audit found six initial inconsistencies. An erroneous Deathrattle flag on
+  active Tier-3 Waveling was fixed and regression-tested. Five partial cards
+  remain: rotated Wheeled Crewmate, Heroic Underdog (Stealth semantics),
+  rotated Gentle Djinni, rotated Indomitable Mount, and Tier-6 Deathly Striker.
+- All 54 cards currently eligible for the Tier-3 shop are now handler-complete.
+  This does not mean scenario-verified: 252 entries remain conservatively
+  classified `implemented_unverified` until dedicated scenario IDs are indexed.
+
+Next: add the explicit scenario-verification index and active-pool admission
+validator; then resolve the five partial definitions before proposing Tier-6.
+
 ## F1. Verified full-tier lobby — PENDING
 
 Build a Tier-6 vertical slice from verified content only. Add or validate shop

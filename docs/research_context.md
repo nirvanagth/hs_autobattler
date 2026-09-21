@@ -215,6 +215,13 @@ activates only Tier 1--3 despite definitions spanning Tier 1--7, and there is no
 first-class hero/armor/hero-power subsystem. See
 `docs/phase_f_fidelity_roadmap.md`.
 
+F0-A is complete. `benchmarks/hsbg_content_audit_v1.json` deterministically
+covers all 229 minions and 28 spells. It found six inconsistencies; the only
+one in the current Tier-3 shop, Waveling's erroneous Deathrattle metadata, was
+fixed. Five partial higher-tier/rotated definitions remain. Current Tier-3 shop
+handler completeness is now 54/54, but nothing is called scenario-verified
+until an explicit verification index is added.
+
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
 and normal public-policy checkpoint reload both passed. Deterministic

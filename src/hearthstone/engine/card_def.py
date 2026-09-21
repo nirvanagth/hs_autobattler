@@ -2170,7 +2170,6 @@ ALL_CARDS: List[CardDef] = [
         6,
         1,
         [UnitType.ELEMENTAL],
-        deathrattle=True,
         effects=[OnTavernRefreshBuffRightmostShop(atk=2, hp=2, give_reborn=False)],
     ),
     CardDef(
