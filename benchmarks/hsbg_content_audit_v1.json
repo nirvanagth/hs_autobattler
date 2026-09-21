@@ -87,7 +87,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleSummon"
       ],
@@ -116,6 +116,7 @@
       ],
       "test_reference_files": [
         "tests/test_effect_types.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py"
       ],
       "tier": 1,
@@ -127,11 +128,13 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_cord_puller_deathrattle_summons_microbot"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -150,7 +153,8 @@
         "WINDFURY"
       ],
       "test_reference_files": [
-        "tests/test_effect_types.py"
+        "tests/test_effect_types.py",
+        "tests/test_f0_tier1_scenarios.py"
       ],
       "tier": 1,
       "tribes": [
@@ -159,7 +163,9 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_crackling_cyclone_has_combat_keywords"
+      ]
     },
     {
       "avenge_registered": false,
@@ -196,7 +202,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "StartOfCombatFromHand"
       ],
@@ -218,6 +224,7 @@
       "test_reference_files": [
         "tests/test_coverage_gaps.py",
         "tests/test_engine_core.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -230,11 +237,13 @@
         "START_OF_COMBAT"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_flighty_scout_summons_copy_from_hand_at_combat_start"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "DeathrattleSummon"
       ],
@@ -264,6 +273,7 @@
         "tests/test_effect_types.py",
         "tests/test_engine_core.py",
         "tests/test_event_system.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py"
       ],
       "tier": 1,
@@ -275,7 +285,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_harmless_bonehead_deathrattle_summons_two_skeletons"
+      ]
     },
     {
       "avenge_registered": false,
@@ -404,7 +416,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecrySpellDiscount"
       ],
@@ -424,7 +436,8 @@
       "symbol": "OMINOUS_SEER",
       "tags": [],
       "test_reference_files": [
-        "tests/test_event_system.py"
+        "tests/test_event_system.py",
+        "tests/test_f0_tier1_scenarios.py"
       ],
       "tier": 1,
       "tribes": [
@@ -436,7 +449,9 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_ominous_seer_battlecry_discounts_spells"
+      ]
     },
     {
       "avenge_registered": false,
@@ -460,6 +475,7 @@
       "symbol": "PICKY_EATER",
       "tags": [],
       "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py"
       ],
       "tier": 1,
@@ -475,7 +491,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryAddSpell"
       ],
@@ -500,7 +516,9 @@
       ],
       "symbol": "RAZORFEN_GEOMANCER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Quilboar"
@@ -510,11 +528,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_razorfen_geomancer_battlecry_adds_two_gems"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [],
       "generated_dependencies": [],
       "handler_complete": true,
@@ -535,6 +555,7 @@
       "test_reference_files": [
         "tests/test_cpp_bridge.py",
         "tests/test_effect_types.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py"
       ],
@@ -545,11 +566,13 @@
       "trigger_count": 0,
       "trigger_events": [],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_risen_rider_has_taunt_and_reborn"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "SellGetRandomUnit"
       ],
@@ -568,7 +591,9 @@
       ],
       "symbol": "RIVER_SKIPPER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Murloc"
@@ -578,11 +603,13 @@
         "MINION_SOLD"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_river_skipper_sell_draws_tier_one_unit"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlyDeathBuff"
       ],
@@ -605,6 +632,7 @@
         "tests/test_coverage_gaps.py",
         "tests/test_effect_types.py",
         "tests/test_entities.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -617,7 +645,9 @@
         "MINION_DIED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_rot_hide_gnoll_buffs_after_other_friendly_death"
+      ]
     },
     {
       "avenge_registered": false,
@@ -691,7 +721,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "RallyBuff"
       ],
@@ -710,7 +740,9 @@
       ],
       "symbol": "TUSKED_CAMPER",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Quilboar"
@@ -720,7 +752,9 @@
         "ATTACK_DECLARED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_tusked_camper_rally_uses_current_blood_gem"
+      ]
     },
     {
       "avenge_registered": false,
@@ -765,7 +799,7 @@
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnFriendlyPlayTypeDamageHero"
       ],
@@ -786,6 +820,7 @@
       "tags": [],
       "test_reference_files": [
         "tests/test_event_system.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_golden_logic.py",
         "tests/test_integration.py",
         "tests/test_smart_bot_and_ghost_pool.py"
@@ -799,11 +834,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_wrath_weaver_reacts_to_other_demon_play"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "BattlecryBuffOtherTypeScaling"
       ],
@@ -822,7 +859,9 @@
       ],
       "symbol": "MOLTEN_ROCK",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Elemental"
@@ -832,11 +871,13 @@
         "MINION_PLAYED"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_molten_rock_battlecry_scales_other_elemental"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastOnSelfBuffSelf"
       ],
@@ -855,7 +896,9 @@
       ],
       "symbol": "FLEEING_FUGITIVE",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Naga"
@@ -865,11 +908,13 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_fleeing_fugitive_gains_health_when_targeted_by_spell"
+      ]
     },
     {
       "avenge_registered": false,
-      "classification": "implemented_unverified",
+      "classification": "verified",
       "effect_types": [
         "OnSpellCastOnSelfBuffSelf",
         "SpellcraftCastOnSelfAddCopyOncePerTurn"
@@ -890,7 +935,9 @@
       ],
       "symbol": "MINI_MYRMIDON",
       "tags": [],
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "tribes": [
         "Naga"
@@ -900,7 +947,9 @@
         "SPELL_CAST"
       ],
       "unsupported_effect_types": [],
-      "verified_scenarios": []
+      "verified_scenarios": [
+        "tests/test_f0_tier1_scenarios.py::test_mini_myrmidon_copies_first_spellcraft_once_per_turn"
+      ]
     },
     {
       "avenge_registered": false,
@@ -7855,6 +7904,7 @@
         "tests/test_effect_types.py",
         "tests/test_entities.py",
         "tests/test_event_system.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py",
         "tests/test_ml_components.py",
         "tests/test_pool.py",
@@ -7888,6 +7938,7 @@
       "tags": [],
       "test_reference_files": [
         "tests/test_effect_types.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py",
         "tests/test_new_cards.py",
         "tests/test_new_t3t4_cards.py",
@@ -8146,6 +8197,7 @@
         "tests/test_coverage_gaps.py",
         "tests/test_entities.py",
         "tests/test_event_system.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_integration.py",
         "tests/test_rl_env.py"
       ],
@@ -8167,6 +8219,7 @@
       "symbol": "BLOOD_GEM",
       "test_reference_files": [
         "tests/test_coverage_gaps.py",
+        "tests/test_f0_tier1_scenarios.py",
         "tests/test_new_cards.py"
       ],
       "tier": 0,
@@ -8468,7 +8521,9 @@
       "name": "Mini-Myrmidon Spellcraft",
       "requires_target": true,
       "symbol": "MINI_MYRMIDON_SPELLCRAFT",
-      "test_reference_files": [],
+      "test_reference_files": [
+        "tests/test_f0_tier1_scenarios.py"
+      ],
       "tier": 1,
       "verified_scenarios": []
     },
@@ -8633,16 +8688,16 @@
   ],
   "summary": {
     "cards": 229,
-    "cards_with_test_references": 134,
+    "cards_with_test_references": 140,
     "classifications": {
-      "implemented_unverified": 211,
+      "implemented_unverified": 197,
       "partial": 6,
-      "verified": 40
+      "verified": 54
     },
     "handler_complete": 251,
     "handler_incomplete": 6,
     "spells": 28,
-    "spells_with_test_references": 14,
+    "spells_with_test_references": 15,
     "tier3_shop_cards": 54,
     "tier3_shop_handler_incomplete": 1
   }

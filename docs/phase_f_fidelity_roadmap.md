@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `a204a6551a078025452357d9e66b29498fc7e5386fe689cb5bcbef8c84c612ea`.
+  `28bcb3786805ce71b98652024703bca3293afa81f0b7fa397d8ca8f3f613e834`.
 - The audit found six inconsistencies. Active Tier-3 Waveling has Deathrattle
   metadata without a death trigger; rotated Wheeled Crewmate has a no-op effect;
   Heroic Underdog lacks Stealth targeting semantics; Gentle Djinni and
@@ -69,13 +69,18 @@ Progress:
 - **F0-B verification/admission — COMPLETE.** The tracked
   `benchmarks/content_scenarios_v1.json` maps content IDs to exact pytest node
   IDs; loading fails on unknown content or missing test nodes. The first 38
-  minions and two spells are now explicitly verified. The admission API rejects
+  minions and two spells were initially explicitly verified. The admission API rejects
   both handler-incomplete content and handler-complete content lacking scenario
-  verification. The manifest currently reports 40 verified, 211 implemented-
+  verification.
+
+- **F0-C Tier-1 scenarios — COMPLETE.** Fourteen new behavior scenarios cover
+  every previously unverified current Tier-1 shop minion. All 15 current Tier-1
+  shop cards now pass verified admission. The index totals 52 verified minions
+  and two verified spells; the manifest reports 54 verified, 197 implemented-
   unverified, and 6 partial entries.
 
-Next: add dedicated scenarios for the remaining current Tier 1--3 shop cards,
-then resolve the six partial definitions under behavior-v6.
+Next: add dedicated scenarios for current Tier-2 shop cards, then Tier-3, and
+resolve the six partial definitions under behavior-v6.
 
 ## F1. Verified full-tier lobby — PENDING
 

@@ -85,3 +85,15 @@ def test_content_admission_requires_both_handlers_and_scenarios() -> None:
         validate_content_admission(manifest, card_ids=["101"], spell_ids=[])
     with pytest.raises(ValueError, match="incomplete_card:335"):
         validate_content_admission(manifest, card_ids=["335"], spell_ids=[])
+
+
+def test_current_tier1_shop_passes_verified_admission() -> None:
+    manifest = audited_manifest()
+    tier_one = [
+        entry["id"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"] and entry["tier"] == 1
+    ]
+    assert validate_content_admission(
+        manifest, card_ids=tier_one, spell_ids=[]
+    )["cards"] == 15

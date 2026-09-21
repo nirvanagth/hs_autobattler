@@ -4,6 +4,48 @@
     "102": [
       "tests/test_card_def.py::TestAureateLaureate::test_becomes_golden_on_play"
     ],
+    "103": [
+      "tests/test_f0_tier1_scenarios.py::test_cord_puller_deathrattle_summons_microbot"
+    ],
+    "104": [
+      "tests/test_f0_tier1_scenarios.py::test_crackling_cyclone_has_combat_keywords"
+    ],
+    "106": [
+      "tests/test_f0_tier1_scenarios.py::test_flighty_scout_summons_copy_from_hand_at_combat_start"
+    ],
+    "107": [
+      "tests/test_f0_tier1_scenarios.py::test_harmless_bonehead_deathrattle_summons_two_skeletons"
+    ],
+    "111": [
+      "tests/test_f0_tier1_scenarios.py::test_ominous_seer_battlecry_discounts_spells"
+    ],
+    "113": [
+      "tests/test_f0_tier1_scenarios.py::test_razorfen_geomancer_battlecry_adds_two_gems"
+    ],
+    "114": [
+      "tests/test_f0_tier1_scenarios.py::test_risen_rider_has_taunt_and_reborn"
+    ],
+    "115": [
+      "tests/test_f0_tier1_scenarios.py::test_river_skipper_sell_draws_tier_one_unit"
+    ],
+    "116": [
+      "tests/test_f0_tier1_scenarios.py::test_rot_hide_gnoll_buffs_after_other_friendly_death"
+    ],
+    "119": [
+      "tests/test_f0_tier1_scenarios.py::test_tusked_camper_rally_uses_current_blood_gem"
+    ],
+    "121": [
+      "tests/test_f0_tier1_scenarios.py::test_wrath_weaver_reacts_to_other_demon_play"
+    ],
+    "122": [
+      "tests/test_f0_tier1_scenarios.py::test_molten_rock_battlecry_scales_other_elemental"
+    ],
+    "123": [
+      "tests/test_f0_tier1_scenarios.py::test_fleeing_fugitive_gains_health_when_targeted_by_spell"
+    ],
+    "124": [
+      "tests/test_f0_tier1_scenarios.py::test_mini_myrmidon_copies_first_spellcraft_once_per_turn"
+    ],
     "305": [
       "tests/test_new_cards.py::TestCadaverCaretaker::test_summons_three_skeletons"
     ],
