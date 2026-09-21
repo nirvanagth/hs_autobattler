@@ -14,7 +14,12 @@ from .spells import SPELL_TRIGGER_REGISTRY, SPELLS_REQUIRE_TARGET
 
 class TavernManager:
     def __init__(
-        self, pool: CardPool, spell_pool: SpellPool, event_manager: EventManager | None = None
+        self,
+        pool: CardPool,
+        spell_pool: SpellPool,
+        event_manager: EventManager | None = None,
+        *,
+        emit_play_summon_event: bool = False,
     ):
         self.pool = pool
         self.spell_pool = spell_pool
@@ -22,6 +27,7 @@ class TavernManager:
         self.event_manager = event_manager or EventManager(
             TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY
         )
+        self.emit_play_summon_event = emit_play_summon_event
 
     def get_next_uid(self) -> int:
         self._uid_counter += 1
@@ -325,6 +331,19 @@ class TavernManager:
 
         player.board.insert(insert_index, unit)
         recalculate_board_auras(player.board)
+        if self.emit_play_summon_event:
+            self.event_manager.process_event(
+                Event(
+                    event_type=EventType.MINION_SUMMONED,
+                    source=EntityRef(uid=unit.uid),
+                    source_pos=PosRef(
+                        side=player.uid, zone=Zone.BOARD, slot=insert_index
+                    ),
+                ),
+                {player.uid: player},
+                self.get_next_uid,
+                card_pool=self.pool,
+            )
         if unit.card_id in (CardIDs.MAMA_MRRGLTON, CardIDs.PAPA_MRRGLTON):
             # Mama/Papa Mrrglton self-scaling (Mama Mrrglton / Papa Mrrglton).
             player.mechanics.increment_scaling("mrrglton_played", 1)

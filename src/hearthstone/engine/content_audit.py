@@ -146,6 +146,7 @@ def build_content_manifest(
     *,
     test_root: Path | None = None,
     verified_scenarios: dict[tuple[str, str], list[str]] | None = None,
+    behavior_version: int = 5,
 ) -> dict[str, Any]:
     references = scan_test_references(test_root) if test_root is not None else {}
     verified_scenarios = verified_scenarios or {}
@@ -180,7 +181,10 @@ def build_content_manifest(
                 and getattr(effect, "hp", 0) == 0
             ):
                 issues.append("declared_no_op_effect:BattlecryModifyMechanic")
-            if effect_name in INCOMPLETE_PLAY_AS_SUMMON_EFFECTS:
+            if (
+                behavior_version < 6
+                and effect_name in INCOMPLETE_PLAY_AS_SUMMON_EFFECTS
+            ):
                 issues.append("missing_minion_summoned_event_on_play")
         for dependency in dependencies:
             target = SPELL_DB if dependency["kind"] == "spell" else CARD_DB
@@ -297,6 +301,7 @@ def build_content_manifest(
     }
     return {
         "schema_version": CONTENT_AUDIT_SCHEMA_VERSION,
+        "behavior_version": behavior_version,
         "summary": summary,
         "cards": card_entries,
         "spells": spell_entries,

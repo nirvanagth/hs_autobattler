@@ -100,6 +100,7 @@ class LobbyGame:
         damage_cap: int = 15,
         damage_cap_active_threshold: int = 4,
         seed: int = 0,
+        behavior_version: int = 5,
     ) -> None:
         if not 2 <= num_players <= 8:
             raise ValueError("num_players must be between 2 and 8")
@@ -110,6 +111,7 @@ class LobbyGame:
         self.damage_cap = damage_cap
         self.damage_cap_active_threshold = damage_cap_active_threshold
         self.seed = seed
+        self.behavior_version = behavior_version
         random.seed(seed)
         self._pair_rng = random.Random(seed ^ 0x8A77_10BB)
 
@@ -119,7 +121,10 @@ class LobbyGame:
         self.spell_pool = SpellPool()
         self.event_manager = EventManager(TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY)
         self.tavern = TavernManager(
-            self.pool, self.spell_pool, event_manager=self.event_manager
+            self.pool,
+            self.spell_pool,
+            event_manager=self.event_manager,
+            emit_play_summon_event=behavior_version >= 6,
         )
         self.combat = CombatManager(event_manager=self.event_manager)
         self.players = [

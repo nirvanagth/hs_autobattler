@@ -25,13 +25,16 @@ def main() -> None:
         default=str(ROOT / "benchmarks/content_scenarios_v1.json"),
     )
     parser.add_argument("--out", required=True)
+    parser.add_argument("--behavior-version", type=int, default=5)
     args = parser.parse_args()
     test_root = Path(args.tests)
     verified = load_verification_index(
         Path(args.verification_index), test_root=test_root
     )
     manifest = build_content_manifest(
-        test_root=test_root, verified_scenarios=verified
+        test_root=test_root,
+        verified_scenarios=verified,
+        behavior_version=args.behavior_version,
     )
     encoded = content_manifest_json(manifest)
     output = Path(args.out)

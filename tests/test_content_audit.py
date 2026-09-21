@@ -15,12 +15,14 @@ from hearthstone.engine.content_audit import (
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def audited_manifest():
+def audited_manifest(behavior_version: int = 5):
     verified = load_verification_index(
         ROOT / "benchmarks/content_scenarios_v1.json", test_root=ROOT / "tests"
     )
     return build_content_manifest(
-        test_root=ROOT / "tests", verified_scenarios=verified
+        test_root=ROOT / "tests",
+        verified_scenarios=verified,
+        behavior_version=behavior_version,
     )
 
 
@@ -41,6 +43,11 @@ def test_manifest_is_deterministic() -> None:
 def test_tracked_manifest_matches_runtime_inventory() -> None:
     generated = content_manifest_json(audited_manifest())
     assert generated == (ROOT / "benchmarks/hsbg_content_audit_v1.json").read_text()
+
+
+def test_tracked_v6_manifest_matches_runtime_inventory() -> None:
+    generated = content_manifest_json(audited_manifest(6))
+    assert generated == (ROOT / "benchmarks/hsbg_content_audit_v6.json").read_text()
 
 
 def test_explicit_scenario_index_promotes_verified_content() -> None:
@@ -124,3 +131,22 @@ def test_handler_complete_tier1_to_tier3_cards_pass_verified_admission() -> None
     assert validate_content_admission(
         manifest, card_ids=admitted, spell_ids=[]
     )["accepted"] == 51
+
+
+def test_v6_resolves_play_as_summon_gaps_and_admits_53_shop_cards() -> None:
+    manifest = audited_manifest(6)
+    admitted = [
+        entry["id"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"] and entry["handler_complete"]
+    ]
+    assert len(admitted) == 53
+    assert validate_content_admission(
+        manifest, card_ids=admitted, spell_ids=[]
+    )["accepted"] == 53
+    rejected = [
+        entry["symbol"]
+        for entry in manifest["cards"]
+        if entry["shop_eligible_tier3"] and not entry["handler_complete"]
+    ]
+    assert rejected == ["WAVELING"]

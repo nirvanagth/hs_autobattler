@@ -244,6 +244,11 @@ Deflect-o-Bot, and Waveling are explicitly partial. The full manifest is now
 83 verified / 164 implemented-unverified / 10 partial. Next is behavior-v6
 repair/exclusion plus the active Tavern spell pool.
 
+F0-F behavior-v6 summon semantics is complete. V6 emits `MINION_SUMMONED` on
+normal play and repairs the real integration path for Ancestral Automaton and
+Deflect-o-Bot; v5 defaults and its frozen verifier remain unchanged. The v6
+audit admits 53/54 current shop minions, with only Waveling still partial.
+
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
 and normal public-policy checkpoint reload both passed. Deterministic

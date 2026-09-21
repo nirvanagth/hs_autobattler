@@ -54,7 +54,7 @@ Progress:
   minions and 28 spells, including effect classes, trigger events, generated
   dependencies, tags, rotation/shop eligibility, and test references. The
   tracked manifest is `benchmarks/hsbg_content_audit_v1.json` with SHA-256
-  `d0bc3c17bd249bb1003512bdfd6d4c8c79fd5dbe12e20b31821c081b49bc13a9`.
+  `59d6c085f313f8fa44ba75b2c5a6353a50eb5b021dd705edd45e400790e63913`.
 - The audit initially found six inconsistencies. Integration scenarios then
   exposed a missing `MINION_SUMMONED` event on normal play, affecting summon
   listeners. The manifest now identifies ten partial definitions.
@@ -90,8 +90,16 @@ Progress:
   Deflect-o-Bot, and Waveling. The full manifest is 83 verified, 164
   implemented-unverified, and 10 partial.
 
-Next: define behavior-v6 event semantics and repair or exclude the three
-current-pool partial cards, then verify the Tier 1--3 Tavern spell pool.
+- **F0-F behavior-v6 summon semantics — COMPLETE.** Normal minion play emits
+  `MINION_SUMMONED` only when `behavior_version >= 6`; default v5 behavior and
+  its frozen platform verifier remain unchanged. Integration tests show that
+  Ancestral Automaton and Deflect-o-Bot now trigger through real Tavern play.
+  The v6 audit (`benchmarks/hsbg_content_audit_v6.json`, SHA-256
+  `d8ddee603cdd9c55955f40f7fc25ac2281746f2e0849935598730bc564d93071`)
+  admits 53/54 current shop minions; only Waveling remains partial.
+
+Next: verify the five Tier 1--3 Tavern-pool spells and create a v6 profile that
+explicitly excludes Waveling, then run lifecycle stress tests.
 
 ## F1. Verified full-tier lobby — PENDING
 
