@@ -600,9 +600,13 @@ def _make_transform_to_random_same_type_handler(spell_id: str):
         if not drawn:
             return
         player.board.pop(slot)
-        ctx.card_pool.return_cards([old_unit.card_id])
+        ctx.card_pool.return_cards([old_unit.card_id] * old_unit.pool_copies)
         new_unit = Unit.create_from_db(
-            drawn[0], ctx._uid_provider(), side, was_golden
+            drawn[0],
+            ctx._uid_provider(),
+            side,
+            was_golden,
+            pool_copies=1,
         )
         player.board.insert(slot, new_unit)
         ctx._reindex_side(side)

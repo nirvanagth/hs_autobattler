@@ -1,0 +1,334 @@
+"""Restricted-pool eight-player Battlegrounds lobby core.
+
+This module deliberately does not modify the frozen 1v1 ``Game``. It reuses
+the authoritative Tavern and combat managers while adding simultaneous lobby
+combat, deterministic pairings, ghosts, damage caps, elimination, and placement.
+"""
+
+from __future__ import annotations
+
+import random
+from dataclasses import dataclass
+from typing import Any
+
+from .card_def import GOLDEN_TRIGGER_REGISTRY, TRIGGER_REGISTRY
+from .combat import CombatManager
+from .cpp_bridge import get_cpp_engine
+from .entities import Player, Unit
+from .enums import BattleOutcome
+from .event_system import EventManager
+from .pool import CardPool, SpellPool
+from .tavern import TavernManager
+
+
+@dataclass(frozen=True)
+class LobbyPairing:
+    player_id: int
+    opponent_id: int | None
+    is_ghost: bool = False
+
+
+@dataclass(frozen=True)
+class LobbyCombatResult:
+    round_number: int
+    player_id: int
+    opponent_id: int | None
+    is_ghost: bool
+    outcome: BattleOutcome
+    raw_damage: int
+    applied_damage: int
+
+
+class LobbyGame:
+    """Eight-player lobby using a shared minion pool and pairwise combat."""
+
+    def __init__(
+        self,
+        *,
+        num_players: int = 8,
+        max_tier: int = 3,
+        starting_health: int = 30,
+        damage_cap: int = 15,
+        damage_cap_active_threshold: int = 4,
+        seed: int = 0,
+    ) -> None:
+        if not 2 <= num_players <= 8:
+            raise ValueError("num_players must be between 2 and 8")
+        if not 1 <= max_tier <= 6:
+            raise ValueError("max_tier must be between 1 and 6")
+        self.num_players = num_players
+        self.max_tier = max_tier
+        self.damage_cap = damage_cap
+        self.damage_cap_active_threshold = damage_cap_active_threshold
+        self.seed = seed
+        random.seed(seed)
+        self._pair_rng = random.Random(seed ^ 0x8A77_10BB)
+
+        # Shops are restricted by ``max_tier``; the pool retains higher tiers
+        # so triple discoveries remain representable during later extensions.
+        self.pool = CardPool(max_tier=7)
+        self.spell_pool = SpellPool()
+        self.event_manager = EventManager(TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY)
+        self.tavern = TavernManager(
+            self.pool, self.spell_pool, event_manager=self.event_manager
+        )
+        self.combat = CombatManager(event_manager=self.event_manager)
+        self.players = [
+            Player(uid=index, board=[], hand=[], health=starting_health)
+            for index in range(num_players)
+        ]
+
+        self.turn_count = 1
+        self.game_over = False
+        self.winner_id: int | None = None
+        self.active_player_ids: set[int] = set(range(num_players))
+        self.players_ready = {index: False for index in range(num_players)}
+        self.placements: dict[int, int] = {}
+        self.elimination_order: list[int] = []
+        self.ghost_snapshots: dict[int, Player] = {}
+        self.pair_counts: dict[tuple[int, int], int] = {}
+        self.last_opponent: dict[int, int | None] = {
+            index: None for index in range(num_players)
+        }
+        self.ghost_byes: dict[int, int] = {index: 0 for index in range(num_players)}
+        self.last_pairings: list[LobbyPairing] = []
+        self.last_combat_results: list[LobbyCombatResult] = []
+
+        for player in self.players:
+            self.tavern.start_turn(player, self.turn_count)
+
+    @property
+    def active_count(self) -> int:
+        return len(self.active_player_ids)
+
+    def step(
+        self, player_idx: int, action_type: str, **kwargs: Any
+    ) -> tuple[bool, bool, str]:
+        if self.game_over:
+            return True, True, "Game Over"
+        if player_idx not in self.active_player_ids:
+            return False, False, "Player eliminated"
+        player = self.players[player_idx]
+        if player.is_discovering and action_type != "DISCOVER_CHOICE":
+            return False, False, "Must choose discovery"
+        if self.players_ready[player_idx] and action_type != "END_TURN":
+            return False, False, "Player already ready"
+
+        success = False
+        info = "Unknown Action"
+        if action_type == "END_TURN":
+            self.tavern.end_turn(player)
+            self.players_ready[player_idx] = True
+            success, info = True, "Ready"
+        elif action_type == "BUY":
+            success, info = self.tavern.buy_unit(player, kwargs.get("index", -1))
+        elif action_type == "SELL":
+            success, info = self.tavern.sell_unit(player, kwargs.get("index", -1))
+        elif action_type == "ROLL":
+            success, info = self.tavern.roll_tavern(player)
+        elif action_type == "UPGRADE":
+            if player.tavern_tier >= self.max_tier:
+                return False, False, "Lobby tier cap reached"
+            success, info = self.tavern.upgrade_tavern(player)
+        elif action_type == "FREEZE":
+            success, info = self.tavern.toggle_freeze(player)
+        elif action_type == "PLAY":
+            success, info = self.tavern.play_unit(
+                player,
+                kwargs.get("hand_index", -1),
+                kwargs.get("insert_index", len(player.board)),
+                kwargs.get("target_index", -1),
+            )
+        elif action_type == "SWAP":
+            success, info = self.tavern.swap_units(
+                player, kwargs.get("index_a", -1), kwargs.get("index_b", -1)
+            )
+        elif action_type == "DISCOVER_CHOICE":
+            success, info = self.tavern.make_discovery_choice(
+                player, kwargs.get("index", -1)
+            )
+
+        if self._all_active_ready():
+            self.resolve_combat_round()
+        return success, self.game_over, info
+
+    def _all_active_ready(self) -> bool:
+        return all(self.players_ready[player_id] for player_id in self.active_player_ids)
+
+    def create_pairings(self) -> list[LobbyPairing]:
+        """Greedy deterministic pairing minimizing repeats and immediate rematches."""
+        remaining = sorted(self.active_player_ids)
+        pairings: list[LobbyPairing] = []
+        ghost_player: int | None = None
+        if len(remaining) % 2:
+            ghost_player = min(
+                remaining,
+                key=lambda player_id: (self.ghost_byes[player_id], player_id),
+            )
+            remaining.remove(ghost_player)
+
+        while remaining:
+            player_id = remaining.pop(0)
+            opponent_id = min(
+                remaining,
+                key=lambda candidate: (
+                    self.pair_counts.get(tuple(sorted((player_id, candidate))), 0),
+                    self.last_opponent[player_id] == candidate,
+                    candidate,
+                ),
+            )
+            remaining.remove(opponent_id)
+            pairings.append(LobbyPairing(player_id, opponent_id, False))
+
+        if ghost_player is not None:
+            ghost_owner = self.elimination_order[-1] if self.elimination_order else None
+            pairings.append(
+                LobbyPairing(
+                    player_id=ghost_player,
+                    opponent_id=ghost_owner,
+                    is_ghost=ghost_owner is not None,
+                )
+            )
+            self.ghost_byes[ghost_player] += 1
+        return pairings
+
+    def _resolve_pair(self, first: Player, second: Player) -> tuple[BattleOutcome, int]:
+        # The fast combat prelude can materialize hand-based start-of-combat
+        # summons, so pass copies to keep every recruit board persistent and to
+        # make all lobby damage simultaneous.
+        first_combat = first.combat_copy()
+        second_combat = second.combat_copy()
+        if get_cpp_engine() is not None:
+            return self.combat.resolve_combat_fast(first_combat, second_combat)
+        return self.combat.resolve_combat(first_combat, second_combat)
+
+    def resolve_combat_round(self) -> list[LobbyCombatResult]:
+        if not self._all_active_ready():
+            raise RuntimeError("cannot resolve combat before all active players are ready")
+        active_before = self.active_count
+        pairings = self.create_pairings()
+        pending_damage = {player_id: 0 for player_id in self.active_player_ids}
+        results: list[LobbyCombatResult] = []
+
+        for pairing in pairings:
+            first = self.players[pairing.player_id]
+            if pairing.opponent_id is None:
+                results.append(
+                    LobbyCombatResult(
+                        self.turn_count,
+                        pairing.player_id,
+                        None,
+                        False,
+                        BattleOutcome.DRAW,
+                        0,
+                        0,
+                    )
+                )
+                continue
+
+            if pairing.is_ghost:
+                second = self.ghost_snapshots[pairing.opponent_id].combat_copy()
+            else:
+                second = self.players[pairing.opponent_id]
+
+            outcome, raw_damage = self._resolve_pair(first, second)
+            raw_damage = abs(raw_damage)
+            applied_damage = (
+                min(raw_damage, self.damage_cap)
+                if active_before > self.damage_cap_active_threshold
+                else raw_damage
+            )
+            if outcome == BattleOutcome.LOSE:
+                pending_damage[first.uid] += applied_damage
+                first.lost_last_combat = True
+                if not pairing.is_ghost:
+                    second.lost_last_combat = False
+            elif outcome == BattleOutcome.WIN:
+                first.lost_last_combat = False
+                if not pairing.is_ghost:
+                    pending_damage[second.uid] += applied_damage
+                    second.lost_last_combat = True
+            else:
+                first.lost_last_combat = False
+                if not pairing.is_ghost:
+                    second.lost_last_combat = False
+
+            results.append(
+                LobbyCombatResult(
+                    self.turn_count,
+                    pairing.player_id,
+                    pairing.opponent_id,
+                    pairing.is_ghost,
+                    outcome,
+                    raw_damage,
+                    applied_damage,
+                )
+            )
+            if not pairing.is_ghost:
+                key = tuple(sorted((first.uid, second.uid)))
+                self.pair_counts[key] = self.pair_counts.get(key, 0) + 1
+                self.last_opponent[first.uid] = second.uid
+                self.last_opponent[second.uid] = first.uid
+
+        for player_id, damage in pending_damage.items():
+            self.players[player_id].health -= damage
+
+        eliminated = sorted(
+            (
+                player_id
+                for player_id in self.active_player_ids
+                if self.players[player_id].health <= 0
+            ),
+            key=lambda player_id: (self.players[player_id].health, player_id),
+        )
+        for offset, player_id in enumerate(eliminated):
+            self.placements[player_id] = active_before - offset
+            self.ghost_snapshots[player_id] = self.players[player_id].combat_copy()
+            self.elimination_order.append(player_id)
+            self._release_player_cards(self.players[player_id])
+            self.active_player_ids.remove(player_id)
+            self.players_ready[player_id] = False
+
+        self.last_pairings = pairings
+        self.last_combat_results = results
+        if self.active_count <= 1:
+            self.game_over = True
+            if self.active_player_ids:
+                self.winner_id = next(iter(self.active_player_ids))
+                self.placements[self.winner_id] = 1
+            elif self.placements:
+                # Tavern self-damage can leave every remaining player at or
+                # below zero before simultaneous combat damage is applied.
+                # Placement tie-breaking above is deterministic, so rank 1 is
+                # still a well-defined lobby winner.
+                self.winner_id = min(
+                    self.placements, key=lambda player_id: self.placements[player_id]
+                )
+            return results
+
+        self.turn_count += 1
+        for player_id in sorted(self.active_player_ids):
+            self.players_ready[player_id] = False
+            self.tavern.start_turn(self.players[player_id], self.turn_count)
+        return results
+
+    def _release_player_cards(self, player: Player) -> None:
+        card_ids: list[str] = []
+
+        def add_unit(unit: Unit) -> None:
+            card_ids.extend([unit.card_id] * unit.pool_copies)
+            for card_id, copies in unit.absorbed_pool_copies.items():
+                card_ids.extend([card_id] * copies)
+
+        for unit in player.board:
+            add_unit(unit)
+        for hand_card in player.hand:
+            if hand_card.unit:
+                add_unit(hand_card.unit)
+        for store_item in player.store:
+            if store_item.unit:
+                add_unit(store_item.unit)
+        self.pool.return_cards(card_ids)
+        player.board.clear()
+        player.hand.clear()
+        player.store.clear()

@@ -58,6 +58,7 @@ class TestTripletStatSegregation:
         golden = player.hand[0].unit
         assert golden is not None
         assert golden.is_golden
+        assert golden.pool_copies == 3
 
         # Perm layer preserved
         assert golden.perm_atk_add == 2

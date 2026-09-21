@@ -91,6 +91,7 @@ class TestMakeGolden:
         assert unit.is_golden
         assert unit.base_atk == orig_atk * 2
         assert unit.base_hp == orig_hp * 2
+        assert unit.pool_copies == 1
         assert unit.cur_atk == orig_atk * 2
         assert unit.cur_hp == orig_hp * 2
 

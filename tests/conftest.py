@@ -15,6 +15,7 @@ from hearthstone.engine.entities import Player, Spell, StoreItem, Unit
 from hearthstone.engine.enums import CardIDs
 from hearthstone.engine.event_system import EventManager
 from hearthstone.engine.game import Game
+from hearthstone.engine.lobby import LobbyGame
 from hearthstone.engine.tavern import TavernManager
 
 # ---------------------------------------------------------------------------
@@ -26,6 +27,14 @@ from hearthstone.engine.tavern import TavernManager
 def empty_game() -> Game:
     """Fresh ``Game`` instance (turn 1 already started for both players)."""
     return Game()
+
+
+@pytest.fixture()
+def lobby_factory() -> Callable[..., LobbyGame]:
+    def _factory(**kwargs) -> LobbyGame:
+        return LobbyGame(**kwargs)
+
+    return _factory
 
 
 @pytest.fixture()

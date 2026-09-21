@@ -37,6 +37,9 @@ class Unit:
     attached_combat: Dict[str, int] = field(default_factory=dict)
     types: List[UnitType] = field(default_factory=list)
     is_golden: bool = False
+    # Number of base minion copies represented by this entity. A natural
+    # triplet has three; an effect that merely turns one minion Golden keeps one.
+    pool_copies: int = 1
     is_frozen: bool = False
     tags: Set[Tags] = field(default_factory=set)
 
@@ -100,7 +103,7 @@ class Unit:
         Recalc stats, tags (not MAGNETIC), triggers and pool history
         """
         # 1. Pool counter (for selling)
-        other_base_copies = 3 if other.is_golden else 1
+        other_base_copies = other.pool_copies
         self.absorbed_pool_copies[other.card_id] = (
             self.absorbed_pool_copies.get(other.card_id, 0) + other_base_copies
         )
@@ -204,7 +207,13 @@ class Unit:
         self.recalc_stats()
 
     @staticmethod
-    def create_from_db(card_id: str, uid: int, owner_id: int, is_golden: bool = False) -> Unit:
+    def create_from_db(
+        card_id: str,
+        uid: int,
+        owner_id: int,
+        is_golden: bool = False,
+        pool_copies: int | None = None,
+    ) -> Unit:
         """Fabric method: make unit by ID from database"""
         try:
             data = CARD_DB.get(CardIDs(card_id))
@@ -233,6 +242,7 @@ class Unit:
             types=list(data.get("type", [])),
             tags=set(data.get("tags", [])),
             is_golden=is_golden,
+            pool_copies=(3 if is_golden else 1) if pool_copies is None else pool_copies,
         )
         unit.recalc_stats()
         unit.restore_stats()

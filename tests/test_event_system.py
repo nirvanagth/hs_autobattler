@@ -235,6 +235,14 @@ class TestEffectContextActions:
 
         assert len(p.hand) == 10  # unchanged
 
+    def test_generated_unit_has_no_pool_provenance(self) -> None:
+        p = Player(uid=0, board=[], hand=[])
+        ctx = _make_context({0: p})
+
+        assert ctx.add_unit_to_hand(0, CardIDs.ANNOY_O_TRON)
+        assert p.hand[0].unit is not None
+        assert p.hand[0].unit.pool_copies == 0
+
     def test_summon_creates_unit(self) -> None:
         p = Player(uid=0, board=[], hand=[])
         ctx = _make_context({0: p})
@@ -244,6 +252,7 @@ class TestEffectContextActions:
         assert ref is not None
         assert len(p.board) == 1
         assert p.board[0].card_id == CardIDs.MICROBOT
+        assert p.board[0].pool_copies == 0
 
     def test_summon_full_board_returns_none(self) -> None:
         p = Player(uid=0, board=[], hand=[])

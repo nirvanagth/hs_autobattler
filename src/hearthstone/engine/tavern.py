@@ -256,7 +256,7 @@ class TavernManager:
                 break
         player.gold += 1
         cards_to_return: List[str] = []
-        cards_to_return.extend([unit.card_id] * (3 if unit.is_golden else 1))
+        cards_to_return.extend([unit.card_id] * unit.pool_copies)
         for cid, copies in unit.absorbed_pool_copies.items():
             cards_to_return.extend([cid] * copies)
         self.pool.return_cards(cards_to_return)
@@ -445,15 +445,18 @@ class TavernManager:
         merged_attached_perm: Dict[str, int] = {}
         merged_attached_turn: Dict[str, int] = {}
         merged_absorbed_pool: Dict[str, int] = {}
+        total_pool_copies = 0
 
         def _collect_stats(u: Unit) -> None:
             nonlocal total_perm_hp, total_perm_atk, total_turn_hp, total_turn_atk
+            nonlocal total_pool_copies
 
             total_perm_hp += u.perm_hp_add
             total_perm_atk += u.perm_atk_add
 
             total_turn_hp += u.turn_hp_add
             total_turn_atk += u.turn_atk_add
+            total_pool_copies += u.pool_copies
 
             for k, v in u.attached_perm.items():
                 merged_attached_perm[k] = merged_attached_perm.get(k, 0) + v
@@ -474,7 +477,13 @@ class TavernManager:
         for idx in sorted(indices_to_pop_board, reverse=True):
             player.board.pop(idx)
 
-        golden_unit = Unit.create_from_db(card_id, self.get_next_uid(), player.uid, is_golden=True)
+        golden_unit = Unit.create_from_db(
+            card_id,
+            self.get_next_uid(),
+            player.uid,
+            is_golden=True,
+            pool_copies=total_pool_copies,
+        )
 
         golden_unit.perm_hp_add = total_perm_hp
         golden_unit.perm_atk_add = total_perm_atk

@@ -39,6 +39,8 @@ class TestUnitCreation:
 
         assert golden.base_atk == normal.base_atk * 2
         assert golden.base_hp == normal.base_hp * 2
+        assert normal.pool_copies == 1
+        assert golden.pool_copies == 3
 
     def test_create_preserves_tags(self) -> None:
         unit = Unit.create_from_db(CardIDs.ANNOY_O_TRON, uid=1, owner_id=0)

@@ -323,7 +323,7 @@ class EffectContext:
         if not player or len(player.hand) >= 10:
             return False
         uid = self._uid_provider()
-        new_unit = Unit.create_from_db(card_id, uid, side)
+        new_unit = Unit.create_from_db(card_id, uid, side, pool_copies=0)
         player.hand.append(HandCard(uid=uid, unit=new_unit))
         return True
 
@@ -367,7 +367,13 @@ class EffectContext:
         if len(player.board) >= 7:
             return None
         index = max(0, min(insert_index, len(player.board)))
-        unit = Unit.create_from_db(card_id, self._uid_provider(), side, is_golden)
+        unit = Unit.create_from_db(
+            card_id,
+            self._uid_provider(),
+            side,
+            is_golden,
+            pool_copies=0,
+        )
         player.board.insert(index, unit)
         self._reindex_side(side)
         summoned = EntityRef(uid=unit.uid)
