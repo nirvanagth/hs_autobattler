@@ -39,6 +39,54 @@ class LobbyCombatResult:
     applied_damage: int
 
 
+@dataclass(frozen=True)
+class PublicUnitSnapshot:
+    card_id: str
+    attack: int
+    health: int
+    tier: int
+    is_golden: bool
+    tags: tuple[str, ...]
+    types: tuple[str, ...]
+
+    @staticmethod
+    def from_unit(unit: Unit) -> PublicUnitSnapshot:
+        return PublicUnitSnapshot(
+            card_id=str(getattr(unit.card_id, "value", unit.card_id)),
+            attack=unit.cur_atk,
+            health=unit.cur_hp,
+            tier=unit.tier,
+            is_golden=unit.is_golden,
+            tags=tuple(sorted(tag.name for tag in unit.tags)),
+            types=tuple(sorted(unit_type.value for unit_type in unit.types)),
+        )
+
+
+@dataclass(frozen=True)
+class PublicBoardSnapshot:
+    seen_on_turn: int
+    tavern_tier: int
+    units: tuple[PublicUnitSnapshot, ...]
+
+    @staticmethod
+    def from_player(player: Player, turn: int) -> PublicBoardSnapshot:
+        return PublicBoardSnapshot(
+            seen_on_turn=turn,
+            tavern_tier=player.tavern_tier,
+            units=tuple(PublicUnitSnapshot.from_unit(unit) for unit in player.board),
+        )
+
+
+@dataclass(frozen=True)
+class PublicOpponentState:
+    player_id: int
+    health: int
+    tavern_tier: int
+    alive: bool
+    last_seen_board: PublicBoardSnapshot | None
+    turns_since_seen: int | None
+
+
 class LobbyGame:
     """Eight-player lobby using a shared minion pool and pairwise combat."""
 
@@ -93,6 +141,9 @@ class LobbyGame:
         self.ghost_byes: dict[int, int] = {index: 0 for index in range(num_players)}
         self.last_pairings: list[LobbyPairing] = []
         self.last_combat_results: list[LobbyCombatResult] = []
+        self.last_seen_boards: dict[int, dict[int, PublicBoardSnapshot]] = {
+            viewer: {} for viewer in range(num_players)
+        }
 
         for player in self.players:
             self.tavern.start_turn(player, self.turn_count)
@@ -192,6 +243,38 @@ class LobbyGame:
             self.ghost_byes[ghost_player] += 1
         return pairings
 
+    def public_opponent_states(self, viewer_id: int) -> list[PublicOpponentState]:
+        """Return only information legally available to one player."""
+        if not 0 <= viewer_id < self.num_players:
+            raise ValueError(f"invalid viewer id: {viewer_id}")
+        states = []
+        for player in self.players:
+            if player.uid == viewer_id:
+                continue
+            snapshot = self.last_seen_boards[viewer_id].get(player.uid)
+            states.append(
+                PublicOpponentState(
+                    player_id=player.uid,
+                    health=player.health,
+                    tavern_tier=player.tavern_tier,
+                    alive=player.uid in self.active_player_ids,
+                    last_seen_board=snapshot,
+                    turns_since_seen=(
+                        self.turn_count - snapshot.seen_on_turn
+                        if snapshot is not None else None
+                    ),
+                )
+            )
+        return states
+
+    def _record_mutual_observation(self, first: Player, second: Player) -> None:
+        self.last_seen_boards[first.uid][second.uid] = PublicBoardSnapshot.from_player(
+            second, self.turn_count
+        )
+        self.last_seen_boards[second.uid][first.uid] = PublicBoardSnapshot.from_player(
+            first, self.turn_count
+        )
+
     def _resolve_pair(self, first: Player, second: Player) -> tuple[BattleOutcome, int]:
         # The fast combat prelude can materialize hand-based start-of-combat
         # summons, so pass copies to keep every recruit board persistent and to
@@ -228,8 +311,12 @@ class LobbyGame:
 
             if pairing.is_ghost:
                 second = self.ghost_snapshots[pairing.opponent_id].combat_copy()
+                self.last_seen_boards[first.uid][pairing.opponent_id] = (
+                    PublicBoardSnapshot.from_player(second, self.turn_count)
+                )
             else:
                 second = self.players[pairing.opponent_id]
+                self._record_mutual_observation(first, second)
 
             outcome, raw_damage = self._resolve_pair(first, second)
             raw_damage = abs(raw_damage)

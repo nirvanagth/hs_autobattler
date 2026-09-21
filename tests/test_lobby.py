@@ -111,6 +111,43 @@ def test_odd_lobby_pairs_one_player_with_recent_ghost(
     assert ghost_pairings[0].opponent_id == 99
 
 
+def test_opponent_board_is_hidden_until_combat(
+    lobby_factory: Callable[..., LobbyGame],
+) -> None:
+    lobby = lobby_factory(num_players=2, seed=12)
+    lobby.players[1].board.append(
+        Unit.create_from_db("101", lobby.tavern.get_next_uid(), owner_id=1)
+    )
+    opponent = lobby.public_opponent_states(0)[0]
+    assert opponent.health == lobby.players[1].health
+    assert opponent.tavern_tier == lobby.players[1].tavern_tier
+    assert opponent.last_seen_board is None
+    assert opponent.turns_since_seen is None
+
+
+def test_combat_updates_last_seen_without_leaking_future_mutations(
+    lobby_factory: Callable[..., LobbyGame],
+    monkeypatch,
+) -> None:
+    lobby = lobby_factory(num_players=2, seed=13)
+    lobby.players[1].board.append(
+        Unit.create_from_db("101", lobby.tavern.get_next_uid(), owner_id=1)
+    )
+    monkeypatch.setattr(lobby, "_resolve_pair", lambda _a, _b: (BattleOutcome.DRAW, 0))
+    lobby.players_ready = {0: True, 1: True}
+    lobby.resolve_combat_round()
+
+    seen = lobby.public_opponent_states(0)[0]
+    assert seen.last_seen_board is not None
+    assert len(seen.last_seen_board.units) == 1
+    assert seen.turns_since_seen == 1
+
+    lobby.players[1].board.clear()
+    still_stale = lobby.public_opponent_states(0)[0]
+    assert still_stale.last_seen_board is not None
+    assert len(still_stale.last_seen_board.units) == 1
+
+
 def test_eliminated_cards_return_to_shared_pool(
     lobby_factory: Callable[..., LobbyGame],
 ) -> None:

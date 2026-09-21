@@ -17,6 +17,7 @@ from hearthstone.engine.event_system import EventManager
 from hearthstone.engine.game import Game
 from hearthstone.engine.lobby import LobbyGame
 from hearthstone.engine.tavern import TavernManager
+from hearthstone.env.lobby_env import BattlegroundsLobbyEnv
 
 # ---------------------------------------------------------------------------
 #  Core fixtures
@@ -35,6 +36,11 @@ def lobby_factory() -> Callable[..., LobbyGame]:
         return LobbyGame(**kwargs)
 
     return _factory
+
+
+@pytest.fixture()
+def lobby_env() -> BattlegroundsLobbyEnv:
+    return BattlegroundsLobbyEnv(seed=42)
 
 
 @pytest.fixture()
