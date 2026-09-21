@@ -3,6 +3,9 @@
 from pathlib import Path
 
 from scripts.run_matched_ablation import build_eval_command, build_train_command
+from scripts.run_matched_ppo_ablation import (
+    build_train_command as build_ppo_train_command,
+)
 
 
 def test_train_command_pins_variant_seed_and_budget(tmp_path: Path) -> None:
@@ -34,3 +37,25 @@ def test_eval_command_uses_fixed_seed_suite(tmp_path: Path) -> None:
     assert command[command.index("--games-es") + 1] == "200"
     assert command[command.index("--games-smart") + 1] == "200"
     assert command[command.index("--seed") + 1] == "80000"
+
+
+def test_ppo_ablation_changes_only_variant_controls(tmp_path: Path) -> None:
+    common = dict(
+        parent=tmp_path / "parent.pt",
+        output_dir=tmp_path / "run",
+        seed=17,
+        timesteps=327_680,
+        learning_rate=3e-5,
+        entropy_start=0.005,
+        entropy_end=0.001,
+        n_envs=8,
+        n_steps=2048,
+        n_minibatches=16,
+    )
+    plain = build_ppo_train_command(variant="ppo", **common)
+    oracle = build_ppo_train_command(variant="oracle", **common)
+    assert plain[plain.index("--bc-kl-coef") + 1] == "0"
+    assert plain[plain.index("--reward-mode") + 1] == "sparse"
+    assert oracle[oracle.index("--bc-kl-coef") + 1] == "0.1"
+    assert oracle[oracle.index("--reward-mode") + 1] == "oracle_potential"
+    assert oracle[oracle.index("--oracle-n-combats") + 1] == "64"
