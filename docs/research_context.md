@@ -270,12 +270,13 @@ gave 3.995--4.904 mean placements, 11.03%--14.55% win rates, and pairwise
 extremes of 60.525% / 39.475%, within the declared gate. See
 `docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
 
-F3 real-data import is partial. Six local Power.log files yielded 10 detected
-BG sessions, 367,040 sanitized events, and 3,137 recognized recruit actions
-across 751 live CardIDs. No paths, names, account values, or raw lines are in
-the tracked aggregate. The 10,000-action gate needs 6,863 more actions; live
+F3 real-data import is partial. Seven local Power.log files yielded 32 detected
+CREATE_GAME sessions, including 10 BG sessions, 367,040 sanitized events, and
+3,137 recognized recruit actions across 751 live CardIDs. The latest import
+added no BG actions. No paths, names, account values, or raw lines are in the
+tracked aggregate. The 10,000-action gate needs 6,863 more actions; live
 CardID aliases and replay remain. See `docs/f3_trace_conformance.md` and
-`benchmarks/hsbg_trace_import_partial_v2.json`.
+`benchmarks/hsbg_trace_import_partial_v3.json`.
 
 Exact HearthstoneJSON aliasing maps 239/257 internal content IDs, but the live
 logs contain a much broader patch: only 111/227 ordinary observed minion IDs

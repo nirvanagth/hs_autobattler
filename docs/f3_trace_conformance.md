@@ -43,8 +43,8 @@ PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/import_power_log.py \
 
 ## Real import progress
 
-Six local Power.log files (about 244 MB raw) were found and imported without
-storing their paths. They contain 30 CREATE_GAME sessions, of which 10 have
+Seven local Power.log files (about 248 MB raw) were found and imported without
+storing their paths. They contain 32 CREATE_GAME sessions, of which 10 have
 Battlegrounds CardIDs. BG-only sanitized output contains:
 
 - 367,040 events;
@@ -54,8 +54,11 @@ Battlegrounds CardIDs. BG-only sanitized output contains:
 
 Recognized actions are 1,085 rolls, 590 card plays, 492 buys, 363 upgrades,
 320 sells, 211 freezes, 48 hero powers, and 28 special actions. The aggregate
-privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v2.json`
-(SHA-256 `37b3a7da97026a5d795004e4966344e8aa01545a4de5f8a179d3b46bd224dd5f`).
+privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v3.json`
+(SHA-256 `5e8460023fc93a26a4ef33dea229875ceb8dc000e04ab3a23da2229bbda7c189`).
+The seventh file and the growth of the sixth file contained no additional
+detected Battlegrounds actions; this negative ingestion result is retained so
+the unchanged gate count is explicit rather than silently discarded.
 Trace schema v2 SHA-256 is
 `202819c66a7e113a9f6e002f1dd57fc89d416f6177cae9d7ffd9238d9b620cda`.
 

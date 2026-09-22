@@ -188,8 +188,9 @@ replaced by self-play evidence from the same simulator.
 Progress: the privacy-safe Power.log parser, versioned event schema, action
 transition reconstructor, simulator normalizer, field-level comparator, and
 aggregate conformance reporter are implemented. Schema v2 resets state at each
-CREATE_GAME and extracts nested recruit actions. Six real logs yielded 10 BG
-sessions and 3,137 sanitized recruit actions across 751 live CardIDs. The
+CREATE_GAME and extracts nested recruit actions. Seven real logs yielded 32
+CREATE_GAME sessions, including 10 BG sessions and 3,137 sanitized recruit
+actions across 751 live CardIDs. The latest import added no BG actions. The
 10,000-transition gate needs 6,863 more actions. See
 `docs/f3_trace_conformance.md`.
 
