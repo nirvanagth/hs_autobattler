@@ -10,6 +10,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from hearthstone.engine.card_def import ALL_CARDS
+from hearthstone.engine.configs import SPELL_DB
 from hearthstone.engine.entities import HandCard, HeroState, Spell, StoreItem, Unit
 from hearthstone.engine.game import Game
 from hearthstone.engine.pool import CardPool, SpellPool
@@ -22,6 +24,10 @@ from hearthstone.traces.powerlog import (
 
 OVERLAP_CONTRACT_SCHEMA_VERSION = 1
 REPLAY_RESULT_SCHEMA_VERSION = 1
+
+
+def _raw_id(value: Any) -> str:
+    return str(getattr(value, "value", value))
 
 
 def sha256_file(path: Path) -> str:
@@ -54,6 +60,18 @@ def build_overlap_contract(
             "kind": kind,
             "match": entry["match"],
         }
+    rng_sensitive_ids = {
+        _raw_id(card.card_id)
+        for card in ALL_CARDS
+        if _raw_id(card.card_id) in included_cards
+        and any("Random" in type(effect).__name__ for effect in card.effects)
+    }
+    rng_sensitive_ids.update(
+        _raw_id(spell_id)
+        for spell_id, definition in SPELL_DB.items()
+        if _raw_id(spell_id) in included_spells
+        and "RANDOM" in str(definition.get("effect", "")).upper()
+    )
     return {
         "schema_version": OVERLAP_CONTRACT_SCHEMA_VERSION,
         "action_classifier_version": ACTION_CLASSIFIER_VERSION,
@@ -78,7 +96,7 @@ def build_overlap_contract(
             "SELL": {
                 "status": "replay",
                 "comparison_mode": "deterministic",
-                "comparison_fields": ["board", "hand", "shop"],
+                "comparison_fields": ["board", "hand"],
             },
             "PLAY_CARD": {
                 "status": "replay",
@@ -124,6 +142,7 @@ def build_overlap_contract(
                 "random_shop_identity_after_roll",
                 "unlogged_enchantments",
             ],
+            "rng_sensitive_internal_ids": sorted(rng_sensitive_ids),
         },
     }
 
@@ -444,10 +463,20 @@ def select_replayable_transition(
             )
         simulator_action = "ROLL"
 
+    comparison_mode = policy["comparison_mode"]
+    if action_type in {"BUY", "SELL", "PLAY_CARD"}:
+        relevant_internal_ids = {source_internal_id}
+        for entity in _zone_entities(transition["before"], controller, "PLAY"):
+            alias = aliases.get(entity.get("card_id"))
+            if alias is not None:
+                relevant_internal_ids.add(alias["internal_id"])
+        if relevant_internal_ids & set(contract["state_contract"]["rng_sensitive_internal_ids"]):
+            comparison_mode = "invariant_only"
+
     return ReplayDecision(
         not reasons,
         action_type,
-        policy["comparison_mode"],
+        comparison_mode,
         tuple(sorted(set(reasons))),
         controller,
         shop_controller,
@@ -589,6 +618,7 @@ def _canonical_item(
     entity_id: int | None,
     internal_id: str,
     position: int,
+    tier: int,
     attack: int | None = None,
     health: int | None = None,
     damage: int | None = None,
@@ -597,6 +627,7 @@ def _canonical_item(
         "entity_id": entity_id,
         "internal_card_id": internal_id,
         "position": position,
+        "tier": tier,
         "attack": attack,
         "health": health,
         "damage": damage,
@@ -608,8 +639,9 @@ def canonical_simulator_player(game: Game) -> dict[str, Any]:
     board = [
         _canonical_item(
             entity_id=unit.uid,
-            internal_id=str(unit.card_id),
+            internal_id=_raw_id(unit.card_id),
             position=index + 1,
+            tier=unit.tier,
             attack=unit.cur_atk,
             health=unit.max_hp,
             damage=max(0, unit.max_hp - unit.cur_hp),
@@ -622,8 +654,9 @@ def canonical_simulator_player(game: Game) -> dict[str, Any]:
             hand.append(
                 _canonical_item(
                     entity_id=card.uid,
-                    internal_id=str(card.unit.card_id),
+                    internal_id=_raw_id(card.unit.card_id),
                     position=index + 1,
+                    tier=card.unit.tier,
                     attack=card.unit.cur_atk,
                     health=card.unit.max_hp,
                     damage=max(0, card.unit.max_hp - card.unit.cur_hp),
@@ -633,8 +666,9 @@ def canonical_simulator_player(game: Game) -> dict[str, Any]:
             hand.append(
                 _canonical_item(
                     entity_id=card.uid,
-                    internal_id=str(card.spell.card_id),
+                    internal_id=_raw_id(card.spell.card_id),
                     position=index + 1,
+                    tier=card.spell.tier,
                 )
             )
     store = []
@@ -643,8 +677,9 @@ def canonical_simulator_player(game: Game) -> dict[str, Any]:
             store.append(
                 _canonical_item(
                     entity_id=item.unit.uid,
-                    internal_id=str(item.unit.card_id),
+                    internal_id=_raw_id(item.unit.card_id),
                     position=index + 1,
+                    tier=item.unit.tier,
                     attack=item.unit.cur_atk,
                     health=item.unit.max_hp,
                     damage=max(0, item.unit.max_hp - item.unit.cur_hp),
@@ -654,8 +689,9 @@ def canonical_simulator_player(game: Game) -> dict[str, Any]:
             store.append(
                 _canonical_item(
                     entity_id=None,
-                    internal_id=str(item.spell.card_id),
+                    internal_id=_raw_id(item.spell.card_id),
                     position=index + 1,
+                    tier=item.spell.tier,
                 )
             )
     return {
@@ -683,6 +719,7 @@ def canonical_trace_player(
                     "live_card_id": entity.get("card_id"),
                     "internal_card_id": alias["internal_id"] if alias else None,
                     "position": _position(entity),
+                    "tier": tags.get("TECH_LEVEL"),
                     "attack": tags.get("ATK"),
                     "health": tags.get("HEALTH"),
                     "damage": tags.get("DAMAGE", 0) if "HEALTH" in tags else None,

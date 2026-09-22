@@ -196,9 +196,16 @@ gate needs 8,291 more actions. See `docs/f3_trace_conformance.md`.
 
 The behavior-v7 overlap contract is now hash-pinned with 81 supported live
 aliases. A conservative pass selected 55/1,709 actions and replayed all 55
-deterministic candidates successfully. This completes overlap freezing,
-selection, and execution; accepted actions have not yet been counted as
-conformant. Deterministic post-state comparison is next.
+successfully: 54 deterministic candidates and one RNG-invariant sell. This
+completes overlap freezing, selection, and execution.
+
+The first state comparison found 140/140 matching precondition fields. Of 28
+deterministic transitions with usable post-state boundaries, 18 were exact and
+10 disagreed only on upgrade cost, giving 89.36% field agreement. Twenty-three
+upgrade transitions had deferred log updates and three lacked complete
+preconditions, so they were excluded rather than counted as matches. The random
+sell passed its structural invariants. Upgrade costs must be corrected before
+the 99.5% gate can pass.
 
 Exact public-data aliasing resolved 239/257 internal IDs, but only 45.3% of
 ordinary live minion IDs and 8.5% of live spell IDs observed in the logs overlap

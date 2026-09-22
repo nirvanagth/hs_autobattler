@@ -234,8 +234,10 @@ deterministic state fields.
 Progress: privacy-safe parsing and a corrected 1,709-action import are complete.
 Classifier v3 excludes nested effect blocks formerly overcounted as actions.
 The frozen behavior-v7 overlap contract admits 55 conservative replay
-candidates; all 55 execute successfully and repeatably. Post-state comparison
-and the remaining real-data volume are still required. See
+candidates; all 55 execute successfully and repeatably. Of 28 deterministic
+transitions with usable post-state evidence, 18 matched exactly and 10 exposed
+an upgrade-cost mismatch (89.36% field agreement). The mismatch, trace-boundary
+coverage, and remaining real-data volume still require work. See
 `docs/f3_trace_conformance.md`.
 
 ### F4. Content curriculum and policy transfer — PENDING

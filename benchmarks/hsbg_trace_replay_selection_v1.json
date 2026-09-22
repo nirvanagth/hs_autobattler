@@ -1,5 +1,5 @@
 {
-  "contract_sha256": "8533556ac4696a364c8612425b4033e2ae89c60cdab43f7f5aa80a983c08050f",
+  "contract_sha256": "5c1a20072ad421977719343062c428d905e9c60ea2ac4c16714dba5b8410c2da",
   "inputs": [
     {
       "input_index": 1,
@@ -35,8 +35,8 @@
     }
   ],
   "outputs": {
-    "replay_results_sha256": "18143902ce1af495076c78bc694b8af5d8ee7d7163bea98917bc636b10d56395",
-    "selections_sha256": "3cbc5ed7483ba8294250138cab49bbd2c373c06145a3882f9f0f92dd8966724f"
+    "replay_results_sha256": "67e60984a93961ea550fc241e4c394c6e44cf98d3d9a390d5e3f604a361007c6",
+    "selections_sha256": "3c6008e507378463330d2dd9f11045102647694ddbd182f87b364826c5d698d1"
   },
   "privacy": {
     "entity_names_stored": false,
@@ -63,7 +63,8 @@
       "UPGRADE": 52
     },
     "eligible_comparison_mode_counts": {
-      "deterministic": 55
+      "deterministic": 54,
+      "invariant_only": 1
     },
     "eligible_transitions": 55,
     "exclusion_reason_counts": {

@@ -38,8 +38,7 @@
     "SELL": {
       "comparison_fields": [
         "board",
-        "hand",
-        "shop"
+        "hand"
       ],
       "comparison_mode": "deterministic",
       "status": "replay"
@@ -581,6 +580,14 @@
       "visible_attack",
       "visible_health",
       "visible_damage"
+    ],
+    "rng_sensitive_internal_ids": [
+      "115",
+      "214",
+      "215",
+      "317",
+      "338",
+      "702"
     ],
     "synthetic_fields": [
       "gold",

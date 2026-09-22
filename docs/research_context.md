@@ -204,7 +204,9 @@ S1 progress:
 Next extension/execution target:
 
 - collect at least 8,291 additional sanitized recruit actions from new games;
-- compare supported replay post-states and resolve deterministic mismatch
+- correct the two high-tier upgrade costs exposed by trace conformance and
+  rerun the frozen benchmark;
+- improve delayed post-state capture and resolve deterministic mismatch
   categories to 99.5% agreement;
 - expand exact aliases/content support where exclusions provide the highest
   replay-coverage gain.
@@ -277,7 +279,7 @@ CREATE_GAME sessions, including 16 BG sessions, 527,769 sanitized events, and
 1,709 recognized recruit actions across 946 live CardIDs. Classifier v3 fixes
 the earlier overcount of nested effect blocks as user actions. No paths, names,
 account values, or raw lines are in the tracked aggregate. The 10,000-action
-gate needs 8,291 more actions; deterministic replay comparison remains. See
+gate needs 8,291 more actions. See
 `docs/f3_trace_conformance.md` and
 `benchmarks/hsbg_trace_import_partial_v5.json`.
 
@@ -290,10 +292,13 @@ content coverage. See `benchmarks/live_card_aliases_v1.json` and
 
 F3 overlap steps 1--3 are complete. The hash-pinned behavior-v7 contract
 contains 81 live aliases. Conservative selection admitted 55/1,709 actions,
-and all 55 deterministic candidates executed successfully in two byte-identical
-runs. This is execution evidence, not yet a conformance claim. See
+and all 55 executed successfully in two byte-identical runs: 54 deterministic
+and one RNG-invariant. The first comparison found 140/140 matching precondition
+fields. Of 28 evaluable deterministic transitions, 18 were exact and 10 differed
+only on upgrade cost (89.36% field agreement); the invariant sell passed. See
 `benchmarks/hsbg_trace_overlap_contract_v1.json` and
-`benchmarks/hsbg_trace_replay_selection_v1.json`.
+`benchmarks/hsbg_trace_replay_selection_v1.json`, plus
+`benchmarks/hsbg_trace_conformance_v1.json`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

@@ -95,22 +95,23 @@ more card/spell coverage and must not be inferred from simulator self-play.
 `benchmarks/hsbg_trace_overlap_contract_v1.json` freezes behavior v7, the
 full-tier content profile, the exact alias registry, 81 supported live aliases,
 and the replay policy (SHA-256
-`8533556ac4696a364c8612425b4033e2ae89c60cdab43f7f5aa80a983c08050f`).
-Buy, sell, supported card play, and upgrade are deterministic candidates. Roll
-is replayed for invariants only because the live RNG seed is unavailable.
-Freeze, live hero powers, and special buttons remain explicitly excluded until
-their missing state or semantics are represented.
+`5c1a20072ad421977719343062c428d905e9c60ea2ac4c16714dba5b8410c2da`).
+Buy, sell, supported card play, and upgrade are deterministic by default;
+transitions touching a contract-listed random effect are downgraded to
+invariant-only. Roll is also invariant-only because the live RNG seed is
+unavailable. Freeze, live hero powers, and special buttons remain explicitly
+excluded until their missing state or semantics are represented.
 
 The conservative selector admitted 55/1,709 transitions (3.22%): 52 upgrades,
-1 buy, 1 sell, and 1 card play. All 55 deterministic candidates were accepted
-by the behavior-v7 simulator. The low selection rate is primarily caused by
-unmapped live cards in the board, hand, or shop. It is evidence about coverage,
-not a replay failure. Accepted execution does not yet imply deterministic state
-agreement.
+1 buy, 1 sell, and 1 card play. All 55 were accepted by the behavior-v7
+simulator; 54 are deterministic candidates and the random River Skipper sell is
+invariant-only. The low selection rate is primarily caused by unmapped live
+cards in the board, hand, or shop. It is evidence about coverage, not a replay
+failure.
 
 The privacy-safe aggregate is
 `benchmarks/hsbg_trace_replay_selection_v1.json` (SHA-256
-`3787086e63df2a89a08555582d084befcef8813e52356ce2bd8ec844c60408bc`).
+`16ec593645be7498934b1fca4db6106b6056ef488f276841afa95d8fde62fe64`).
 Two full runs produced identical selection and replay-result hashes.
 
 ```bash
@@ -120,14 +121,39 @@ Two full runs produced identical selection and replay-result hashes.
   --profile benchmarks/hsbg_content_profile_v7_fulltier.json \
   --aliases benchmarks/live_card_aliases_v1.json \
   --out-dir artifacts/trace_f3/replay_session
+
+.venv/bin/python scripts/compare_trace_replays.py \
+  --replay-results artifacts/trace_f3/replay_session/replay_results.jsonl \
+  --contract benchmarks/hsbg_trace_overlap_contract_v1.json \
+  --out artifacts/trace_f3/conformance.json
 ```
+
+## First deterministic comparison
+
+The first post-state pass compared only fields declared by each action's frozen
+contract. Gold, hero state, freeze state, unknown enchantments, and random card
+identity are not silently scored. All 140 replay precondition fields matched.
+
+Of 54 deterministic candidates, 28 had complete and timely live post-state
+evidence. Eighteen transitions matched exactly; 10 mismatched, for 64.29% exact
+transition agreement and 89.36% field agreement (84/94). The buy and card-play
+transitions matched exactly. All 10 mismatches were `upgrade_cost`: live exposed
+11 while the simulator produced 9 or 10. The invariant-only River Skipper sell
+passed its board/hand/shop delta and generated-tier checks.
+
+Twenty-three upgrades were excluded because Power.log published the new button
+state after the captured action block, and three lacked a complete precondition.
+These are categorized trace-boundary limitations, not matches. The report is
+`benchmarks/hsbg_trace_conformance_v1.json` (SHA-256
+`a15300fcd25d88b2907315bfda26bc4b38c9bed7cf15bc2372ae02243a1f308d`).
 
 ## Remaining gate
 
 - import at least 10,000 real recruit transitions across multiple games
   (currently 1,709; 8,291 remaining);
-- compare the 55 deterministic replay candidates against their normalized
-  live post-action state;
+- resolve the 10 reproducible upgrade-cost mismatches;
+- improve trace-boundary capture and supported-content coverage so more than
+  28 deterministic transitions are evaluable;
 - reach at least 99.5% agreement on deterministic fields;
 - categorize every mismatch and either fix it or exclude it in a versioned
   benchmark contract.
