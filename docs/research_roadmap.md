@@ -231,9 +231,11 @@ A 4,000-lobby rotating-seat matrix passed the balance gate. See
 Gate: 10,000+ real recruit transitions with at least 99.5% agreement on
 deterministic state fields.
 
-Progress: privacy-safe parsing, transition reconstruction, simulator state
-normalization, mismatch classification, and synthetic round-trip tests are
-complete. The real-data gate awaits user-provided Power.log/replay traces. See
+Progress: privacy-safe parsing and a corrected 1,709-action import are complete.
+Classifier v3 excludes nested effect blocks formerly overcounted as actions.
+The frozen behavior-v7 overlap contract admits 55 conservative replay
+candidates; all 55 execute successfully and repeatably. Post-state comparison
+and the remaining real-data volume are still required. See
 `docs/f3_trace_conformance.md`.
 
 ### F4. Content curriculum and policy transfer — PENDING

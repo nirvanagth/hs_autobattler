@@ -4,8 +4,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import Counter
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from hearthstone.traces.powerlog import (
+    ACTION_CLASSIFIER_VERSION,
+    classify_battlegrounds_action,
+)
 
 
 def read_jsonl(path: Path):
@@ -23,39 +32,49 @@ def main() -> None:
     inputs = []
     action_counts: Counter[str] = Counter()
     card_ids = set()
+    trace_schema_versions = set()
     totals: Counter[str] = Counter()
     for index, raw_directory in enumerate(args.import_dir, start=1):
         directory = Path(raw_directory)
         metadata = json.loads((directory / "metadata.json").read_text())
-        inputs.append(
-            {
-                "input_index": index,
-                "source_sha256": metadata["source_sha256"],
-                "event_stream_sha256": metadata["event_stream_sha256"],
-                "sessions": metadata["sessions"],
-                "battlegrounds_sessions": metadata["battlegrounds_sessions"],
-                "events": metadata["events"],
-                "top_level_transitions": metadata["transitions"],
-                "action_transitions": metadata["action_transitions"],
-            }
-        )
+        trace_schema_versions.add(int(metadata.get("schema_version", 1)))
+        input_record = {
+            "input_index": index,
+            "source_sha256": metadata["source_sha256"],
+            "event_stream_sha256": metadata["event_stream_sha256"],
+            "sessions": metadata["sessions"],
+            "battlegrounds_sessions": metadata["battlegrounds_sessions"],
+            "events": metadata["events"],
+            "top_level_transitions": metadata["transitions"],
+            "action_transitions": 0,
+        }
+        inputs.append(input_record)
         for key in (
             "sessions",
             "battlegrounds_sessions",
             "events",
             "transitions",
-            "action_transitions",
         ):
             totals[key] += int(metadata[key])
         for event in read_jsonl(directory / "events.jsonl"):
             if event.get("card_id"):
                 card_ids.add(event["card_id"])
         for transition in read_jsonl(directory / "action_transitions.jsonl"):
-            action_counts[transition["action_type"]] += 1
+            action_type = classify_battlegrounds_action(
+                transition.get("source_card_id"), transition.get("block_type")
+            )
+            if action_type is not None:
+                totals["action_transitions"] += 1
+                input_record["action_transitions"] += 1
+                action_counts[action_type] += 1
     remaining = max(0, args.target_actions - totals["action_transitions"])
     report = {
-        "schema_version": 1,
-        "trace_schema_version": 2,
+        "schema_version": 2,
+        "trace_schema_version": (
+            next(iter(trace_schema_versions)) if len(trace_schema_versions) == 1 else None
+        ),
+        "source_trace_schema_versions": sorted(trace_schema_versions),
+        "action_classifier_version": ACTION_CLASSIFIER_VERSION,
         "inputs": inputs,
         "totals": {
             "sessions": totals["sessions"],

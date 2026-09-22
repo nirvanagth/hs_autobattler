@@ -1,0 +1,85 @@
+{
+  "contract_sha256": "8533556ac4696a364c8612425b4033e2ae89c60cdab43f7f5aa80a983c08050f",
+  "inputs": [
+    {
+      "input_index": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_index": 2,
+      "sha256": "0fac4bb441cfb236f2fe8ad5b79891901adfaab7edf618d251f559ddd87cb612"
+    },
+    {
+      "input_index": 3,
+      "sha256": "5ec0b6ff3e26e833b375ea1f2096c3dd3bcf825c64f83c6e2bd88597081235f7"
+    },
+    {
+      "input_index": 4,
+      "sha256": "6449ac2e79bc3362d0531395905a368b0c1d558887bbe0538024cc9e2de5bcf2"
+    },
+    {
+      "input_index": 5,
+      "sha256": "f6422a15ac238446e4c723d25a703c3373f09405f79bce83c9a4a664f8c56b65"
+    },
+    {
+      "input_index": 6,
+      "sha256": "85d905645e367bbdf3ef442032fd0f435dcd0107bbfffbfa17feac5954bcf897"
+    },
+    {
+      "input_index": 7,
+      "sha256": "5db7dcc3a76dba7bf9567d98da0448c74dbf73400d8ca2dfe0a87d9b23629eaa"
+    },
+    {
+      "input_index": 8,
+      "sha256": "d69ec45e32d63d71a49b0e9209b497f316282adb2fc89d964452808555443b7c"
+    }
+  ],
+  "outputs": {
+    "replay_results_sha256": "18143902ce1af495076c78bc694b8af5d8ee7d7163bea98917bc636b10d56395",
+    "selections_sha256": "3cbc5ed7483ba8294250138cab49bbd2c373c06145a3882f9f0f92dd8966724f"
+  },
+  "privacy": {
+    "entity_names_stored": false,
+    "raw_lines_stored": false,
+    "source_paths_stored": false
+  },
+  "replay": {
+    "accepted": 55,
+    "accepted_action_counts": {
+      "BUY": 1,
+      "PLAY_CARD": 1,
+      "SELL": 1,
+      "UPGRADE": 52
+    },
+    "rejected": 0
+  },
+  "schema_version": 1,
+  "selection": {
+    "eligibility_rate": 0.03218256290228204,
+    "eligible_action_counts": {
+      "BUY": 1,
+      "PLAY_CARD": 1,
+      "SELL": 1,
+      "UPGRADE": 52
+    },
+    "eligible_comparison_mode_counts": {
+      "deterministic": 55
+    },
+    "eligible_transitions": 55,
+    "exclusion_reason_counts": {
+      "buy_target_not_inferred": 148,
+      "freeze_state_unobserved": 12,
+      "live_hero_roster_unsupported": 56,
+      "play_destination_not_supported": 15,
+      "play_source_not_in_hand": 463,
+      "play_source_unmapped": 648,
+      "play_spell_target_not_inferred": 6,
+      "sell_target_not_inferred": 115,
+      "special_action_semantics_unsupported": 44,
+      "unmapped_board_card": 1468,
+      "unmapped_hand_card": 785,
+      "unmapped_shop_card": 1167
+    },
+    "transitions": 1709
+  }
+}

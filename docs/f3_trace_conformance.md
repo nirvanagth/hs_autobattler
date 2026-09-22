@@ -1,7 +1,7 @@
 # F3 external trace conformance
 
-Date: 2026-09-21
-Status: real-data import partial; more games required
+Date: 2026-09-22
+Status: overlap replay implemented; conformance comparison and more games required
 
 ## Privacy boundary
 
@@ -17,7 +17,7 @@ by git.
 1. Streaming parser for CREATE_GAME, FULL/SHOW/CHANGE_ENTITY, TAG_CHANGE, and
    nested BLOCK_START/BLOCK_END records.
 2. Versioned allowlist and schema in
-   `benchmarks/powerlog_trace_schema_v1.json`.
+   `benchmarks/powerlog_trace_schema_v3.json`.
 3. Top-level action transition reconstruction with before/after entity state.
 4. Simulator state normalization for heroes, armor, board, hand, and shop.
 5. Field-level comparison with missing/extra entity, card ID, and individual
@@ -26,6 +26,11 @@ by git.
    card play, hero power, and special actions.
 7. Aggregate transition reports with exact-transition and field-agreement
    rates plus bounded mismatch examples.
+8. Hash-pinned behavior-v7 overlap contract for the supported live CardID
+   subset and explicit per-action replay policy.
+9. Conservative replayability selection with categorized exclusion reasons.
+10. State hydration and deterministic behavior-v7 execution for selected
+    buy, sell, play, roll, and upgrade actions.
 
 Synthetic end-to-end verification parsed 14 lines into 13 sanitized events and
 one action transition. The event stream SHA-256 is
@@ -49,15 +54,22 @@ Battlegrounds CardIDs. BG-only sanitized output contains:
 
 - 527,769 events;
 - 4,074 top-level transitions;
-- 4,319 recognized nested recruit actions;
+- 1,709 recognized recruit actions;
 - 946 unique live CardIDs.
 
-Recognized actions are 1,582 rolls, 792 card plays, 592 buys, 432 upgrades,
-501 sells, 320 freezes, 56 hero powers, and 44 special actions. The aggregate
-privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v4.json`
-(SHA-256 `9b2702bc06bde573c21cb15aa606d01d6b89cb455f2ba767da7a8adaf2cf71cd`).
-Trace schema v2 SHA-256 is
-`202819c66a7e113a9f6e002f1dd57fc89d416f6177cae9d7ffd9238d9b620cda`.
+Recognized actions are 246 rolls, 798 card plays, 270 buys, 52 upgrades,
+231 sells, 12 freezes, 56 hero powers, and 44 special actions. The aggregate
+privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v5.json`
+(SHA-256 `187f83e177dfacb76c3f88885c175ddedb37c6635801f2171250abd172f703d7`).
+The source artifacts use trace schema v2; action counts are reclassified by
+classifier v3. New imports use trace schema v3 (SHA-256
+`17a526aa1fe540869046c3ce1900e5896923b61765a50a82c8136a9f054f2629`).
+
+Classifier v3 corrects an important false-positive in the earlier partial-v4
+report. Only `BlockType=PLAY` is a user recruit action. Nested POWER, TRIGGER,
+and ATTACK blocks are effects, not additional actions, and `TB_BaconUps_*`
+identifies golden minions rather than tavern-upgrade buttons. The earlier 4,319
+count is therefore superseded, not comparable to the corrected 1,709 count.
 
 Public HearthstoneJSON data (source SHA-256
 `079c41a102d386a289bcf2676815799967a8aa0aaeb6b0a5958c76bdd4a20ac3`)
@@ -78,12 +90,44 @@ This means 99.5% conformance can currently be measured only on an explicitly
 overlapping content subset. Whole-live-patch conformance requires substantially
 more card/spell coverage and must not be inferred from simulator self-play.
 
+## Frozen overlap and replay
+
+`benchmarks/hsbg_trace_overlap_contract_v1.json` freezes behavior v7, the
+full-tier content profile, the exact alias registry, 81 supported live aliases,
+and the replay policy (SHA-256
+`8533556ac4696a364c8612425b4033e2ae89c60cdab43f7f5aa80a983c08050f`).
+Buy, sell, supported card play, and upgrade are deterministic candidates. Roll
+is replayed for invariants only because the live RNG seed is unavailable.
+Freeze, live hero powers, and special buttons remain explicitly excluded until
+their missing state or semantics are represented.
+
+The conservative selector admitted 55/1,709 transitions (3.22%): 52 upgrades,
+1 buy, 1 sell, and 1 card play. All 55 deterministic candidates were accepted
+by the behavior-v7 simulator. The low selection rate is primarily caused by
+unmapped live cards in the board, hand, or shop. It is evidence about coverage,
+not a replay failure. Accepted execution does not yet imply deterministic state
+agreement.
+
+The privacy-safe aggregate is
+`benchmarks/hsbg_trace_replay_selection_v1.json` (SHA-256
+`3787086e63df2a89a08555582d084befcef8813e52356ce2bd8ec844c60408bc`).
+Two full runs produced identical selection and replay-result hashes.
+
+```bash
+.venv/bin/python scripts/replay_trace_actions.py \
+  --transitions artifacts/trace_f3/session/action_transitions.jsonl \
+  --contract benchmarks/hsbg_trace_overlap_contract_v1.json \
+  --profile benchmarks/hsbg_content_profile_v7_fulltier.json \
+  --aliases benchmarks/live_card_aliases_v1.json \
+  --out-dir artifacts/trace_f3/replay_session
+```
+
 ## Remaining gate
 
 - import at least 10,000 real recruit transitions across multiple games
-  (currently 4,319; 5,681 remaining);
-- establish live CardID aliases for the frozen content profile;
-- replay supported actions into behavior-v7 simulator snapshots;
+  (currently 1,709; 8,291 remaining);
+- compare the 55 deterministic replay candidates against their normalized
+  live post-action state;
 - reach at least 99.5% agreement on deterministic fields;
 - categorize every mismatch and either fix it or exclude it in a versioned
   benchmark contract.

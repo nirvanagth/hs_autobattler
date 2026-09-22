@@ -203,9 +203,11 @@ S1 progress:
 
 Next extension/execution target:
 
-- collect at least 5,681 additional sanitized recruit actions from new games;
-- add live-to-internal CardID aliases found in the trace;
-- replay supported actions and resolve mismatch categories to 99.5% agreement.
+- collect at least 8,291 additional sanitized recruit actions from new games;
+- compare supported replay post-states and resolve deterministic mismatch
+  categories to 99.5% agreement;
+- expand exact aliases/content support where exclusions provide the highest
+  replay-coverage gain.
 
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
@@ -272,11 +274,12 @@ extremes of 60.525% / 39.475%, within the declared gate. See
 
 F3 real-data import is partial. Eight local Power.log files yielded 40 detected
 CREATE_GAME sessions, including 16 BG sessions, 527,769 sanitized events, and
-4,319 recognized recruit actions across 946 live CardIDs. No paths, names,
+1,709 recognized recruit actions across 946 live CardIDs. Classifier v3 fixes
+the earlier overcount of nested effect blocks as user actions. No paths, names,
 account values, or raw lines are in the tracked aggregate. The 10,000-action
-gate needs 5,681 more actions; live
-CardID aliases and replay remain. See `docs/f3_trace_conformance.md` and
-`benchmarks/hsbg_trace_import_partial_v4.json`.
+gate needs 8,291 more actions; deterministic replay comparison remains. See
+`docs/f3_trace_conformance.md` and
+`benchmarks/hsbg_trace_import_partial_v5.json`.
 
 Exact HearthstoneJSON aliasing maps 239/257 internal content IDs, but the live
 logs contain a much broader patch: only 125/276 ordinary observed minion IDs
@@ -284,6 +287,13 @@ logs contain a much broader patch: only 125/276 ordinary observed minion IDs
 live-patch conformance. Continue on a declared overlap subset while expanding
 content coverage. See `benchmarks/live_card_aliases_v1.json` and
 `benchmarks/hsbg_live_alias_coverage_partial_v2.json`.
+
+F3 overlap steps 1--3 are complete. The hash-pinned behavior-v7 contract
+contains 81 live aliases. Conservative selection admitted 55/1,709 actions,
+and all 55 deterministic candidates executed successfully in two byte-identical
+runs. This is execution evidence, not yet a conformance claim. See
+`benchmarks/hsbg_trace_overlap_contract_v1.json` and
+`benchmarks/hsbg_trace_replay_selection_v1.json`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

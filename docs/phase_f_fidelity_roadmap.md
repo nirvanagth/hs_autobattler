@@ -189,10 +189,16 @@ Progress: the privacy-safe Power.log parser, versioned event schema, action
 transition reconstructor, simulator normalizer, field-level comparator, and
 aggregate conformance reporter are implemented. Schema v2 resets state at each
 CREATE_GAME and extracts nested recruit actions. Eight real logs yielded 40
-CREATE_GAME sessions, including 16 BG sessions and 4,319 sanitized recruit
-actions across 946 live CardIDs. The 10,000-transition gate needs 5,681 more
-actions. See
-`docs/f3_trace_conformance.md`.
+CREATE_GAME sessions, including 16 BG sessions and 1,709 sanitized recruit
+actions across 946 live CardIDs. Classifier v3 excludes nested effect blocks
+that an earlier report incorrectly counted as actions. The 10,000-transition
+gate needs 8,291 more actions. See `docs/f3_trace_conformance.md`.
+
+The behavior-v7 overlap contract is now hash-pinned with 81 supported live
+aliases. A conservative pass selected 55/1,709 actions and replayed all 55
+deterministic candidates successfully. This completes overlap freezing,
+selection, and execution; accepted actions have not yet been counted as
+conformant. Deterministic post-state comparison is next.
 
 Exact public-data aliasing resolved 239/257 internal IDs, but only 45.3% of
 ordinary live minion IDs and 8.5% of live spell IDs observed in the logs overlap

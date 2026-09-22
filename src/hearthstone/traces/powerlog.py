@@ -11,8 +11,9 @@ from pathlib import Path
 from typing import Iterable
 
 
-POWERLOG_SCHEMA_VERSION = 2
-PARSER_VERSION = 2
+POWERLOG_SCHEMA_VERSION = 3
+PARSER_VERSION = 3
+ACTION_CLASSIFIER_VERSION = 3
 
 ALLOWED_TAGS = {
     "ARMOR",
@@ -122,16 +123,12 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
             session_index += 1
             block_stack.clear()
             current_entity = None
-            event = TraceEvent(
-                len(result.events), session_index, "create_game", block_depth=0
-            )
+            event = TraceEvent(len(result.events), session_index, "create_game", block_depth=0)
         elif "FULL_ENTITY" in text or "SHOW_ENTITY" in text or "CHANGE_ENTITY" in text:
             event_name = (
                 "full_entity"
                 if "FULL_ENTITY" in text
-                else "show_entity"
-                if "SHOW_ENTITY" in text
-                else "change_entity"
+                else "show_entity" if "SHOW_ENTITY" in text else "change_entity"
             )
             entity_id = _entity_id(text)
             card_match = re.search(r"\bCardID=([^\s\]]*)", text, re.IGNORECASE)
@@ -271,9 +268,7 @@ def reconstruct_transitions(events: Iterable[TraceEvent]) -> list[dict]:
                 "block_type": event.block_type,
                 "source_entity_id": event.entity_id,
                 "source_card_id": source_card_id,
-                "action_type": classify_battlegrounds_action(
-                    source_card_id, event.block_type
-                ),
+                "action_type": classify_battlegrounds_action(source_card_id, event.block_type),
                 "session_index": session_index,
                 "before": state.snapshot(),
             }
@@ -299,27 +294,23 @@ def battlegrounds_session_ids(events: Iterable[TraceEvent]) -> set[int]:
     }
 
 
-def classify_battlegrounds_action(
-    card_id: str | None, block_type: str | None = None
-) -> str | None:
-    if card_id is None:
+def classify_battlegrounds_action(card_id: str | None, block_type: str | None = None) -> str | None:
+    # User recruit actions enter Power.log as PLAY blocks. The same source card
+    # can appear in nested POWER/TRIGGER/ATTACK blocks; counting those produces
+    # multiple false actions per click. In particular, TB_BaconUps_* identifies
+    # golden minions and must never be treated as a tavern upgrade button.
+    if card_id is None or block_type != "PLAY":
         return None
     if card_id in BG_ACTION_CARD_IDS:
         return BG_ACTION_CARD_IDS[card_id]
     upper = card_id.upper()
-    if "TECHUP" in upper or upper.startswith("TB_BACONUPS_"):
+    if re.fullmatch(r"TB_BaconShopTechUp(?:\d+)?_Button", card_id, re.IGNORECASE):
         return "UPGRADE"
-    if block_type == "PLAY":
-        if "HERO_" in upper or "_HP_" in upper:
-            return "HERO_POWER"
-        if "BUTTON" in upper:
-            return "SPECIAL_ACTION"
-        return "PLAY_CARD"
-    if "HERO_POWER" in upper or "HEROPOWER" in upper:
+    if "HERO_" in upper or "_HP_" in upper:
         return "HERO_POWER"
-    if "UPGRADE" in upper and "BACON" in upper:
-        return "UPGRADE"
-    return None
+    if "BUTTON" in upper:
+        return "SPECIAL_ACTION"
+    return "PLAY_CARD"
 
 
 def reconstruct_action_transitions(events: Iterable[TraceEvent]) -> list[dict]:
@@ -335,9 +326,7 @@ def reconstruct_action_transitions(events: Iterable[TraceEvent]) -> list[dict]:
             source_card_id = event.card_id
             if source_card_id is None and event.entity_id in state.entities:
                 source_card_id = state.entities[event.entity_id]["card_id"]
-            action_type = classify_battlegrounds_action(
-                source_card_id, event.block_type
-            )
+            action_type = classify_battlegrounds_action(source_card_id, event.block_type)
             if action_type is not None:
                 frames.append(
                     {

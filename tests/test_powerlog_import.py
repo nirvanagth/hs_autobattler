@@ -41,9 +41,7 @@ def test_reconstruction_builds_top_level_play_transition() -> None:
     before = next(
         entity for entity in transition["before"]["entities"] if entity["entity_id"] == 10
     )
-    after = next(
-        entity for entity in transition["after"]["entities"] if entity["entity_id"] == 10
-    )
+    after = next(entity for entity in transition["after"]["entities"] if entity["entity_id"] == 10)
     assert before["tags"]["ZONE"] == "HAND"
     assert after["tags"]["ZONE"] == "PLAY"
     assert before["tags"]["ATK"] == 3
@@ -59,6 +57,22 @@ def test_reconstruction_classifies_battlegrounds_control_cards() -> None:
     transition = reconstruct_transitions(parse_power_log(lines).events)[0]
     assert transition["source_card_id"] == "TB_BaconShop_8p_Reroll_Button"
     assert transition["action_type"] == "ROLL"
+
+
+def test_action_classifier_ignores_nested_button_blocks_and_golden_minions() -> None:
+    lines = [
+        "CREATE_GAME\n",
+        "BLOCK_START BlockType=POWER Entity=[id=44 cardId=TB_BaconShop_8p_Reroll_Button]\n",
+        "BLOCK_END\n",
+        "BLOCK_START BlockType=ATTACK Entity=[id=45 cardId=TB_BaconUps_079]\n",
+        "BLOCK_END\n",
+        "BLOCK_START BlockType=PLAY Entity=[id=46 cardId=TB_BaconUps_079]\n",
+        "BLOCK_END\n",
+        "BLOCK_START BlockType=PLAY Entity=[id=47 cardId=TB_BaconShopTechUp02_Button]\n",
+        "BLOCK_END\n",
+    ]
+    transitions = reconstruct_action_transitions(parse_power_log(lines).events)
+    assert [item["action_type"] for item in transitions] == ["PLAY_CARD", "UPGRADE"]
 
 
 def test_nested_recruit_action_is_extracted_inside_trigger_block() -> None:
@@ -97,9 +111,7 @@ def test_create_game_resets_state_between_sessions() -> None:
     result = parse_power_log(lines)
     transitions = reconstruct_transitions(result.events)
     assert [item["session_index"] for item in transitions] == [0, 1]
-    assert [entity["card_id"] for entity in transitions[1]["after"]["entities"]] == [
-        "BG_SECOND"
-    ]
+    assert [entity["card_id"] for entity in transitions[1]["after"]["entities"]] == ["BG_SECOND"]
 
 
 def test_conformance_reports_field_categories() -> None:

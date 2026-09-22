@@ -25,11 +25,16 @@ def test_summary_never_stores_import_paths(tmp_path) -> None:
             }
         )
     )
-    (import_dir / "events.jsonl").write_text(
-        json.dumps({"card_id": "BG_TEST"}) + "\n"
-    )
+    (import_dir / "events.jsonl").write_text(json.dumps({"card_id": "BG_TEST"}) + "\n")
     (import_dir / "action_transitions.jsonl").write_text(
-        json.dumps({"action_type": "BUY"}) + "\n"
+        json.dumps(
+            {
+                "action_type": "BUY",
+                "source_card_id": "TB_BaconShop_DragBuy",
+                "block_type": "PLAY",
+            }
+        )
+        + "\n"
     )
     output = tmp_path / "summary.json"
     subprocess.run(
