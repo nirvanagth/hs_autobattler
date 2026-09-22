@@ -43,22 +43,19 @@ PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/import_power_log.py \
 
 ## Real import progress
 
-Seven local Power.log files (about 248 MB raw) were found and imported without
-storing their paths. They contain 32 CREATE_GAME sessions, of which 10 have
+Eight local Power.log files (about 348 MB raw) were found and imported without
+storing their paths. They contain 40 CREATE_GAME sessions, of which 16 have
 Battlegrounds CardIDs. BG-only sanitized output contains:
 
-- 367,040 events;
-- 2,677 top-level transitions;
-- 3,137 recognized nested recruit actions;
-- 751 unique live CardIDs.
+- 527,769 events;
+- 4,074 top-level transitions;
+- 4,319 recognized nested recruit actions;
+- 946 unique live CardIDs.
 
-Recognized actions are 1,085 rolls, 590 card plays, 492 buys, 363 upgrades,
-320 sells, 211 freezes, 48 hero powers, and 28 special actions. The aggregate
-privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v3.json`
-(SHA-256 `5e8460023fc93a26a4ef33dea229875ceb8dc000e04ab3a23da2229bbda7c189`).
-The seventh file and the growth of the sixth file contained no additional
-detected Battlegrounds actions; this negative ingestion result is retained so
-the unchanged gate count is explicit rather than silently discarded.
+Recognized actions are 1,582 rolls, 792 card plays, 592 buys, 432 upgrades,
+501 sells, 320 freezes, 56 hero powers, and 44 special actions. The aggregate
+privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v4.json`
+(SHA-256 `9b2702bc06bde573c21cb15aa606d01d6b89cb455f2ba767da7a8adaf2cf71cd`).
 Trace schema v2 SHA-256 is
 `202819c66a7e113a9f6e002f1dd57fc89d416f6177cae9d7ffd9238d9b620cda`.
 
@@ -68,14 +65,14 @@ was used for conservative aliases: exact normalized English name, matching tier
 for minions, non-golden BG entity, and a unique candidate. This resolved 239 of
 257 internal content IDs. No fuzzy match is accepted.
 
-External coverage remains the larger blocker. Of 227 ordinary live minion IDs
-observed in these logs, only 111 map to the simulator (48.9%). Of 116 observed
-spell IDs, only 10 map (8.6%). The tracked alias and coverage artifacts are:
+External coverage remains the larger blocker. Of 276 ordinary live minion IDs
+observed in these logs, only 125 map to the simulator (45.3%). Of 129 observed
+spell IDs, only 11 map (8.5%). The tracked alias and coverage artifacts are:
 
 - `benchmarks/live_card_aliases_v1.json`, SHA-256
   `3edae9f46438e2a7e459a687b73e09179940ca9ab4483e0b188d1db88507190e`;
-- `benchmarks/hsbg_live_alias_coverage_partial_v1.json`, SHA-256
-  `30f0ab2de6cb3d1193935bb841947bbf57178ae4e479f852dbc6614beb052db6`.
+- `benchmarks/hsbg_live_alias_coverage_partial_v2.json`, SHA-256
+  `67831f8f54d5c7055653335c3eb725358fa8ddde7540d86eac7b5c8cb124736a`.
 
 This means 99.5% conformance can currently be measured only on an explicitly
 overlapping content subset. Whole-live-patch conformance requires substantially
@@ -84,7 +81,7 @@ more card/spell coverage and must not be inferred from simulator self-play.
 ## Remaining gate
 
 - import at least 10,000 real recruit transitions across multiple games
-  (currently 3,137; 6,863 remaining);
+  (currently 4,319; 5,681 remaining);
 - establish live CardID aliases for the frozen content profile;
 - replay supported actions into behavior-v7 simulator snapshots;
 - reach at least 99.5% agreement on deterministic fields;

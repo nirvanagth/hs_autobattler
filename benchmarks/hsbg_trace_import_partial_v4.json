@@ -1,0 +1,114 @@
+{
+  "gate": {
+    "remaining_action_transitions": 5681,
+    "status": "pending_more_data",
+    "target_action_transitions": 10000
+  },
+  "inputs": [
+    {
+      "action_transitions": 0,
+      "battlegrounds_sessions": 0,
+      "event_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "events": 0,
+      "input_index": 1,
+      "sessions": 4,
+      "source_sha256": "dd9273d81b9ec414b206c426bd3848c4e9c0fe869febf13d7c2020ec90f7cc37",
+      "top_level_transitions": 0
+    },
+    {
+      "action_transitions": 375,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "19d5572f27b25eb3c5160ba21b77753eccb2ae3222624afc7d7e159c555459dc",
+      "events": 53657,
+      "input_index": 2,
+      "sessions": 2,
+      "source_sha256": "4bef114f1fe2783f3ee95f2a67e5089c0b339f3b5518b7d7790ff7effb47b0bc",
+      "top_level_transitions": 722
+    },
+    {
+      "action_transitions": 1028,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "956cd298b442a011aa1341672eb6f0dce20c91af30852c2bf8cde1afd5da9f8f",
+      "events": 115124,
+      "input_index": 3,
+      "sessions": 6,
+      "source_sha256": "92b40dfbaaa6f65c75ded1a8cc8fac6e76157314beb4ab1a5b6312c35c2b204b",
+      "top_level_transitions": 288
+    },
+    {
+      "action_transitions": 555,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "6903394fe860186c4870875b6bcbe654c6a4f528977d76b69b0c541e2717cf75",
+      "events": 49358,
+      "input_index": 4,
+      "sessions": 8,
+      "source_sha256": "9b4a0a45851b237efb2e323df41939b135dceebfe2c02aa377466117d7971785",
+      "top_level_transitions": 552
+    },
+    {
+      "action_transitions": 623,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "40e3a575c12c2c5b4a0c260555f807f173ed867c106e6cb9d951afee38d0c7b7",
+      "events": 82214,
+      "input_index": 5,
+      "sessions": 6,
+      "source_sha256": "b03ff65c203325196253eec754de64329d4771087a6d69d66251051be622c42b",
+      "top_level_transitions": 474
+    },
+    {
+      "action_transitions": 556,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "8b20e90f73c9ec3f33050a5865d55942600a7072fbb73001b114f206dbf26a11",
+      "events": 66687,
+      "input_index": 6,
+      "sessions": 4,
+      "source_sha256": "1ff751e46568f4d5ed1c67f8bcf623234600ff53f4abf7ed301b2338a36d5f84",
+      "top_level_transitions": 641
+    },
+    {
+      "action_transitions": 220,
+      "battlegrounds_sessions": 2,
+      "event_stream_sha256": "8a691a452016faab3b7964de2ebc5ec3679f2453a2bd893c9e85d9910a18c077",
+      "events": 29846,
+      "input_index": 7,
+      "sessions": 6,
+      "source_sha256": "4007672a629d508208936c01b3297dcade32b8fbcc533c6e509786d5c717cc7d",
+      "top_level_transitions": 255
+    },
+    {
+      "action_transitions": 962,
+      "battlegrounds_sessions": 4,
+      "event_stream_sha256": "02e4ccbf68157642bb580a675e9590045d1f7d32fae3d41b43b32c2f765dae22",
+      "events": 130883,
+      "input_index": 8,
+      "sessions": 4,
+      "source_sha256": "abaef59aef742759e6c5b7e46aa4f5dcd23e18ac3b5fc1bcddae8c9999accff0",
+      "top_level_transitions": 1142
+    }
+  ],
+  "privacy": {
+    "entity_names_stored": false,
+    "raw_lines_stored": false,
+    "source_paths_stored": false
+  },
+  "schema_version": 1,
+  "totals": {
+    "action_counts": {
+      "BUY": 592,
+      "FREEZE": 320,
+      "HERO_POWER": 56,
+      "PLAY_CARD": 792,
+      "ROLL": 1582,
+      "SELL": 501,
+      "SPECIAL_ACTION": 44,
+      "UPGRADE": 432
+    },
+    "action_transitions": 4319,
+    "battlegrounds_sessions": 16,
+    "events": 527769,
+    "sessions": 40,
+    "top_level_transitions": 4074,
+    "unique_live_card_ids": 946
+  },
+  "trace_schema_version": 2
+}

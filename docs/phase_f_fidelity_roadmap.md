@@ -188,14 +188,14 @@ replaced by self-play evidence from the same simulator.
 Progress: the privacy-safe Power.log parser, versioned event schema, action
 transition reconstructor, simulator normalizer, field-level comparator, and
 aggregate conformance reporter are implemented. Schema v2 resets state at each
-CREATE_GAME and extracts nested recruit actions. Seven real logs yielded 32
-CREATE_GAME sessions, including 10 BG sessions and 3,137 sanitized recruit
-actions across 751 live CardIDs. The latest import added no BG actions. The
-10,000-transition gate needs 6,863 more actions. See
+CREATE_GAME and extracts nested recruit actions. Eight real logs yielded 40
+CREATE_GAME sessions, including 16 BG sessions and 4,319 sanitized recruit
+actions across 946 live CardIDs. The 10,000-transition gate needs 5,681 more
+actions. See
 `docs/f3_trace_conformance.md`.
 
-Exact public-data aliasing resolved 239/257 internal IDs, but only 48.9% of
-ordinary live minion IDs and 8.6% of live spell IDs observed in the logs overlap
+Exact public-data aliasing resolved 239/257 internal IDs, but only 45.3% of
+ordinary live minion IDs and 8.5% of live spell IDs observed in the logs overlap
 the simulator. Whole-patch conformance is therefore out of scope until content
 coverage expands; overlap-subset conformance remains valid once enough actions
 are collected.
