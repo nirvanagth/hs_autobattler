@@ -1,7 +1,7 @@
 # F3 external trace conformance
 
 Date: 2026-09-21
-Status: tooling complete; real-data gate pending
+Status: real-data import partial; more games required
 
 ## Privacy boundary
 
@@ -22,7 +22,9 @@ by git.
 4. Simulator state normalization for heroes, armor, board, hand, and shop.
 5. Field-level comparison with missing/extra entity, card ID, and individual
    tag mismatch categories.
-6. Aggregate transition reports with exact-transition and field-agreement
+6. Nested recruit-action extraction for buy, sell, roll, freeze, upgrade,
+   card play, hero power, and special actions.
+7. Aggregate transition reports with exact-transition and field-agreement
    rates plus bounded mismatch examples.
 
 Synthetic end-to-end verification parsed 14 lines into 13 sanitized events and
@@ -39,13 +41,28 @@ PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/import_power_log.py \
   --out-dir artifacts/trace_f3/session_name
 ```
 
-No Power.log was found at the standard macOS Hearthstone log locations during
-this phase. The user must provide an existing absolute path or generate a new
-log before the external gate can run.
+## Real import progress
+
+Six local Power.log files (about 244 MB raw) were found and imported without
+storing their paths. They contain 30 CREATE_GAME sessions, of which 10 have
+Battlegrounds CardIDs. BG-only sanitized output contains:
+
+- 367,040 events;
+- 2,677 top-level transitions;
+- 3,137 recognized nested recruit actions;
+- 751 unique live CardIDs.
+
+Recognized actions are 1,085 rolls, 590 card plays, 492 buys, 363 upgrades,
+320 sells, 211 freezes, 48 hero powers, and 28 special actions. The aggregate
+privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v2.json`
+(SHA-256 `37b3a7da97026a5d795004e4966344e8aa01545a4de5f8a179d3b46bd224dd5f`).
+Trace schema v2 SHA-256 is
+`202819c66a7e113a9f6e002f1dd57fc89d416f6177cae9d7ffd9238d9b620cda`.
 
 ## Remaining gate
 
-- import at least 10,000 real recruit transitions across multiple games;
+- import at least 10,000 real recruit transitions across multiple games
+  (currently 3,137; 6,863 remaining);
 - establish live CardID aliases for the frozen content profile;
 - replay supported actions into behavior-v7 simulator snapshots;
 - reach at least 99.5% agreement on deterministic fields;

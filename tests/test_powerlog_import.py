@@ -6,8 +6,11 @@ from pathlib import Path
 from hearthstone.traces.conformance import compare_states, compare_transition_streams
 from hearthstone.traces.powerlog import (
     event_json,
+    battlegrounds_session_ids,
     load_power_log,
+    parse_power_log,
     reconstruct_transitions,
+    reconstruct_action_transitions,
 )
 from hearthstone.traces.simulator_state import normalize_lobby
 from hearthstone.engine.lobby import LobbyGame
@@ -24,6 +27,8 @@ def test_parser_redacts_names_and_unknown_tag_values() -> None:
     assert "Account#1234" not in serialized
     assert result.ignored_tag_counts == {"SECRET_ACCOUNT": 1}
     assert [event.event_type for event in result.events].count("full_entity") == 2
+    assert {event.session_index for event in result.events} == {0}
+    assert battlegrounds_session_ids(result.events) == {0}
 
 
 def test_reconstruction_builds_top_level_play_transition() -> None:
@@ -32,6 +37,7 @@ def test_reconstruction_builds_top_level_play_transition() -> None:
     transition = transitions[0]
     assert transition["block_type"] == "PLAY"
     assert transition["source_entity_id"] == 10
+    assert transition["session_index"] == 0
     before = next(
         entity for entity in transition["before"]["entities"] if entity["entity_id"] == 10
     )
@@ -44,10 +50,56 @@ def test_reconstruction_builds_top_level_play_transition() -> None:
     assert after["tags"]["ATK"] == 5
 
 
+def test_reconstruction_classifies_battlegrounds_control_cards() -> None:
+    lines = [
+        "CREATE_GAME\n",
+        "BLOCK_START BlockType=PLAY Entity=[id=44 cardId=TB_BaconShop_8p_Reroll_Button]\n",
+        "BLOCK_END\n",
+    ]
+    transition = reconstruct_transitions(parse_power_log(lines).events)[0]
+    assert transition["source_card_id"] == "TB_BaconShop_8p_Reroll_Button"
+    assert transition["action_type"] == "ROLL"
+
+
+def test_nested_recruit_action_is_extracted_inside_trigger_block() -> None:
+    lines = [
+        "CREATE_GAME\n",
+        "BLOCK_START BlockType=TRIGGER Entity=[id=1 cardId=TB_BaconShop_8P_PlayerE]\n",
+        "BLOCK_START BlockType=PLAY Entity=[id=44 cardId=BG_TEST_MINION]\n",
+        "BLOCK_END\n",
+        "BLOCK_END\n",
+    ]
+    actions = reconstruct_action_transitions(parse_power_log(lines).events)
+    assert len(actions) == 1
+    assert actions[0]["action_type"] == "PLAY_CARD"
+    assert actions[0]["source_card_id"] == "BG_TEST_MINION"
+
+
 def test_parser_is_deterministic() -> None:
     first = [event_json(event) for event in load_power_log(FIXTURE).events]
     second = [event_json(event) for event in load_power_log(FIXTURE).events]
     assert first == second
+
+
+def test_create_game_resets_state_between_sessions() -> None:
+    lines = [
+        "CREATE_GAME\n",
+        "FULL_ENTITY - Creating ID=1 CardID=BG_FIRST\n",
+        "tag=ZONE value=PLAY\n",
+        "BLOCK_START BlockType=PLAY Entity=1\n",
+        "BLOCK_END\n",
+        "CREATE_GAME\n",
+        "FULL_ENTITY - Creating ID=2 CardID=BG_SECOND\n",
+        "tag=ZONE value=PLAY\n",
+        "BLOCK_START BlockType=PLAY Entity=2\n",
+        "BLOCK_END\n",
+    ]
+    result = parse_power_log(lines)
+    transitions = reconstruct_transitions(result.events)
+    assert [item["session_index"] for item in transitions] == [0, 1]
+    assert [entity["card_id"] for entity in transitions[1]["after"]["entities"]] == [
+        "BG_SECOND"
+    ]
 
 
 def test_conformance_reports_field_categories() -> None:

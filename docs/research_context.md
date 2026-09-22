@@ -203,8 +203,7 @@ S1 progress:
 
 Next extension/execution target:
 
-- obtain a private Power.log absolute path from the user;
-- import at least 10,000 sanitized recruit transitions;
+- collect at least 6,863 additional sanitized recruit actions from new games;
 - add live-to-internal CardID aliases found in the trace;
 - replay supported actions and resolve mismatch categories to 99.5% agreement.
 
@@ -271,10 +270,12 @@ gave 3.995--4.904 mean placements, 11.03%--14.55% win rates, and pairwise
 extremes of 60.525% / 39.475%, within the declared gate. See
 `docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
 
-F3 tooling is complete but the real-data gate is pending. The Power.log parser,
-allowlisted privacy schema, transition reconstructor, simulator normalizer, and
-conformance reporter pass synthetic redaction/determinism tests. Standard local
-macOS log paths contained no Power.log. See `docs/f3_trace_conformance.md`.
+F3 real-data import is partial. Six local Power.log files yielded 10 detected
+BG sessions, 367,040 sanitized events, and 3,137 recognized recruit actions
+across 751 live CardIDs. No paths, names, account values, or raw lines are in
+the tracked aggregate. The 10,000-action gate needs 6,863 more actions; live
+CardID aliases and replay remain. See `docs/f3_trace_conformance.md` and
+`benchmarks/hsbg_trace_import_partial_v2.json`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

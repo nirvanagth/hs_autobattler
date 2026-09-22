@@ -8,11 +8,11 @@ import re
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Iterable
 
 
-POWERLOG_SCHEMA_VERSION = 1
-PARSER_VERSION = 1
+POWERLOG_SCHEMA_VERSION = 2
+PARSER_VERSION = 2
 
 ALLOWED_TAGS = {
     "ARMOR",
@@ -45,6 +45,15 @@ DETERMINISTIC_TAGS = {
     "ZONE_POSITION",
 }
 
+BG_ACTION_CARD_IDS = {
+    "TB_BaconShop_DragBuy": "BUY",
+    "TB_BaconShop_DragBuy_Spell": "BUY",
+    "TB_BaconShop_DragSell": "SELL",
+    "TB_BaconShop_8p_Reroll_Button": "ROLL",
+    "TB_BaconShopLockAll_Button": "FREEZE",
+    "TB_BaconShop_8p_Upgrade_Button": "UPGRADE",
+}
+
 _SAFE_TOKEN = re.compile(r"^[A-Za-z0-9_+\-]+$")
 _ENTITY_ID_PATTERNS = (
     re.compile(r"\bid=(\d+)\b", re.IGNORECASE),
@@ -57,6 +66,7 @@ _ENTITY_ID_PATTERNS = (
 @dataclass(frozen=True)
 class TraceEvent:
     sequence: int
+    session_index: int
     event_type: str
     entity_id: int | None = None
     card_id: str | None = None
@@ -75,7 +85,8 @@ class ParseResult:
 
 
 def _payload(line: str) -> str:
-    return line.split(" - ", 1)[1].strip() if " - " in line else line.strip()
+    marker = "DebugPrintPower() - "
+    return line.split(marker, 1)[1].strip() if marker in line else line.strip()
 
 
 def _entity_id(text: str) -> int | None:
@@ -102,12 +113,18 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
     result = ParseResult()
     current_entity: int | None = None
     block_stack: list[str] = []
+    session_index = -1
     for line in lines:
         result.total_lines += 1
         text = _payload(line)
         event: TraceEvent | None = None
         if "CREATE_GAME" in text:
-            event = TraceEvent(len(result.events), "create_game", block_depth=len(block_stack))
+            session_index += 1
+            block_stack.clear()
+            current_entity = None
+            event = TraceEvent(
+                len(result.events), session_index, "create_game", block_depth=0
+            )
         elif "FULL_ENTITY" in text or "SHOW_ENTITY" in text or "CHANGE_ENTITY" in text:
             event_name = (
                 "full_entity"
@@ -122,6 +139,7 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
             current_entity = entity_id
             event = TraceEvent(
                 len(result.events),
+                session_index,
                 event_name,
                 entity_id=entity_id,
                 card_id=card_id,
@@ -135,6 +153,7 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
                 if tag in ALLOWED_TAGS:
                     event = TraceEvent(
                         len(result.events),
+                        session_index,
                         "tag_change",
                         entity_id=_entity_id(entity_text),
                         tag=tag,
@@ -150,6 +169,7 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
                 if tag in ALLOWED_TAGS:
                     event = TraceEvent(
                         len(result.events),
+                        session_index,
                         "entity_tag",
                         entity_id=current_entity,
                         tag=tag,
@@ -161,10 +181,13 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
         elif "BLOCK_START" in text:
             block_match = re.search(r"\bBlockType=([A-Z_]+)", text)
             block_type = block_match.group(1) if block_match else "UNKNOWN"
+            card_match = re.search(r"\bcardId=([^\s\]]*)", text, re.IGNORECASE)
             event = TraceEvent(
                 len(result.events),
+                session_index,
                 "block_start",
                 entity_id=_entity_id(text.split("Entity=", 1)[-1]),
+                card_id=_safe_card_id(card_match.group(1)) if card_match else None,
                 block_type=block_type,
                 block_depth=len(block_stack),
             )
@@ -173,6 +196,7 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
             block_type = block_stack.pop() if block_stack else "UNKNOWN"
             event = TraceEvent(
                 len(result.events),
+                session_index,
                 "block_end",
                 block_type=block_type,
                 block_depth=len(block_stack),
@@ -232,11 +256,25 @@ def reconstruct_transitions(events: Iterable[TraceEvent]) -> list[dict]:
     state = TraceState()
     root_frame: dict | None = None
     transitions = []
+    session_index = -1
     for event in events:
+        if event.event_type == "create_game":
+            state = TraceState()
+            root_frame = None
+            session_index = event.session_index
+            continue
         if event.event_type == "block_start" and event.block_depth == 0:
+            source_card_id = event.card_id
+            if source_card_id is None and event.entity_id in state.entities:
+                source_card_id = state.entities[event.entity_id]["card_id"]
             root_frame = {
                 "block_type": event.block_type,
                 "source_entity_id": event.entity_id,
+                "source_card_id": source_card_id,
+                "action_type": classify_battlegrounds_action(
+                    source_card_id, event.block_type
+                ),
+                "session_index": session_index,
                 "before": state.snapshot(),
             }
         state.apply(event)
@@ -249,6 +287,89 @@ def reconstruct_transitions(events: Iterable[TraceEvent]) -> list[dict]:
                 }
             )
             root_frame = None
+    return transitions
+
+
+def battlegrounds_session_ids(events: Iterable[TraceEvent]) -> set[int]:
+    prefixes = ("BG", "BGS_", "TB_Bacon")
+    return {
+        event.session_index
+        for event in events
+        if event.card_id is not None and event.card_id.startswith(prefixes)
+    }
+
+
+def classify_battlegrounds_action(
+    card_id: str | None, block_type: str | None = None
+) -> str | None:
+    if card_id is None:
+        return None
+    if card_id in BG_ACTION_CARD_IDS:
+        return BG_ACTION_CARD_IDS[card_id]
+    upper = card_id.upper()
+    if "TECHUP" in upper or upper.startswith("TB_BACONUPS_"):
+        return "UPGRADE"
+    if block_type == "PLAY":
+        if "HERO_" in upper or "_HP_" in upper:
+            return "HERO_POWER"
+        if "BUTTON" in upper:
+            return "SPECIAL_ACTION"
+        return "PLAY_CARD"
+    if "HERO_POWER" in upper or "HEROPOWER" in upper:
+        return "HERO_POWER"
+    if "UPGRADE" in upper and "BACON" in upper:
+        return "UPGRADE"
+    return None
+
+
+def reconstruct_action_transitions(events: Iterable[TraceEvent]) -> list[dict]:
+    state = TraceState()
+    frames: list[dict] = []
+    transitions = []
+    for event in events:
+        if event.event_type == "create_game":
+            state = TraceState()
+            frames.clear()
+            continue
+        if event.event_type == "block_start":
+            source_card_id = event.card_id
+            if source_card_id is None and event.entity_id in state.entities:
+                source_card_id = state.entities[event.entity_id]["card_id"]
+            action_type = classify_battlegrounds_action(
+                source_card_id, event.block_type
+            )
+            if action_type is not None:
+                frames.append(
+                    {
+                        "depth": event.block_depth,
+                        "block_type": event.block_type,
+                        "source_entity_id": event.entity_id,
+                        "source_card_id": source_card_id,
+                        "action_type": action_type,
+                        "session_index": event.session_index,
+                        "before": state.snapshot(),
+                    }
+                )
+        state.apply(event)
+        if event.event_type == "block_end":
+            matching_index = next(
+                (
+                    index
+                    for index in range(len(frames) - 1, -1, -1)
+                    if frames[index]["depth"] == event.block_depth
+                    and frames[index]["block_type"] == event.block_type
+                ),
+                None,
+            )
+            if matching_index is not None:
+                frame = frames.pop(matching_index)
+                transitions.append(
+                    {
+                        "transition_index": len(transitions),
+                        **{key: value for key, value in frame.items() if key != "depth"},
+                        "after": state.snapshot(),
+                    }
+                )
     return transitions
 
 

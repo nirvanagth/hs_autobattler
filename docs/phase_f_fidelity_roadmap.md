@@ -187,9 +187,10 @@ replaced by self-play evidence from the same simulator.
 
 Progress: the privacy-safe Power.log parser, versioned event schema, action
 transition reconstructor, simulator normalizer, field-level comparator, and
-aggregate conformance reporter are implemented. Synthetic fixtures prove
-determinism and redaction. No real Power.log was found at standard local paths,
-so the 10,000-transition external gate remains pending. See
+aggregate conformance reporter are implemented. Schema v2 resets state at each
+CREATE_GAME and extracts nested recruit actions. Six real logs yielded 10 BG
+sessions and 3,137 sanitized recruit actions across 751 live CardIDs. The
+10,000-transition gate needs 6,863 more actions. See
 `docs/f3_trace_conformance.md`.
 
 ## F4. Content curriculum and policy transfer — PENDING

@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "parser_version": 2,
+  "event_fields": [
+    "sequence",
+    "session_index",
+    "event_type",
+    "entity_id",
+    "card_id",
+    "tag",
+    "value",
+    "block_type",
+    "block_depth"
+  ],
+  "session_boundary": "CREATE_GAME resets reconstructed entity and block state",
+  "battlegrounds_session_detection": "session contains a BG/BGS_/TB_Bacon CardID",
+  "privacy_invariants": {
+    "raw_lines_stored": false,
+    "entity_names_stored": false,
+    "source_paths_stored": false,
+    "unknown_tag_values_stored": false
+  },
+  "transition_boundary": "outermost BLOCK_START to matching BLOCK_END",
+  "action_transition_boundary": "any nested recognized recruit-action block",
+  "recognized_recruit_actions": [
+    "BUY",
+    "SELL",
+    "ROLL",
+    "FREEZE",
+    "UPGRADE",
+    "HERO_POWER",
+    "PLAY_CARD",
+    "SPECIAL_ACTION"
+  ]
+}
