@@ -204,8 +204,6 @@ S1 progress:
 Next extension/execution target:
 
 - collect at least 8,291 additional sanitized recruit actions from new games;
-- correct the two high-tier upgrade costs exposed by trace conformance and
-  rerun the frozen benchmark;
 - improve delayed post-state capture and resolve deterministic mismatch
   categories to 99.5% agreement;
 - expand exact aliases/content support where exclusions provide the highest
@@ -299,6 +297,14 @@ only on upgrade cost (89.36% field agreement); the invariant sell passed. See
 `benchmarks/hsbg_trace_overlap_contract_v1.json` and
 `benchmarks/hsbg_trace_replay_selection_v1.json`, plus
 `benchmarks/hsbg_trace_conformance_v1.json`.
+
+Behavior v8 fixes the high-tier upgrade costs without altering behavior v7.
+The identical frozen trace set now gives 28/28 exact deterministic transitions,
+94/94 matching fields, and a passing invariant sell. This reaches 100% on the
+current evaluable overlap; F3 remains open because the volume and coverage gates
+are not met. See `benchmarks/hsbg_trace_overlap_contract_v2.json`,
+`benchmarks/hsbg_trace_replay_selection_v2.json`, and
+`benchmarks/hsbg_trace_conformance_v2.json`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke

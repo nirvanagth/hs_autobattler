@@ -150,3 +150,11 @@ def test_conformance_cli_does_not_store_input_path(tmp_path) -> None:
     encoded = output.read_text()
     assert "private_player_name" not in encoded
     assert json.loads(encoded)["conformance_gate"]["status"] == "passed"
+
+
+def test_behavior_v8_trace_conformance_benchmark_passes() -> None:
+    report = json.loads((ROOT / "benchmarks/hsbg_trace_conformance_v2.json").read_text())
+    assert report["conformance_gate"]["status"] == "passed"
+    assert report["comparison"]["deterministic"]["exact"] == 28
+    assert report["comparison"]["deterministic"]["mismatched"] == 0
+    assert report["comparison"]["invariants"]["failed"] == 0

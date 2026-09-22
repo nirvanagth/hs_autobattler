@@ -35,6 +35,7 @@ def main() -> None:
     parser.add_argument("--profile", required=True)
     parser.add_argument("--aliases", required=True)
     parser.add_argument("--out-dir", required=True)
+    parser.add_argument("--report-out")
     args = parser.parse_args()
 
     contract_path = Path(args.contract)
@@ -107,7 +108,8 @@ def main() -> None:
             "entity_names_stored": False,
         },
     }
-    report_path = output / "report.json"
+    report_path = Path(args.report_out) if args.report_out else output / "report.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     temporary = report_path.with_suffix(".tmp")
     temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     temporary.replace(report_path)

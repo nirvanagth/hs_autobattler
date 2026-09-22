@@ -19,8 +19,10 @@ from hearthstone.traces.replay import (
 
 ROOT = Path(__file__).resolve().parent.parent
 PROFILE_PATH = ROOT / "benchmarks/hsbg_content_profile_v7_fulltier.json"
+PROFILE_V8_PATH = ROOT / "benchmarks/hsbg_content_profile_v8_fulltier.json"
 ALIASES_PATH = ROOT / "benchmarks/live_card_aliases_v1.json"
 CONTRACT_PATH = ROOT / "benchmarks/hsbg_trace_overlap_contract_v1.json"
+CONTRACT_V2_PATH = ROOT / "benchmarks/hsbg_trace_overlap_contract_v2.json"
 
 
 def _entity(entity_id, card_id, controller, zone, position=None, **tags):
@@ -89,6 +91,20 @@ def test_overlap_contract_is_reproducible_and_hash_pinned() -> None:
     assert rebuilt["behavior_version"] == 7
     assert len(rebuilt["alias_registry"]["supported_live_aliases"]) == 81
     validate_overlap_contract(rebuilt, PROFILE_PATH, ALIASES_PATH)
+
+
+def test_behavior_v8_overlap_contract_is_reproducible() -> None:
+    profile = json.loads(PROFILE_V8_PATH.read_text())
+    aliases = json.loads(ALIASES_PATH.read_text())
+    rebuilt = build_overlap_contract(
+        profile,
+        aliases,
+        profile_sha256=sha256_file(PROFILE_V8_PATH),
+        aliases_sha256=sha256_file(ALIASES_PATH),
+    )
+    assert rebuilt == json.loads(CONTRACT_V2_PATH.read_text())
+    assert rebuilt["behavior_version"] == 8
+    validate_overlap_contract(rebuilt, PROFILE_V8_PATH, ALIASES_PATH)
 
 
 def test_overlap_contract_rejects_changed_dependency_hash(tmp_path) -> None:
@@ -180,6 +196,24 @@ def test_upgrade_transition_replays_tavern_tier() -> None:
     assert result["accepted"]
     assert result["simulator_before"]["tavern_tier"] == 1
     assert result["simulator_after"]["tavern_tier"] == 2
+
+
+def test_behavior_v8_upgrade_costs_preserve_behavior_v7(lobby_factory) -> None:
+    legacy = lobby_factory(max_tier=6, behavior_version=7)
+    corrected = lobby_factory(max_tier=6, behavior_version=8)
+    for game, expected_tier_five_cost, expected_tier_six_cost in (
+        (legacy, 9, 10),
+        (corrected, 11, 11),
+    ):
+        player = game.players[0]
+        player.gold = 100
+        player.tavern_tier = 3
+        player.up_cost = 0
+        assert game.tavern.upgrade_tavern(player)[0]
+        assert player.up_cost == expected_tier_five_cost
+        player.up_cost = 0
+        assert game.tavern.upgrade_tavern(player)[0]
+        assert player.up_cost == expected_tier_six_cost
 
 
 def test_unobserved_freeze_state_is_explicitly_excluded() -> None:

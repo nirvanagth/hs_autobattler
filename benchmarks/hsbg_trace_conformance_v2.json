@@ -1,0 +1,76 @@
+{
+  "comparison": {
+    "by_action": {
+      "BUY": {
+        "candidates": 1,
+        "evaluable": 1,
+        "exact": 1
+      },
+      "PLAY_CARD": {
+        "candidates": 1,
+        "evaluable": 1,
+        "exact": 1
+      },
+      "SELL": {
+        "candidates": 1,
+        "invariant_passed": 1
+      },
+      "UPGRADE": {
+        "candidates": 52,
+        "evaluable": 26,
+        "exact": 26,
+        "excluded": 26
+      }
+    },
+    "deterministic": {
+      "candidates": 54,
+      "compared_fields": 94,
+      "evaluable": 28,
+      "exact": 28,
+      "exact_transition_rate": 1.0,
+      "excluded": 26,
+      "field_agreement_rate": 1.0,
+      "matching_fields": 94,
+      "mismatched": 0
+    },
+    "examples": [],
+    "exclusion_reason_counts": {
+      "precondition:missing_trace_tavern_tier": 3,
+      "precondition:missing_trace_upgrade_cost": 3,
+      "trace_post_state_deferred": 23
+    },
+    "invariants": {
+      "candidates": 1,
+      "failed": 0,
+      "pass_rate": 1.0,
+      "passed": 1
+    },
+    "mismatch_categories": {},
+    "preconditions": {
+      "compared_fields": 140,
+      "field_agreement_rate": 1.0,
+      "matching_fields": 140
+    },
+    "replay_results": 55
+  },
+  "conformance_gate": {
+    "observed_field_agreement_rate": 1.0,
+    "status": "passed",
+    "target_field_agreement_rate": 0.995
+  },
+  "contract_sha256": "fb0b2ced90214ff223f4c20238e91f0400b3e753161754e46b07d3c54bbb1719",
+  "excluded_fields": [
+    "gold",
+    "hero_state",
+    "frozen_state",
+    "random_shop_identity_after_roll",
+    "unlogged_enchantments"
+  ],
+  "privacy": {
+    "entity_names_stored": false,
+    "raw_lines_stored": false,
+    "source_paths_stored": false
+  },
+  "replay_results_sha256": "14031f672e90d11571c036e4ec070fb64837e4b8929ee1de045b8fdd1106ced8",
+  "schema_version": 1
+}

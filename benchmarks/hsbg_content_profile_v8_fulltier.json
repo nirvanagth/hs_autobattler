@@ -1,0 +1,550 @@
+{
+  "behavior_version": 8,
+  "excluded_cards": [
+    {
+      "classification": "partial",
+      "id": "335",
+      "issues": [
+        "deathrattle_metadata_without_trigger"
+      ],
+      "symbol": "WAVELING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "401",
+      "issues": [],
+      "symbol": "ACCORD_O_TRON"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "402",
+      "issues": [],
+      "symbol": "BLADE_COLLECTOR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "404",
+      "issues": [],
+      "symbol": "DEVOUT_HELLCALLER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "405",
+      "issues": [],
+      "symbol": "EN_DJINN_BLAZER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "406",
+      "issues": [],
+      "symbol": "FRIENDLY_GEIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "407",
+      "issues": [],
+      "symbol": "GEOMAGUS_ROOGUG"
+    },
+    {
+      "classification": "partial",
+      "id": "409",
+      "issues": [
+        "unsupported_tags:STEALTH"
+      ],
+      "symbol": "HEROIC_UNDERDOG"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "410",
+      "issues": [],
+      "symbol": "HUMON_GOZZ"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "415",
+      "issues": [],
+      "symbol": "PROSTHETIC_HAND"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "419",
+      "issues": [],
+      "symbol": "SIN_DOREI_STRAIGHT_SHOT"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "420",
+      "issues": [],
+      "symbol": "SLY_RAPTOR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "423",
+      "issues": [],
+      "symbol": "TAVERN_TEMPEST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "428",
+      "issues": [],
+      "symbol": "GUNPOWDER_COURIER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "429",
+      "issues": [],
+      "symbol": "BREAM_COUNTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "435",
+      "issues": [],
+      "symbol": "TORTOLLAN_BLUE_SHELL"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "437",
+      "issues": [],
+      "symbol": "FLAMING_ENFORCER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "439",
+      "issues": [],
+      "symbol": "PERSISTENT_POET"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "440",
+      "issues": [],
+      "symbol": "AUTO_ASSEMBLER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "441",
+      "issues": [],
+      "symbol": "CAPTAIN_COOKIE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "442",
+      "issues": [],
+      "symbol": "CLUNKER_JUNKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "443",
+      "issues": [],
+      "symbol": "DEEPWATER_CHIEFTAIN"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "444",
+      "issues": [],
+      "symbol": "GLOWING_CINDER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "445",
+      "issues": [],
+      "symbol": "MOTLEY_PHALANX"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "446",
+      "issues": [],
+      "symbol": "ABYSSAL_BRUISER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "447",
+      "issues": [],
+      "symbol": "CAGEY_CONJURER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "448",
+      "issues": [],
+      "symbol": "RIMESCALE_PRIESTESS"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "449",
+      "issues": [],
+      "symbol": "SEAFLOOR_RECRUITER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "450",
+      "issues": [],
+      "symbol": "ZESTY_SHAKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "512",
+      "issues": [],
+      "symbol": "NOMI_KITCHEN_NIGHTMARE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "513",
+      "issues": [],
+      "symbol": "BILE_SPITTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "514",
+      "issues": [],
+      "symbol": "RAZORFEN_VINEWEAVER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "527",
+      "issues": [],
+      "symbol": "COUSIN_ERRGL"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "528",
+      "issues": [],
+      "symbol": "DANCING_BARNSTORMER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "529",
+      "issues": [],
+      "symbol": "DUAL_WIELD_CORSAIR"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "530",
+      "issues": [],
+      "symbol": "KANGORS_APPRENTICE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "531",
+      "issues": [],
+      "symbol": "SCRAP_SCRAPER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "532",
+      "issues": [],
+      "symbol": "VIGILANT_BRISTLEMANE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "533",
+      "issues": [],
+      "symbol": "VOID_PUP_TRAINER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "534",
+      "issues": [],
+      "symbol": "DARKCREST_STRATEGIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "535",
+      "issues": [],
+      "symbol": "GLOWSCALE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "536",
+      "issues": [],
+      "symbol": "SHOWY_CYCLIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "537",
+      "issues": [],
+      "symbol": "TRANQUIL_MEDITATIVE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "609",
+      "issues": [],
+      "symbol": "IGNITION_SPECIALIST"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "610",
+      "issues": [],
+      "symbol": "FAUNA_WHISPERER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "612",
+      "issues": [],
+      "symbol": "FIRE_FORGED_EVOKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "613",
+      "issues": [],
+      "symbol": "SANGUINE_REFINER"
+    },
+    {
+      "classification": "partial",
+      "id": "615",
+      "issues": [
+        "deathrattle_metadata_without_trigger"
+      ],
+      "symbol": "DEATHLY_STRIKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "620",
+      "issues": [],
+      "symbol": "PRIMITIVE_PAINTER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "621",
+      "issues": [],
+      "symbol": "MOAT_CUSTODIAN"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "622",
+      "issues": [],
+      "symbol": "UNLEASHED_MANA_SURGE"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "623",
+      "issues": [],
+      "symbol": "WARPWING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "624",
+      "issues": [],
+      "symbol": "GROUNDBREAKER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "625",
+      "issues": [],
+      "symbol": "TORRENTIAL_RUINER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "703",
+      "issues": [],
+      "symbol": "THE_LAST_ONE_STANDING"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "706",
+      "issues": [],
+      "symbol": "OBSIDIAN_RAVAGER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "707",
+      "issues": [],
+      "symbol": "STITCHED_SALVAGER"
+    },
+    {
+      "classification": "implemented_unverified",
+      "id": "709",
+      "issues": [],
+      "symbol": "SEA_WITCH_ZARJIRA"
+    }
+  ],
+  "excluded_spells": [],
+  "generated_card_ids": [
+    "t001",
+    "t002",
+    "t007",
+    "t008"
+  ],
+  "generated_spell_ids": [
+    "S001",
+    "S003",
+    "S004",
+    "S008",
+    "S009",
+    "S010",
+    "S013",
+    "S015",
+    "S999"
+  ],
+  "included_card_ids": [
+    "102",
+    "103",
+    "104",
+    "106",
+    "107",
+    "111",
+    "113",
+    "114",
+    "115",
+    "116",
+    "119",
+    "121",
+    "122",
+    "123",
+    "124",
+    "202",
+    "205",
+    "207",
+    "208",
+    "209",
+    "212",
+    "214",
+    "215",
+    "219",
+    "220",
+    "222",
+    "223",
+    "224",
+    "225",
+    "226",
+    "227",
+    "228",
+    "229",
+    "303",
+    "304",
+    "305",
+    "307",
+    "309",
+    "317",
+    "324",
+    "325",
+    "328",
+    "333",
+    "337",
+    "338",
+    "339",
+    "340",
+    "341",
+    "342",
+    "343",
+    "344",
+    "345",
+    "346",
+    "403",
+    "416",
+    "417",
+    "427",
+    "501",
+    "502",
+    "503",
+    "517",
+    "519",
+    "525",
+    "601",
+    "618",
+    "701",
+    "702",
+    "704",
+    "705",
+    "708",
+    "t001",
+    "t002",
+    "t007",
+    "t008"
+  ],
+  "included_spell_ids": [
+    "S001",
+    "S002",
+    "S004",
+    "S005",
+    "S006",
+    "S003",
+    "S008",
+    "S009",
+    "S010",
+    "S013",
+    "S015",
+    "S999"
+  ],
+  "max_tier": 6,
+  "next_tier_discovery_card_ids": [
+    "701",
+    "702",
+    "704",
+    "705",
+    "708"
+  ],
+  "pool_spell_ids": [
+    "S001",
+    "S002",
+    "S004",
+    "S005",
+    "S006"
+  ],
+  "schema_version": 1,
+  "shop_card_ids": [
+    "102",
+    "103",
+    "104",
+    "106",
+    "107",
+    "111",
+    "113",
+    "114",
+    "115",
+    "116",
+    "119",
+    "121",
+    "122",
+    "123",
+    "124",
+    "202",
+    "205",
+    "207",
+    "208",
+    "209",
+    "212",
+    "214",
+    "215",
+    "219",
+    "220",
+    "222",
+    "223",
+    "224",
+    "225",
+    "226",
+    "227",
+    "228",
+    "229",
+    "303",
+    "304",
+    "305",
+    "307",
+    "309",
+    "317",
+    "324",
+    "325",
+    "328",
+    "333",
+    "337",
+    "338",
+    "339",
+    "340",
+    "341",
+    "342",
+    "343",
+    "344",
+    "345",
+    "346",
+    "403",
+    "416",
+    "417",
+    "427",
+    "501",
+    "502",
+    "503",
+    "517",
+    "519",
+    "525",
+    "601",
+    "618"
+  ]
+}

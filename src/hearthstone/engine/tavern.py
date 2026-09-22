@@ -23,6 +23,7 @@ class TavernManager:
         event_manager: EventManager | None = None,
         *,
         emit_play_summon_event: bool = False,
+        upgrade_costs: dict[int, int] | None = None,
     ):
         self.pool = pool
         self.spell_pool = spell_pool
@@ -31,6 +32,9 @@ class TavernManager:
             TRIGGER_REGISTRY, GOLDEN_TRIGGER_REGISTRY
         )
         self.emit_play_summon_event = emit_play_summon_event
+        self.upgrade_costs = dict(
+            TIER_UPGRADE_COSTS if upgrade_costs is None else upgrade_costs
+        )
 
     def get_next_uid(self) -> int:
         self._uid_counter += 1
@@ -186,7 +190,7 @@ class TavernManager:
 
         player.tavern_tier += 1
 
-        next_cost = TIER_UPGRADE_COSTS.get(player.tavern_tier + 1, 0)
+        next_cost = self.upgrade_costs.get(player.tavern_tier + 1, 0)
         player.up_cost = next_cost
         hero_tavern_upgrade(player)
 

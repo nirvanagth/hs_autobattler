@@ -236,9 +236,16 @@ Classifier v3 excludes nested effect blocks formerly overcounted as actions.
 The frozen behavior-v7 overlap contract admits 55 conservative replay
 candidates; all 55 execute successfully and repeatably. Of 28 deterministic
 transitions with usable post-state evidence, 18 matched exactly and 10 exposed
-an upgrade-cost mismatch (89.36% field agreement). The mismatch, trace-boundary
-coverage, and remaining real-data volume still require work. See
+an upgrade-cost mismatch (89.36% field agreement). This baseline isolated the
+cost defect; trace-boundary coverage and remaining real-data volume still
+require work. See
 `docs/f3_trace_conformance.md`.
+
+Behavior v8 fixes the two high-tier base upgrade costs while preserving the v7
+contract. Replaying the identical frozen trace set raises deterministic
+agreement to 28/28 transitions and 94/94 fields; the RNG-invariant sell also
+passes. This clears the narrow agreement threshold, not the 10,000-action or
+coverage gates.
 
 ### F4. Content curriculum and policy transfer — PENDING
 

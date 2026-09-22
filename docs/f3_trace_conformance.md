@@ -1,7 +1,7 @@
 # F3 external trace conformance
 
 Date: 2026-09-22
-Status: overlap replay implemented; conformance comparison and more games required
+Status: overlap comparison passes on behavior v8; more coverage and games required
 
 ## Privacy boundary
 
@@ -147,14 +147,44 @@ These are categorized trace-boundary limitations, not matches. The report is
 `benchmarks/hsbg_trace_conformance_v1.json` (SHA-256
 `a15300fcd25d88b2907315bfda26bc4b38c9bed7cf15bc2372ae02243a1f308d`).
 
+## Behavior-v8 correction
+
+The mismatch was corrected in behavior v8 without changing the frozen v7
+contract: the base costs shown after upgrading to Tavern Tier 4 and Tier 5 are
+now 11 for the next Tier 5 and Tier 6 upgrades, rather than 9 and 10. Lower-tier
+costs are unchanged. The generated v8 full-tier profile is
+`benchmarks/hsbg_content_profile_v8_fulltier.json` (SHA-256
+`3676224966426c47ecbac019d41e1a6f7cc9a0aa6dc8c632ab78698f17db914f`).
+Its source audit is `benchmarks/hsbg_content_audit_v8.json` (SHA-256
+`1ce596fc1191ad3caae11ff32a416cb8d8ee1a5dda1d732a0092e62931f66b06`).
+
+The same trace inputs and selection policy were replayed under the v2 overlap
+contract (SHA-256
+`fb0b2ced90214ff223f4c20238e91f0400b3e753161754e46b07d3c54bbb1719`).
+All 28 evaluable deterministic transitions then matched exactly, with 94/94
+matching fields and 100% field agreement. The invariant-only sell also passed.
+The two full runs remained byte-identical. Evidence:
+
+- `benchmarks/hsbg_trace_replay_selection_v2.json`, SHA-256
+  `f7b5f38bba342fd82c446ec88bc7d69b5f59b255c3daf9fdcfb2009cf464d143`;
+- `benchmarks/hsbg_trace_conformance_v2.json`, SHA-256
+  `2efddc96afb7e2e383481f2f8591585fccd77488b6907500fffd3a6ac713a147`.
+
+This passes the 99.5% agreement threshold for the current narrow, evaluable
+overlap. It does not complete F3 because the 10,000-action volume gate and broad
+live-content coverage gate remain unmet.
+
+A 1,000-lobby behavior-v8 full-tier smoke test completed without invariant or
+lifecycle failures at 20.9 games/s and 25.98 average rounds. Every seat and all
+eight reference heroes recorded wins.
+
 ## Remaining gate
 
 - import at least 10,000 real recruit transitions across multiple games
   (currently 1,709; 8,291 remaining);
-- resolve the 10 reproducible upgrade-cost mismatches;
 - improve trace-boundary capture and supported-content coverage so more than
   28 deterministic transitions are evaluable;
-- reach at least 99.5% agreement on deterministic fields;
+- sustain at least 99.5% agreement as the evaluable set expands;
 - categorize every mismatch and either fix it or exclude it in a versioned
   benchmark contract.
 

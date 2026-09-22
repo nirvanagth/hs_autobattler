@@ -1,0 +1,598 @@
+{
+  "action_classifier_version": 3,
+  "action_policy": {
+    "BUY": {
+      "comparison_fields": [
+        "board",
+        "hand",
+        "shop"
+      ],
+      "comparison_mode": "deterministic",
+      "status": "replay"
+    },
+    "FREEZE": {
+      "reason": "freeze_state_unobserved",
+      "status": "exclude"
+    },
+    "HERO_POWER": {
+      "reason": "live_hero_roster_unsupported",
+      "status": "exclude"
+    },
+    "PLAY_CARD": {
+      "comparison_fields": [
+        "board",
+        "hand",
+        "shop"
+      ],
+      "comparison_mode": "deterministic",
+      "status": "replay"
+    },
+    "ROLL": {
+      "comparison_fields": [
+        "shop_size",
+        "shop_tier_bounds"
+      ],
+      "comparison_mode": "invariant_only",
+      "status": "replay"
+    },
+    "SELL": {
+      "comparison_fields": [
+        "board",
+        "hand"
+      ],
+      "comparison_mode": "deterministic",
+      "status": "replay"
+    },
+    "SPECIAL_ACTION": {
+      "reason": "special_action_semantics_unsupported",
+      "status": "exclude"
+    },
+    "UPGRADE": {
+      "comparison_fields": [
+        "tavern_tier",
+        "upgrade_cost"
+      ],
+      "comparison_mode": "deterministic",
+      "status": "replay"
+    }
+  },
+  "alias_registry": {
+    "sha256": "3edae9f46438e2a7e459a687b73e09179940ca9ab4483e0b188d1db88507190e",
+    "source_sha256": "079c41a102d386a289bcf2676815799967a8aa0aaeb6b0a5958c76bdd4a20ac3",
+    "supported_live_aliases": {
+      "BG20_100": {
+        "internal_id": "113",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG20_101": {
+        "internal_id": "309",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG20_104": {
+        "internal_id": "403",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG22_202": {
+        "internal_id": "214",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_000": {
+        "internal_id": "124",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_002": {
+        "internal_id": "202",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_004": {
+        "internal_id": "345",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_007": {
+        "internal_id": "346",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_009": {
+        "internal_id": "228",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_017": {
+        "internal_id": "704",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_318": {
+        "internal_id": "519",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG23_357": {
+        "internal_id": "215",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG24_500": {
+        "internal_id": "317",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG24_715": {
+        "internal_id": "224",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_001": {
+        "internal_id": "114",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_010": {
+        "internal_id": "307",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_011": {
+        "internal_id": "208",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_013": {
+        "internal_id": "116",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_034": {
+        "internal_id": "701",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG25_354": {
+        "internal_id": "502",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG26_174": {
+        "internal_id": "222",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG26_805": {
+        "internal_id": "207",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG26_ICC_901": {
+        "internal_id": "503",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG27_002": {
+        "internal_id": "209",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG27_002t": {
+        "internal_id": "S008",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG27_005": {
+        "internal_id": "333",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG28_168": {
+        "internal_id": "S013",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG28_300": {
+        "internal_id": "107",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG28_503": {
+        "internal_id": "S005",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG28_698": {
+        "internal_id": "S010",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG28_810": {
+        "internal_id": "S001",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG28_888": {
+        "internal_id": "S015",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG29_611": {
+        "internal_id": "103",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG29_810": {
+        "internal_id": "227",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG29_816": {
+        "internal_id": "328",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG30_125": {
+        "internal_id": "305",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_177": {
+        "internal_id": "205",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_330": {
+        "internal_id": "111",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_816": {
+        "internal_id": "219",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_818": {
+        "internal_id": "220",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_843": {
+        "internal_id": "341",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG31_924": {
+        "internal_id": "229",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_111": {
+        "internal_id": "618",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_170": {
+        "internal_id": "226",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_235": {
+        "internal_id": "223",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_236": {
+        "internal_id": "102",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_330": {
+        "internal_id": "106",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_820": {
+        "internal_id": "517",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG32_841": {
+        "internal_id": "344",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG33_140": {
+        "internal_id": "115",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG33_323": {
+        "internal_id": "339",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG33_886": {
+        "internal_id": "119",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_142": {
+        "internal_id": "525",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_145": {
+        "internal_id": "708",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_318": {
+        "internal_id": "705",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_319": {
+        "internal_id": "702",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_682": {
+        "internal_id": "416",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_683": {
+        "internal_id": "324",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_684": {
+        "internal_id": "427",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG34_689": {
+        "internal_id": "S009",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      },
+      "BG35_140": {
+        "internal_id": "340",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG35_141": {
+        "internal_id": "342",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG36_507": {
+        "internal_id": "338",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG36_509": {
+        "internal_id": "343",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG36_921": {
+        "internal_id": "123",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_004": {
+        "internal_id": "121",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_018": {
+        "internal_id": "601",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_071": {
+        "internal_id": "325",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_115": {
+        "internal_id": "212",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_115t": {
+        "internal_id": "t007",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_116": {
+        "internal_id": "417",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_119": {
+        "internal_id": "104",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_126": {
+        "internal_id": "337",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_127": {
+        "internal_id": "122",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BGS_131": {
+        "internal_id": "304",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG_BOT_312t": {
+        "internal_id": "t001",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG_BOT_911": {
+        "internal_id": "303",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG_ICC_026t": {
+        "internal_id": "t002",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG_LOE_077": {
+        "internal_id": "501",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "BG_TTN_401": {
+        "internal_id": "225",
+        "kind": "card",
+        "match": "exact_normalized_name_and_tier"
+      },
+      "EBG_Spell_014": {
+        "internal_id": "S004",
+        "kind": "spell",
+        "match": "exact_normalized_name"
+      }
+    }
+  },
+  "behavior_version": 8,
+  "content_profile": {
+    "internal_card_ids": [
+      "102",
+      "103",
+      "104",
+      "106",
+      "107",
+      "111",
+      "113",
+      "114",
+      "115",
+      "116",
+      "119",
+      "121",
+      "122",
+      "123",
+      "124",
+      "202",
+      "205",
+      "207",
+      "208",
+      "209",
+      "212",
+      "214",
+      "215",
+      "219",
+      "220",
+      "222",
+      "223",
+      "224",
+      "225",
+      "226",
+      "227",
+      "228",
+      "229",
+      "303",
+      "304",
+      "305",
+      "307",
+      "309",
+      "317",
+      "324",
+      "325",
+      "328",
+      "333",
+      "337",
+      "338",
+      "339",
+      "340",
+      "341",
+      "342",
+      "343",
+      "344",
+      "345",
+      "346",
+      "403",
+      "416",
+      "417",
+      "427",
+      "501",
+      "502",
+      "503",
+      "517",
+      "519",
+      "525",
+      "601",
+      "618",
+      "701",
+      "702",
+      "704",
+      "705",
+      "708",
+      "t001",
+      "t002",
+      "t007",
+      "t008"
+    ],
+    "internal_spell_ids": [
+      "S001",
+      "S002",
+      "S003",
+      "S004",
+      "S005",
+      "S006",
+      "S008",
+      "S009",
+      "S010",
+      "S013",
+      "S015",
+      "S999"
+    ],
+    "max_tier": 6,
+    "sha256": "3676224966426c47ecbac019d41e1a6f7cc9a0aa6dc8c632ab78698f17db914f"
+  },
+  "schema_version": 1,
+  "state_contract": {
+    "excluded_exact_fields": [
+      "gold",
+      "hero_state",
+      "frozen_state",
+      "random_shop_identity_after_roll",
+      "unlogged_enchantments"
+    ],
+    "hydrated_fields": [
+      "board",
+      "hand",
+      "shop",
+      "tavern_tier",
+      "upgrade_cost",
+      "visible_attack",
+      "visible_health",
+      "visible_damage"
+    ],
+    "rng_sensitive_internal_ids": [
+      "115",
+      "214",
+      "215",
+      "317",
+      "338",
+      "702"
+    ],
+    "synthetic_fields": [
+      "gold",
+      "hero_identity",
+      "rng_seed"
+    ]
+  }
+}

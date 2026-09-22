@@ -114,6 +114,8 @@ ROTATED_OUT = {
 
 TAVERN_SLOTS = {1: 3, 2: 4, 3: 4, 4: 5, 5: 5, 6: 6}
 TIER_UPGRADE_COSTS = {2: 5, 3: 7, 4: 8, 5: 9, 6: 10}
+# Behavior v8 live-conformance correction; v7 and older retain the legacy table.
+TIER_UPGRADE_COSTS_V8 = {2: 5, 3: 7, 4: 8, 5: 11, 6: 11}
 
 MECHANIC_DEFAULTS = {
     MechanicType.BLOOD_GEM: (1, 1),

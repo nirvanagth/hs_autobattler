@@ -1,4 +1,4 @@
-"""Conservative overlap selection and behavior-v7 trace replay."""
+"""Conservative overlap selection and versioned simulator trace replay."""
 
 from __future__ import annotations
 
@@ -154,8 +154,8 @@ def validate_overlap_contract(
         raise ValueError("unsupported overlap contract schema")
     if contract.get("action_classifier_version") != ACTION_CLASSIFIER_VERSION:
         raise ValueError("action classifier version does not match overlap contract")
-    if contract.get("behavior_version") != 7:
-        raise ValueError("trace replay requires behavior version 7")
+    if int(contract.get("behavior_version", 0)) < 7:
+        raise ValueError("trace replay requires behavior version 7 or newer")
     if sha256_file(profile_path) != contract["content_profile"]["sha256"]:
         raise ValueError("content profile hash does not match overlap contract")
     if sha256_file(aliases_path) != contract["alias_registry"]["sha256"]:
@@ -551,7 +551,7 @@ def _hydrate_game(
     try:
         game = Game(
             max_tier=int(profile["max_tier"]),
-            behavior_version=7,
+            behavior_version=int(contract["behavior_version"]),
             content_profile=profile,
         )
         included_cards = set(profile["included_card_ids"])

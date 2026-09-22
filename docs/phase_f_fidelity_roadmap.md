@@ -204,8 +204,16 @@ deterministic transitions with usable post-state boundaries, 18 were exact and
 10 disagreed only on upgrade cost, giving 89.36% field agreement. Twenty-three
 upgrade transitions had deferred log updates and three lacked complete
 preconditions, so they were excluded rather than counted as matches. The random
-sell passed its structural invariants. Upgrade costs must be corrected before
-the 99.5% gate can pass.
+sell passed its structural invariants. The cost mismatch prevented the 99.5%
+gate from passing and motivated the behavior-v8 correction below.
+
+Behavior v8 preserves the v7 costs for older contracts and changes only the
+post-upgrade Tier-5/Tier-6 base costs from 9/10 to the live-observed 11/11. On
+the same frozen trace set, all 28 evaluable deterministic transitions now match
+exactly (94/94 fields, 100%), and the invariant sell still passes. The narrow
+agreement threshold is satisfied, but F3 remains in progress because only
+1,709 real actions and 28 evaluable deterministic transitions are available. A
+1,000-lobby behavior-v8 full-tier smoke also passed at 20.9 games/s.
 
 Exact public-data aliasing resolved 239/257 internal IDs, but only 45.3% of
 ordinary live minion IDs and 8.5% of live spell IDs observed in the logs overlap

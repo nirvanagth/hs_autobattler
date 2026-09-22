@@ -13,6 +13,7 @@ from typing import Any
 
 from .card_def import GOLDEN_TRIGGER_REGISTRY, TRIGGER_REGISTRY
 from .combat import CombatManager
+from .configs import TIER_UPGRADE_COSTS, TIER_UPGRADE_COSTS_V8
 from .cpp_bridge import get_cpp_engine
 from .entities import Player, Unit
 from .enums import BattleOutcome
@@ -143,6 +144,7 @@ class LobbyGame:
             self.spell_pool,
             event_manager=self.event_manager,
             emit_play_summon_event=behavior_version >= 6,
+            upgrade_costs=(TIER_UPGRADE_COSTS_V8 if behavior_version >= 8 else TIER_UPGRADE_COSTS),
         )
         self.combat = CombatManager(event_manager=self.event_manager)
         self.players = [
