@@ -277,6 +277,13 @@ the tracked aggregate. The 10,000-action gate needs 6,863 more actions; live
 CardID aliases and replay remain. See `docs/f3_trace_conformance.md` and
 `benchmarks/hsbg_trace_import_partial_v2.json`.
 
+Exact HearthstoneJSON aliasing maps 239/257 internal content IDs, but the live
+logs contain a much broader patch: only 111/227 ordinary observed minion IDs
+(48.9%) and 10/116 spell IDs (8.6%) map into the simulator. Do not claim full
+live-patch conformance. Continue on a declared overlap subset while expanding
+content coverage. See `benchmarks/live_card_aliases_v1.json` and
+`benchmarks/hsbg_live_alias_coverage_partial_v1.json`.
+
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
 and normal public-policy checkpoint reload both passed. Deterministic

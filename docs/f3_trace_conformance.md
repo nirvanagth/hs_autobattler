@@ -59,6 +59,25 @@ privacy-safe evidence file is `benchmarks/hsbg_trace_import_partial_v2.json`
 Trace schema v2 SHA-256 is
 `202819c66a7e113a9f6e002f1dd57fc89d416f6177cae9d7ffd9238d9b620cda`.
 
+Public HearthstoneJSON data (source SHA-256
+`079c41a102d386a289bcf2676815799967a8aa0aaeb6b0a5958c76bdd4a20ac3`)
+was used for conservative aliases: exact normalized English name, matching tier
+for minions, non-golden BG entity, and a unique candidate. This resolved 239 of
+257 internal content IDs. No fuzzy match is accepted.
+
+External coverage remains the larger blocker. Of 227 ordinary live minion IDs
+observed in these logs, only 111 map to the simulator (48.9%). Of 116 observed
+spell IDs, only 10 map (8.6%). The tracked alias and coverage artifacts are:
+
+- `benchmarks/live_card_aliases_v1.json`, SHA-256
+  `3edae9f46438e2a7e459a687b73e09179940ca9ab4483e0b188d1db88507190e`;
+- `benchmarks/hsbg_live_alias_coverage_partial_v1.json`, SHA-256
+  `30f0ab2de6cb3d1193935bb841947bbf57178ae4e479f852dbc6614beb052db6`.
+
+This means 99.5% conformance can currently be measured only on an explicitly
+overlapping content subset. Whole-live-patch conformance requires substantially
+more card/spell coverage and must not be inferred from simulator self-play.
+
 ## Remaining gate
 
 - import at least 10,000 real recruit transitions across multiple games

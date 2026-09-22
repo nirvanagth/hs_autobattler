@@ -193,6 +193,12 @@ sessions and 3,137 sanitized recruit actions across 751 live CardIDs. The
 10,000-transition gate needs 6,863 more actions. See
 `docs/f3_trace_conformance.md`.
 
+Exact public-data aliasing resolved 239/257 internal IDs, but only 48.9% of
+ordinary live minion IDs and 8.6% of live spell IDs observed in the logs overlap
+the simulator. Whole-patch conformance is therefore out of scope until content
+coverage expands; overlap-subset conformance remains valid once enough actions
+are collected.
+
 ## F4. Content curriculum and policy transfer — PENDING
 
 Transfer `round3_s217` rather than training blindly from scratch:

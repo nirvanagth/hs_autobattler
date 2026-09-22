@@ -1,0 +1,1323 @@
+{
+  "aliases": {
+    "101": {
+      "kind": "card",
+      "live_card_id": "BG_GVG_085",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "102": {
+      "kind": "card",
+      "live_card_id": "BG32_236",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "103": {
+      "kind": "card",
+      "live_card_id": "BG29_611",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "104": {
+      "kind": "card",
+      "live_card_id": "BGS_119",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "105": {
+      "kind": "card",
+      "live_card_id": "BG31_815",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "106": {
+      "kind": "card",
+      "live_card_id": "BG32_330",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "107": {
+      "kind": "card",
+      "live_card_id": "BG28_300",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "108": {
+      "kind": "card",
+      "live_card_id": "BG26_800",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "109": {
+      "kind": "card",
+      "live_card_id": "BG34_230",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "110": {
+      "kind": "card",
+      "live_card_id": "BG29_814",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "111": {
+      "kind": "card",
+      "live_card_id": "BG31_330",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "112": {
+      "kind": "card",
+      "live_card_id": "BG24_009",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "113": {
+      "kind": "card",
+      "live_card_id": "BG20_100",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "114": {
+      "kind": "card",
+      "live_card_id": "BG25_001",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "115": {
+      "kind": "card",
+      "live_card_id": "BG33_140",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "116": {
+      "kind": "card",
+      "live_card_id": "BG25_013",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "117": {
+      "kind": "card",
+      "live_card_id": "BG27_004",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "118": {
+      "kind": "card",
+      "live_card_id": "BG22_401",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "119": {
+      "kind": "card",
+      "live_card_id": "BG33_886",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "120": {
+      "kind": "card",
+      "live_card_id": "BG34_630",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "121": {
+      "kind": "card",
+      "live_card_id": "BGS_004",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "122": {
+      "kind": "card",
+      "live_card_id": "BGS_127",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "123": {
+      "kind": "card",
+      "live_card_id": "BG36_921",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "124": {
+      "kind": "card",
+      "live_card_id": "BG23_000",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "201": {
+      "kind": "card",
+      "live_card_id": "BGS_049",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "202": {
+      "kind": "card",
+      "live_card_id": "BG23_002",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "203": {
+      "kind": "card",
+      "live_card_id": "BG19_010",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "204": {
+      "kind": "card",
+      "live_card_id": "BG26_159",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "205": {
+      "kind": "card",
+      "live_card_id": "BG31_177",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "206": {
+      "kind": "card",
+      "live_card_id": "BG27_028",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "207": {
+      "kind": "card",
+      "live_card_id": "BG26_805",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "208": {
+      "kind": "card",
+      "live_card_id": "BG25_011",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "209": {
+      "kind": "card",
+      "live_card_id": "BG27_002",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "210": {
+      "kind": "card",
+      "live_card_id": "BG20_203",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "211": {
+      "kind": "card",
+      "live_card_id": "BG21_008",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "212": {
+      "kind": "card",
+      "live_card_id": "BGS_115",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "213": {
+      "kind": "card",
+      "live_card_id": "BG33_241",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "214": {
+      "kind": "card",
+      "live_card_id": "BG22_202",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "215": {
+      "kind": "card",
+      "live_card_id": "BG23_357",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "216": {
+      "kind": "card",
+      "live_card_id": "BG34_691",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "217": {
+      "kind": "card",
+      "live_card_id": "BG34_681",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "218": {
+      "kind": "card",
+      "live_card_id": "BG34_697",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "219": {
+      "kind": "card",
+      "live_card_id": "BG31_816",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "220": {
+      "kind": "card",
+      "live_card_id": "BG31_818",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "221": {
+      "kind": "card",
+      "live_card_id": "BG29_990",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "222": {
+      "kind": "card",
+      "live_card_id": "BG26_174",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "223": {
+      "kind": "card",
+      "live_card_id": "BG32_235",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "224": {
+      "kind": "card",
+      "live_card_id": "BG24_715",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "225": {
+      "kind": "card",
+      "live_card_id": "BG_TTN_401",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "226": {
+      "kind": "card",
+      "live_card_id": "BG32_170",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "227": {
+      "kind": "card",
+      "live_card_id": "BG29_810",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "228": {
+      "kind": "card",
+      "live_card_id": "BG23_009",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "229": {
+      "kind": "card",
+      "live_card_id": "BG31_924",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "301": {
+      "kind": "card",
+      "live_card_id": "BG21_002",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "302": {
+      "kind": "card",
+      "live_card_id": "BG21_030",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "303": {
+      "kind": "card",
+      "live_card_id": "BG_BOT_911",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "304": {
+      "kind": "card",
+      "live_card_id": "BGS_131",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "305": {
+      "kind": "card",
+      "live_card_id": "BG30_125",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "306": {
+      "kind": "card",
+      "live_card_id": "BG21_017",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "307": {
+      "kind": "card",
+      "live_card_id": "BG25_010",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "308": {
+      "kind": "card",
+      "live_card_id": "BG33_315",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "309": {
+      "kind": "card",
+      "live_card_id": "BG20_101",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "310": {
+      "kind": "card",
+      "live_card_id": "BGS_066",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "311": {
+      "kind": "card",
+      "live_card_id": "BG21_037",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "312": {
+      "kind": "card",
+      "live_card_id": "BG33_896",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "313": {
+      "kind": "card",
+      "live_card_id": "BG33_895",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "314": {
+      "kind": "card",
+      "live_card_id": "BG29_809",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "315": {
+      "kind": "card",
+      "live_card_id": "BG25_041",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "316": {
+      "kind": "card",
+      "live_card_id": "BG26_160",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "317": {
+      "kind": "card",
+      "live_card_id": "BG24_500",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "318": {
+      "kind": "card",
+      "live_card_id": "BG34_312",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "319": {
+      "kind": "card",
+      "live_card_id": "BG33_894",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "320": {
+      "kind": "card",
+      "live_card_id": "BG25_005",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "321": {
+      "kind": "card",
+      "live_card_id": "BG25_007",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "322": {
+      "kind": "card",
+      "live_card_id": "BG34_325",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "323": {
+      "kind": "card",
+      "live_card_id": "BG26_350",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "324": {
+      "kind": "card",
+      "live_card_id": "BG34_683",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "325": {
+      "kind": "card",
+      "live_card_id": "BGS_071",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "326": {
+      "kind": "card",
+      "live_card_id": "BG25_032",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "327": {
+      "kind": "card",
+      "live_card_id": "BG34_641",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "328": {
+      "kind": "card",
+      "live_card_id": "BG29_816",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "329": {
+      "kind": "card",
+      "live_card_id": "BG26_360",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "330": {
+      "kind": "card",
+      "live_card_id": "BG31_875",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "331": {
+      "kind": "card",
+      "live_card_id": "BG31_859",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "332": {
+      "kind": "card",
+      "live_card_id": "BG27_025",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "333": {
+      "kind": "card",
+      "live_card_id": "BG27_005",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "334": {
+      "kind": "card",
+      "live_card_id": "BG26_815",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "335": {
+      "kind": "card",
+      "live_card_id": "BG34_856",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "336": {
+      "kind": "card",
+      "live_card_id": "BGDUO31_207",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "337": {
+      "kind": "card",
+      "live_card_id": "BGS_126",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "338": {
+      "kind": "card",
+      "live_card_id": "BG36_507",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "339": {
+      "kind": "card",
+      "live_card_id": "BG33_323",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "340": {
+      "kind": "card",
+      "live_card_id": "BG35_140",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "341": {
+      "kind": "card",
+      "live_card_id": "BG31_843",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "342": {
+      "kind": "card",
+      "live_card_id": "BG35_141",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "343": {
+      "kind": "card",
+      "live_card_id": "BG36_509",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "344": {
+      "kind": "card",
+      "live_card_id": "BG32_841",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "345": {
+      "kind": "card",
+      "live_card_id": "BG23_004",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "346": {
+      "kind": "card",
+      "live_card_id": "BG23_007",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "401": {
+      "kind": "card",
+      "live_card_id": "BG26_147",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "402": {
+      "kind": "card",
+      "live_card_id": "BG26_817",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "403": {
+      "kind": "card",
+      "live_card_id": "BG20_104",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "404": {
+      "kind": "card",
+      "live_card_id": "BG33_155",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "405": {
+      "kind": "card",
+      "live_card_id": "BG34_865",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "406": {
+      "kind": "card",
+      "live_card_id": "BG32_880",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "407": {
+      "kind": "card",
+      "live_card_id": "BG28_583",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "408": {
+      "kind": "card",
+      "live_card_id": "BG21_024",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "409": {
+      "kind": "card",
+      "live_card_id": "BG34_604",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "410": {
+      "kind": "card",
+      "live_card_id": "BG32_341",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "411": {
+      "kind": "card",
+      "live_card_id": "BG34_234",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "412": {
+      "kind": "card",
+      "live_card_id": "BGS_030",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "413": {
+      "kind": "card",
+      "live_card_id": "BG31_178",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "414": {
+      "kind": "card",
+      "live_card_id": "BG21_014",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "415": {
+      "kind": "card",
+      "live_card_id": "BG_DEEP_015",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "416": {
+      "kind": "card",
+      "live_card_id": "BG34_682",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "417": {
+      "kind": "card",
+      "live_card_id": "BGS_116",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "418": {
+      "kind": "card",
+      "live_card_id": "BG33_156",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "419": {
+      "kind": "card",
+      "live_card_id": "BG25_016",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "420": {
+      "kind": "card",
+      "live_card_id": "BG25_806",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "421": {
+      "kind": "card",
+      "live_card_id": "BG25_023",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "422": {
+      "kind": "card",
+      "live_card_id": "BG34_520",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "423": {
+      "kind": "card",
+      "live_card_id": "BGS_123",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "424": {
+      "kind": "card",
+      "live_card_id": "BG_DAL_775",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "425": {
+      "kind": "card",
+      "live_card_id": "BG30_109",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "426": {
+      "kind": "card",
+      "live_card_id": "BG21_038",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "427": {
+      "kind": "card",
+      "live_card_id": "BG34_684",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "428": {
+      "kind": "card",
+      "live_card_id": "BG26_810",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "429": {
+      "kind": "card",
+      "live_card_id": "BG26_137",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "430": {
+      "kind": "card",
+      "live_card_id": "BG27_024",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "431": {
+      "kind": "card",
+      "live_card_id": "BGS_078",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "432": {
+      "kind": "card",
+      "live_card_id": "BG34_521",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "433": {
+      "kind": "card",
+      "live_card_id": "BG26_801",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "434": {
+      "kind": "card",
+      "live_card_id": "BG34_930",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "435": {
+      "kind": "card",
+      "live_card_id": "BG24_018",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "436": {
+      "kind": "card",
+      "live_card_id": "BG29_807",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "437": {
+      "kind": "card",
+      "live_card_id": "BG34_500",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "438": {
+      "kind": "card",
+      "live_card_id": "BG31_812",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "439": {
+      "kind": "card",
+      "live_card_id": "BG29_813",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "440": {
+      "kind": "card",
+      "live_card_id": "BG32_172",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "441": {
+      "kind": "card",
+      "live_card_id": "BG36_760",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "442": {
+      "kind": "card",
+      "live_card_id": "BG29_503",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "443": {
+      "kind": "card",
+      "live_card_id": "BG35_143",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "444": {
+      "kind": "card",
+      "live_card_id": "BG32_842",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "445": {
+      "kind": "card",
+      "live_card_id": "BG27_080",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "446": {
+      "kind": "card",
+      "live_card_id": "BG35_921",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "447": {
+      "kind": "card",
+      "live_card_id": "BG36_508",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "448": {
+      "kind": "card",
+      "live_card_id": "BG33_319",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "449": {
+      "kind": "card",
+      "live_card_id": "BG34_925",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "450": {
+      "kind": "card",
+      "live_card_id": "BG26_505",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "501": {
+      "kind": "card",
+      "live_card_id": "BG_LOE_077",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "502": {
+      "kind": "card",
+      "live_card_id": "BG25_354",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "503": {
+      "kind": "card",
+      "live_card_id": "BG26_ICC_901",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "504": {
+      "kind": "card",
+      "live_card_id": "BGS_121",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "505": {
+      "kind": "card",
+      "live_card_id": "BG30_105",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "506": {
+      "kind": "card",
+      "live_card_id": "BG27_029",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "507": {
+      "kind": "card",
+      "live_card_id": "BG23_012",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "508": {
+      "kind": "card",
+      "live_card_id": "BG29_871",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "509": {
+      "kind": "card",
+      "live_card_id": "BG25_002",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "510": {
+      "kind": "card",
+      "live_card_id": "BG33_245",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "511": {
+      "kind": "card",
+      "live_card_id": "BG29_846",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "512": {
+      "kind": "card",
+      "live_card_id": "BGS_104",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "513": {
+      "kind": "card",
+      "live_card_id": "BG33_318",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "514": {
+      "kind": "card",
+      "live_card_id": "BG33_883",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "515": {
+      "kind": "card",
+      "live_card_id": "BG33_111",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "516": {
+      "kind": "card",
+      "live_card_id": "BG32_891",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "517": {
+      "kind": "card",
+      "live_card_id": "BG32_820",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "518": {
+      "kind": "card",
+      "live_card_id": "BG29_808",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "519": {
+      "kind": "card",
+      "live_card_id": "BG23_318",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "520": {
+      "kind": "card",
+      "live_card_id": "BG34_732",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "521": {
+      "kind": "card",
+      "live_card_id": "BG34_694",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "522": {
+      "kind": "card",
+      "live_card_id": "BG29_806",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "523": {
+      "kind": "card",
+      "live_card_id": "BG27_822",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "524": {
+      "kind": "card",
+      "live_card_id": "BG34_731",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "525": {
+      "kind": "card",
+      "live_card_id": "BG34_142",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "526": {
+      "kind": "card",
+      "live_card_id": "BG32_231",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "527": {
+      "kind": "card",
+      "live_card_id": "BG35_142",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "528": {
+      "kind": "card",
+      "live_card_id": "BG26_162",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "529": {
+      "kind": "card",
+      "live_card_id": "BG31_824",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "530": {
+      "kind": "card",
+      "live_card_id": "BGS_012",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "531": {
+      "kind": "card",
+      "live_card_id": "BG26_148",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "532": {
+      "kind": "card",
+      "live_card_id": "BG36_510",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "533": {
+      "kind": "card",
+      "live_card_id": "BG35_152",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "534": {
+      "kind": "card",
+      "live_card_id": "BG31_920",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "535": {
+      "kind": "card",
+      "live_card_id": "BG23_008",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "536": {
+      "kind": "card",
+      "live_card_id": "BG31_925",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "537": {
+      "kind": "card",
+      "live_card_id": "BG32_835",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "601": {
+      "kind": "card",
+      "live_card_id": "BGS_018",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "602": {
+      "kind": "card",
+      "live_card_id": "BG20_303",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "603": {
+      "kind": "card",
+      "live_card_id": "BG27_083",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "604": {
+      "kind": "card",
+      "live_card_id": "BG33_154",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "605": {
+      "kind": "card",
+      "live_card_id": "BG21_005",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "606": {
+      "kind": "card",
+      "live_card_id": "BG33_828",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "607": {
+      "kind": "card",
+      "live_card_id": "BG33_337",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "608": {
+      "kind": "card",
+      "live_card_id": "BG31_810",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "609": {
+      "kind": "card",
+      "live_card_id": "BG28_595",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "610": {
+      "kind": "card",
+      "live_card_id": "BG32_837",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "611": {
+      "kind": "card",
+      "live_card_id": "BG22_403",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "612": {
+      "kind": "card",
+      "live_card_id": "BG32_822",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "613": {
+      "kind": "card",
+      "live_card_id": "BG33_885",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "614": {
+      "kind": "card",
+      "live_card_id": "BG33_884",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "615": {
+      "kind": "card",
+      "live_card_id": "BG31_835",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "616": {
+      "kind": "card",
+      "live_card_id": "BG28_635",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "617": {
+      "kind": "card",
+      "live_card_id": "BG34_651",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "618": {
+      "kind": "card",
+      "live_card_id": "BG32_111",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "619": {
+      "kind": "card",
+      "live_card_id": "BG33_923",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "620": {
+      "kind": "card",
+      "live_card_id": "BG33_893",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "621": {
+      "kind": "card",
+      "live_card_id": "BG36_351",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "622": {
+      "kind": "card",
+      "live_card_id": "BG32_846",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "623": {
+      "kind": "card",
+      "live_card_id": "BG24_004",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "624": {
+      "kind": "card",
+      "live_card_id": "BG31_035",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "625": {
+      "kind": "card",
+      "live_card_id": "BG36_622",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "701": {
+      "kind": "card",
+      "live_card_id": "BG25_034",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "702": {
+      "kind": "card",
+      "live_card_id": "BG34_319",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "703": {
+      "kind": "card",
+      "live_card_id": "BG34_320",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "704": {
+      "kind": "card",
+      "live_card_id": "BG23_017",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "705": {
+      "kind": "card",
+      "live_card_id": "BG34_318",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "706": {
+      "kind": "card",
+      "live_card_id": "BG27_017",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "707": {
+      "kind": "card",
+      "live_card_id": "BG31_999",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "708": {
+      "kind": "card",
+      "live_card_id": "BG34_145",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "709": {
+      "kind": "card",
+      "live_card_id": "BG27_514",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "S001": {
+      "kind": "spell",
+      "live_card_id": "BG28_810",
+      "match": "exact_normalized_name"
+    },
+    "S004": {
+      "kind": "spell",
+      "live_card_id": "EBG_Spell_014",
+      "match": "exact_normalized_name"
+    },
+    "S005": {
+      "kind": "spell",
+      "live_card_id": "BG28_503",
+      "match": "exact_normalized_name"
+    },
+    "S008": {
+      "kind": "spell",
+      "live_card_id": "BG27_002t",
+      "match": "exact_normalized_name"
+    },
+    "S009": {
+      "kind": "spell",
+      "live_card_id": "BG34_689",
+      "match": "exact_normalized_name"
+    },
+    "S010": {
+      "kind": "spell",
+      "live_card_id": "BG28_698",
+      "match": "exact_normalized_name"
+    },
+    "S012": {
+      "kind": "spell",
+      "live_card_id": "BG28_886",
+      "match": "exact_normalized_name"
+    },
+    "S013": {
+      "kind": "spell",
+      "live_card_id": "BG28_168",
+      "match": "exact_normalized_name"
+    },
+    "S014": {
+      "kind": "spell",
+      "live_card_id": "BG33_899",
+      "match": "exact_normalized_name"
+    },
+    "S015": {
+      "kind": "spell",
+      "live_card_id": "BG28_888",
+      "match": "exact_normalized_name"
+    },
+    "S016": {
+      "kind": "spell",
+      "live_card_id": "BG34_888",
+      "match": "exact_normalized_name"
+    },
+    "S017": {
+      "kind": "spell",
+      "live_card_id": "BG28_518",
+      "match": "exact_normalized_name"
+    },
+    "S018": {
+      "kind": "spell",
+      "live_card_id": "BG35_149",
+      "match": "exact_normalized_name"
+    },
+    "t001": {
+      "kind": "card",
+      "live_card_id": "BG_BOT_312t",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "t002": {
+      "kind": "card",
+      "live_card_id": "BG_ICC_026t",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "t003": {
+      "kind": "card",
+      "live_card_id": "BG26_800t",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "t004": {
+      "kind": "card",
+      "live_card_id": "BG34_630t",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "t005": {
+      "kind": "card",
+      "live_card_id": "BG27_004t2",
+      "match": "exact_normalized_name_and_tier"
+    },
+    "t007": {
+      "kind": "card",
+      "live_card_id": "BGS_115t",
+      "match": "exact_normalized_name_and_tier"
+    }
+  },
+  "schema_version": 1,
+  "source_sha256": "079c41a102d386a289bcf2676815799967a8aa0aaeb6b0a5958c76bdd4a20ac3",
+  "unresolved": {
+    "S002": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Banana",
+      "reason": "no_unique_exact_match"
+    },
+    "S003": {
+      "candidate_live_card_ids": [
+        "BG20_GEM",
+        "BG20_GEM_DivineShield",
+        "BG20_GEM_Reborn",
+        "BG20_GEM_Taunt"
+      ],
+      "kind": "spell",
+      "name": "Blood Gem",
+      "reason": "no_unique_exact_match"
+    },
+    "S006": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Apple",
+      "reason": "no_unique_exact_match"
+    },
+    "S007": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Surf Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S011": {
+      "candidate_live_card_ids": [
+        "BG33_112",
+        "BG33_112t"
+      ],
+      "kind": "spell",
+      "name": "Haunted Carapace",
+      "reason": "no_unique_exact_match"
+    },
+    "S019": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Mini-Myrmidon Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S020": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Thaumaturgist Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S021": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Deep-Sea Angler Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S022": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Waverider Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S023": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Rimescale Priestess Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S024": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Darkcrest Strategist Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S025": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Glowscale Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S026": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Tranquil Meditative Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S027": {
+      "candidate_live_card_ids": [],
+      "kind": "spell",
+      "name": "Sea Witch Spellcraft",
+      "reason": "no_unique_exact_match"
+    },
+    "S999": {
+      "candidate_live_card_ids": [
+        "BG27_Anomaly_101t",
+        "BG27_Anomaly_755t",
+        "TB_BaconShop_Triples_01"
+      ],
+      "kind": "spell",
+      "name": "Triple Reward",
+      "reason": "no_unique_exact_match"
+    },
+    "t006": {
+      "candidate_live_card_ids": [],
+      "kind": "card",
+      "name": "Turtle",
+      "reason": "no_unique_exact_match"
+    },
+    "t008": {
+      "candidate_live_card_ids": [],
+      "kind": "card",
+      "name": "Hand",
+      "reason": "no_unique_exact_match"
+    },
+    "t009": {
+      "candidate_live_card_ids": [],
+      "kind": "card",
+      "name": "Golem",
+      "reason": "no_unique_exact_match"
+    }
+  }
+}
