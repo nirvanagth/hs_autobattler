@@ -166,7 +166,7 @@ placement spread 0.909, win-rate spread 3.525 points, and extreme pairwise
 score 60.525% / 39.475%. See `docs/f2_hero_system.md` and
 `benchmarks/hsbg_8p_heroes_v1.json`.
 
-## F3. External trace conformance — NEXT, DATA-DEPENDENT
+## F3. External trace conformance — IN PROGRESS, REAL DATA REQUIRED
 
 Add a versioned importer for user-provided Power.log/replay traces. Separate
 parsing, state reconstruction, and simulator comparison so private data never
@@ -184,6 +184,13 @@ Gate:
 
 If suitable traces are unavailable, F3 is deferred explicitly; it must not be
 replaced by self-play evidence from the same simulator.
+
+Progress: the privacy-safe Power.log parser, versioned event schema, action
+transition reconstructor, simulator normalizer, field-level comparator, and
+aggregate conformance reporter are implemented. Synthetic fixtures prove
+determinism and redaction. No real Power.log was found at standard local paths,
+so the 10,000-transition external gate remains pending. See
+`docs/f3_trace_conformance.md`.
 
 ## F4. Content curriculum and policy transfer — PENDING
 

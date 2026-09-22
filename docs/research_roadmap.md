@@ -226,10 +226,15 @@ schema v2, and active/passive/target/cooldown/once mechanics are implemented.
 A 4,000-lobby rotating-seat matrix passed the balance gate. See
 `docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
 
-### F3. External trace conformance — NEXT, DATA-DEPENDENT
+### F3. External trace conformance — IN PROGRESS, REAL DATA REQUIRED
 
 Gate: 10,000+ real recruit transitions with at least 99.5% agreement on
 deterministic state fields.
+
+Progress: privacy-safe parsing, transition reconstruction, simulator state
+normalization, mismatch classification, and synthetic round-trip tests are
+complete. The real-data gate awaits user-provided Power.log/replay traces. See
+`docs/f3_trace_conformance.md`.
 
 ### F4. Content curriculum and policy transfer — PENDING
 

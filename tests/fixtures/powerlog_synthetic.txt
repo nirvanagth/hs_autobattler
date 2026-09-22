@@ -1,0 +1,14 @@
+D 12:00:00.000 GameState.DebugPrintPower() - CREATE_GAME
+D 12:00:00.001 GameState.DebugPrintPower() - FULL_ENTITY - Creating ID=1 CardID=
+D 12:00:00.002 GameState.DebugPrintPower() -     tag=PLAYER_ID value=1
+D 12:00:00.003 GameState.DebugPrintPower() - FULL_ENTITY - Creating ID=10 CardID=BG_TEST_MINION
+D 12:00:00.004 GameState.DebugPrintPower() -     tag=CONTROLLER value=1
+D 12:00:00.005 GameState.DebugPrintPower() -     tag=ZONE value=HAND
+D 12:00:00.006 GameState.DebugPrintPower() -     tag=ZONE_POSITION value=1
+D 12:00:00.007 GameState.DebugPrintPower() -     tag=ATK value=3
+D 12:00:00.008 GameState.DebugPrintPower() -     tag=HEALTH value=4
+D 12:00:00.009 GameState.DebugPrintPower() - BLOCK_START BlockType=PLAY Entity=[entityName=Private Player Name id=10 zone=HAND zonePos=1 cardId=BG_TEST_MINION player=1] EffectCardId=
+D 12:00:00.010 GameState.DebugPrintPower() - TAG_CHANGE Entity=[entityName=Private Player Name id=10 zone=HAND zonePos=1 cardId=BG_TEST_MINION player=1] tag=ZONE value=PLAY
+D 12:00:00.011 GameState.DebugPrintPower() - TAG_CHANGE Entity=[entityName=Private Player Name id=10 zone=PLAY zonePos=1 cardId=BG_TEST_MINION player=1] tag=ATK value=5
+D 12:00:00.012 GameState.DebugPrintPower() - TAG_CHANGE Entity=[entityName=Private Player Name id=10 zone=PLAY zonePos=1 cardId=BG_TEST_MINION player=1] tag=SECRET_ACCOUNT value=Account#1234
+D 12:00:00.013 GameState.DebugPrintPower() - BLOCK_END

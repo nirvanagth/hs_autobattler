@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "parser_version": 1,
+  "event_fields": [
+    "sequence",
+    "event_type",
+    "entity_id",
+    "card_id",
+    "tag",
+    "value",
+    "block_type",
+    "block_depth"
+  ],
+  "event_types": [
+    "create_game",
+    "full_entity",
+    "show_entity",
+    "change_entity",
+    "entity_tag",
+    "tag_change",
+    "block_start",
+    "block_end"
+  ],
+  "allowed_tags": [
+    "ARMOR",
+    "ATK",
+    "BACON_HERO_CAN_BE_DRAFTED",
+    "BACON_HERO_POWER_ACTIVATED",
+    "CARDTYPE",
+    "CONTROLLER",
+    "COST",
+    "DAMAGE",
+    "HEALTH",
+    "NUM_TURNS_IN_PLAY",
+    "PLAYER_ID",
+    "TECH_LEVEL",
+    "TURN",
+    "ZONE",
+    "ZONE_POSITION"
+  ],
+  "privacy_invariants": {
+    "raw_lines_stored": false,
+    "entity_names_stored": false,
+    "source_paths_stored": false,
+    "unknown_tag_values_stored": false
+  },
+  "transition_boundary": "outermost BLOCK_START to matching BLOCK_END",
+  "deterministic_comparison_tags": [
+    "ARMOR",
+    "ATK",
+    "CONTROLLER",
+    "COST",
+    "DAMAGE",
+    "HEALTH",
+    "PLAYER_ID",
+    "TECH_LEVEL",
+    "TURN",
+    "ZONE",
+    "ZONE_POSITION"
+  ]
+}

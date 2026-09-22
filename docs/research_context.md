@@ -203,9 +203,10 @@ S1 progress:
 
 Next extension/execution target:
 
-- define the private, versioned Power.log/replay ingestion format;
-- implement deterministic state reconstruction and mismatch categorization;
-- collect or request real traces before making live-game fidelity claims.
+- obtain a private Power.log absolute path from the user;
+- import at least 10,000 sanitized recruit transitions;
+- add live-to-internal CardID aliases found in the trace;
+- replay supported actions and resolve mismatch categories to 99.5% agreement.
 
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
@@ -269,6 +270,11 @@ Observation/action schema v2 is 2,984×35. A 4,000-lobby rotating-seat matrix
 gave 3.995--4.904 mean placements, 11.03%--14.55% win rates, and pairwise
 extremes of 60.525% / 39.475%, within the declared gate. See
 `docs/f2_hero_system.md` and `benchmarks/hsbg_8p_heroes_v1.json`.
+
+F3 tooling is complete but the real-data gate is pending. The Power.log parser,
+allowlisted privacy schema, transition reconstructor, simulator normalizer, and
+conformance reporter pass synthetic redaction/determinism tests. Standard local
+macOS log paths contained no Power.log. See `docs/f3_trace_conformance.md`.
 
 M1 progress: the centralized critic and combat outcome/damage auxiliary heads
 are implemented with explicit actor-leakage tests. A 128-step training smoke
