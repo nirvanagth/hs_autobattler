@@ -46,6 +46,28 @@ PYTHONPATH=src:cpp/build:. .venv/bin/python scripts/import_power_log.py \
   --out-dir artifacts/trace_f3/session_name
 ```
 
+## Live capture
+
+`scripts/watch_power_logs.py` follows the newest Power.log and writes only
+allowlisted, sanitized events under `artifacts/trace_f3/live_capture/`. It never
+copies raw lines or stores the source path. On log rotation, truncation,
+SIGTERM, or Ctrl-C it reconstructs transitions and finalizes the capture. A
+capturing directory can also be recovered after interruption from its sanitized
+`events.jsonl` alone.
+
+```bash
+.venv/bin/python scripts/watch_power_logs.py \
+  --log-root /Applications/Hearthstone/Logs \
+  --out-root artifacts/trace_f3/live_capture \
+  --pid-file artifacts/trace_f3/live_collector.pid \
+  --poll-seconds 2
+```
+
+The collector was live-smoked against an actively growing log: it preserved
+12,990 sanitized events and finalized 50 correctly classified recruit actions.
+Partial-line parsing, log truncation handling, privacy, finalization, and
+interrupted-capture recovery have automated tests.
+
 ## Real import progress
 
 Eight local Power.log files (about 348 MB raw) were found and imported without

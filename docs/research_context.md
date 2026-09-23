@@ -209,6 +209,11 @@ Next extension/execution target:
 - expand exact aliases/content support where exclusions provide the highest
   replay-coverage gain.
 
+An incremental privacy-safe collector now protects future data from
+Power.log rotation. It stores only allowlisted events, finalizes transitions on
+rotation or shutdown, and can recover interrupted sanitized captures. Keep it
+running while playing; no raw log is copied into the repository.
+
 Phase F decision: prioritize simulator fidelity and held-out configuration
 generalization over further model tuning. The eight-player benchmark currently
 activates only Tier 1--3 despite definitions spanning Tier 1--7, and there is no

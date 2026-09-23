@@ -5,6 +5,7 @@ from pathlib import Path
 
 from hearthstone.traces.conformance import compare_states, compare_transition_streams
 from hearthstone.traces.powerlog import (
+    PowerLogStreamParser,
     event_json,
     battlegrounds_session_ids,
     load_power_log,
@@ -93,6 +94,17 @@ def test_parser_is_deterministic() -> None:
     first = [event_json(event) for event in load_power_log(FIXTURE).events]
     second = [event_json(event) for event in load_power_log(FIXTURE).events]
     assert first == second
+
+
+def test_stream_parser_preserves_state_across_batches() -> None:
+    lines = FIXTURE.read_text().splitlines(keepends=True)
+    parser = PowerLogStreamParser()
+    streamed = parser.feed(lines[:5]) + parser.feed(lines[5:])
+    batch = load_power_log(FIXTURE)
+    assert streamed == batch.events
+    assert parser.total_lines == batch.total_lines
+    assert parser.ignored_lines == batch.ignored_lines
+    assert parser.ignored_tag_counts == batch.ignored_tag_counts
 
 
 def test_create_game_resets_state_between_sessions() -> None:

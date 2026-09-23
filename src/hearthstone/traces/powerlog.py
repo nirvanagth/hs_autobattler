@@ -110,20 +110,27 @@ def _safe_value(value: str) -> str | int | None:
     return value if _SAFE_TOKEN.fullmatch(value) else None
 
 
-def parse_power_log(lines: Iterable[str]) -> ParseResult:
-    result = ParseResult()
-    current_entity: int | None = None
-    block_stack: list[str] = []
-    session_index = -1
-    for line in lines:
-        result.total_lines += 1
+class PowerLogStreamParser:
+    """Stateful line parser used by both batch imports and live capture."""
+
+    def __init__(self) -> None:
+        self.current_entity: int | None = None
+        self.block_stack: list[str] = []
+        self.session_index = -1
+        self.sequence = 0
+        self.total_lines = 0
+        self.ignored_lines = 0
+        self.ignored_tag_counts: Counter[str] = Counter()
+
+    def feed_line(self, line: str) -> TraceEvent | None:
+        self.total_lines += 1
         text = _payload(line)
         event: TraceEvent | None = None
         if "CREATE_GAME" in text:
-            session_index += 1
-            block_stack.clear()
-            current_entity = None
-            event = TraceEvent(len(result.events), session_index, "create_game", block_depth=0)
+            self.session_index += 1
+            self.block_stack.clear()
+            self.current_entity = None
+            event = TraceEvent(self.sequence, self.session_index, "create_game", block_depth=0)
         elif "FULL_ENTITY" in text or "SHOW_ENTITY" in text or "CHANGE_ENTITY" in text:
             event_name = (
                 "full_entity"
@@ -133,14 +140,14 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
             entity_id = _entity_id(text)
             card_match = re.search(r"\bCardID=([^\s\]]*)", text, re.IGNORECASE)
             card_id = _safe_card_id(card_match.group(1)) if card_match else None
-            current_entity = entity_id
+            self.current_entity = entity_id
             event = TraceEvent(
-                len(result.events),
-                session_index,
+                self.sequence,
+                self.session_index,
                 event_name,
                 entity_id=entity_id,
                 card_id=card_id,
-                block_depth=len(block_stack),
+                block_depth=len(self.block_stack),
             )
         elif "TAG_CHANGE" in text:
             tag_match = re.search(r"\btag=([A-Z0-9_]+)\s+value=(.+)$", text)
@@ -149,60 +156,74 @@ def parse_power_log(lines: Iterable[str]) -> ParseResult:
                 tag = tag_match.group(1)
                 if tag in ALLOWED_TAGS:
                     event = TraceEvent(
-                        len(result.events),
-                        session_index,
+                        self.sequence,
+                        self.session_index,
                         "tag_change",
                         entity_id=_entity_id(entity_text),
                         tag=tag,
                         value=_safe_value(tag_match.group(2)),
-                        block_depth=len(block_stack),
+                        block_depth=len(self.block_stack),
                     )
                 else:
-                    result.ignored_tag_counts[tag] += 1
-        elif text.startswith("tag=") and current_entity is not None:
+                    self.ignored_tag_counts[tag] += 1
+        elif text.startswith("tag=") and self.current_entity is not None:
             tag_match = re.match(r"tag=([A-Z0-9_]+)\s+value=(.+)$", text)
             if tag_match:
                 tag = tag_match.group(1)
                 if tag in ALLOWED_TAGS:
                     event = TraceEvent(
-                        len(result.events),
-                        session_index,
+                        self.sequence,
+                        self.session_index,
                         "entity_tag",
-                        entity_id=current_entity,
+                        entity_id=self.current_entity,
                         tag=tag,
                         value=_safe_value(tag_match.group(2)),
-                        block_depth=len(block_stack),
+                        block_depth=len(self.block_stack),
                     )
                 else:
-                    result.ignored_tag_counts[tag] += 1
+                    self.ignored_tag_counts[tag] += 1
         elif "BLOCK_START" in text:
             block_match = re.search(r"\bBlockType=([A-Z_]+)", text)
             block_type = block_match.group(1) if block_match else "UNKNOWN"
             card_match = re.search(r"\bcardId=([^\s\]]*)", text, re.IGNORECASE)
             event = TraceEvent(
-                len(result.events),
-                session_index,
+                self.sequence,
+                self.session_index,
                 "block_start",
                 entity_id=_entity_id(text.split("Entity=", 1)[-1]),
                 card_id=_safe_card_id(card_match.group(1)) if card_match else None,
                 block_type=block_type,
-                block_depth=len(block_stack),
+                block_depth=len(self.block_stack),
             )
-            block_stack.append(block_type)
+            self.block_stack.append(block_type)
         elif "BLOCK_END" in text:
-            block_type = block_stack.pop() if block_stack else "UNKNOWN"
+            block_type = self.block_stack.pop() if self.block_stack else "UNKNOWN"
             event = TraceEvent(
-                len(result.events),
-                session_index,
+                self.sequence,
+                self.session_index,
                 "block_end",
                 block_type=block_type,
-                block_depth=len(block_stack),
+                block_depth=len(self.block_stack),
             )
         if event is not None:
-            result.events.append(event)
-        else:
-            result.ignored_lines += 1
-    return result
+            self.sequence += 1
+            return event
+        self.ignored_lines += 1
+        return None
+
+    def feed(self, lines: Iterable[str]) -> list[TraceEvent]:
+        return [event for line in lines if (event := self.feed_line(line)) is not None]
+
+
+def parse_power_log(lines: Iterable[str]) -> ParseResult:
+    parser = PowerLogStreamParser()
+    events = parser.feed(lines)
+    return ParseResult(
+        events=events,
+        total_lines=parser.total_lines,
+        ignored_lines=parser.ignored_lines,
+        ignored_tag_counts=parser.ignored_tag_counts,
+    )
 
 
 def event_json(event: TraceEvent) -> str:
